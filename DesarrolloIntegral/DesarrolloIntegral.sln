@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesarrolloIntegral.WEB", "D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesarrolloIntegral.Shared", "DesarrolloIntegral.Shared\DesarrolloIntegral.Shared.csproj", "{9776A1FB-91D1-4571-8A55-AC0362F5B0CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesarrolloIntegral.MAUI", "DesarrolloIntegral.MAUI\DesarrolloIntegral.MAUI.csproj", "{88D00EC9-BAB7-4DF5-ABFA-7DBE4F620C41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesarrolloIntegral.MAUI", "DesarrolloIntegral.MAUI\DesarrolloIntegral.MAUI.csproj", "{88D00EC9-BAB7-4DF5-ABFA-7DBE4F620C41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
