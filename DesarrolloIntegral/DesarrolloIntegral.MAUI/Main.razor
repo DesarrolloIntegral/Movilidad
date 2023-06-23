@@ -1,7 +1,9 @@
 ﻿<Router AppAssembly="@typeof(Main).Assembly" AdditionalAssemblies="new[] {typeof(Shared.MainLayout).Assembly}">
 	<Found Context="routeData">
-		<RouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+		<CascadingValue Value="@ruta">
+			<RouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.MainLayout)" />
+			<FocusOnNavigate RouteData="@routeData" Selector="h1" />
+		</CascadingValue>
 	</Found>
 	<NotFound>
 		<LayoutView Layout="@typeof(Shared.MainLayout)">
@@ -9,3 +11,37 @@
 		</LayoutView>
 	</NotFound>
 </Router>
+
+@code
+{
+	public static string plat = DeviceInfo.Platform.ToString();
+	public string ruta = Ruta(plat);
+
+	public static string Ruta(string plat)
+	{
+		string path = string.Empty;
+		if(plat == "WinUI")
+		{
+			path = Path.Combine(System.Environment.GetFolderPath
+			(System.Environment.SpecialFolder.MyDocuments));
+
+			string dir = Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				@"WeatherForecasts.db");
+
+			path = dir;
+		}
+		if (plat == "Android")
+		{
+			string dir = Path.Combine(System.Environment.GetFolderPath
+			(System.Environment.SpecialFolder.MyDocuments));
+
+			dir = Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				@"WeatherForecasts.db");
+
+			path = dir;
+		}
+		return path;
+	}
+}

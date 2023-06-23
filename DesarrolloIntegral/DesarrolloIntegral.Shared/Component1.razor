@@ -1,5 +1,11 @@
-﻿@page "/component1"
+﻿@page "/component1/{datos}"
 
 <div class="my-component">
-    This component is defined in the <strong>DesarrolloIntegral.Shared</strong> library.
+    This component is defined in the <strong>@Datos</strong> library.
 </div>
+
+@code{
+    [Parameter]
+    public string Datos { get; set; } = null!;
+}
+    

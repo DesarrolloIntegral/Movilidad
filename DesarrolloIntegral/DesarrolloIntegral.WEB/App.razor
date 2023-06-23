@@ -1,7 +1,9 @@
 ﻿<Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="new[] {typeof(Shared.MainLayout).Assembly}">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        <CascadingValue Value="@ruta">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </CascadingValue>
     </Found>
     <NotFound>
         <PageTitle>Not found</PageTitle>
@@ -10,3 +12,8 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code
+{
+    public string ruta = "se graba en sqlserver";
+}
