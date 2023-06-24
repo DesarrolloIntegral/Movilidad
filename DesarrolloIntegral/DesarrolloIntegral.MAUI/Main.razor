@@ -1,8 +1,10 @@
 ﻿<Router AppAssembly="@typeof(Main).Assembly" AdditionalAssemblies="new[] {typeof(Shared.MainLayout).Assembly}">
 	<Found Context="routeData">
-		<CascadingValue Value="@ruta">
-			<RouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.MainLayout)" />
-			<FocusOnNavigate RouteData="@routeData" Selector="h1" />
+		<CascadingValue Value="@Ruta">
+			<CascadingValue Value="@Tipo">
+				<RouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.MainLayout)" />
+				<FocusOnNavigate RouteData="@routeData" Selector="h1" />
+			</CascadingValue>
 		</CascadingValue>
 	</Found>
 	<NotFound>
@@ -15,9 +17,10 @@
 @code
 {
 	public static string plat = DeviceInfo.Platform.ToString();
-	public string ruta = Ruta(plat);
+	public static string Ruta = GeneraRuta(plat);
+	public static int Tipo = 1;
 
-	public static string Ruta(string plat)
+	public static string GeneraRuta(string plat)
 	{
 		string path = string.Empty;
 		if(plat == "WinUI")

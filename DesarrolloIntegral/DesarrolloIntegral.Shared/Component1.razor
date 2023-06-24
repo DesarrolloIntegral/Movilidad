@@ -1,11 +1,17 @@
-﻿@page "/component1/{datos}"
+﻿@page "/component1"
 
 <div class="my-component">
-    This component is defined in the <strong>@Datos</strong> library.
+    This component is defined in the <strong>@Ruta</strong> library.
 </div>
 
 @code{
-    [Parameter]
-    public string Datos { get; set; } = null!;
+    [CascadingParameter]
+    public string Ruta { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        string x = Ruta;
+    }
 }
     

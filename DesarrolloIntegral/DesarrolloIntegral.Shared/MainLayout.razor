@@ -1,9 +1,12 @@
 ﻿@inherits LayoutComponentBase
+@using SQLite
 
 <div class="page">
-	<div class="sidebar">
+	<div class="sidebar" onscroll="true">
 		<CascadingValue Value="@Ruta">
-			<NavMenu />
+			<CascadingValue Value="@Tipo">
+				<NavMenu />
+			</CascadingValue>
 		</CascadingValue>
 	</div>
 
@@ -12,7 +15,6 @@
 			<a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
 		</div>
 *@
-		<p>@Ruta</p>
 		<article class="content px-4">
 			@Body
 		</article>
@@ -23,4 +25,17 @@
 {
 	[CascadingParameter]
 	protected string Ruta { get; set; } = null!;
+
+	[CascadingParameter]
+	protected int Tipo { get; set; }
+
+	public SQLiteConnection _Sqlite;
+
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		string datos = Ruta;
+		int tip = Tipo;
+
+	}
 }
