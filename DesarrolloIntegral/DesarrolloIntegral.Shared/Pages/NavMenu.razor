@@ -57,6 +57,18 @@
                                 <span class="oi oi-box" aria-hidden="true"></span> Perfiles
                             </NavLink>
                         </li>
+
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="zonas">
+                                <span class="oi oi-box" aria-hidden="true"></span> Zonas
+                            </NavLink>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="bancos">
+                                <span class="oi oi-box" aria-hidden="true"></span> Bancos
+                            </NavLink>
+                        </li>
                     </ul>
                 }
             </li>
@@ -101,11 +113,6 @@
                         </li>
 
                         <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="zonas">
-                                <span class="oi oi-box" aria-hidden="true"></span> Zonas
-                            </NavLink>
-                        </li>
-                        <li class="nav-item px-3">
                             <NavLink class="nav-link" href="itinerarios">
                                 <span class="oi oi-box" aria-hidden="true"></span> Itinerarios
                             </NavLink>
@@ -124,6 +131,133 @@
                     </ul>
                 }
             </li>
+
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="" @onclick="()=> expandMenuCortes = !expandMenuCortes">
+                    <span class="oi oi-cart" aria-hidden="true"></span> GestionCortes
+                </NavLink>
+                @if (expandMenuCortes)
+                {
+                    <ul class="nav flex-column">
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@Ruta">
+                                <NavLink class="nav-link" href="/cancelarboletos">
+                                    <span class="oi oi-basket" aria-hidden="true"></span> CancelarBoleto
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="/terminarcorte">
+                                <span class="oi oi-box" aria-hidden="true"></span> TerminarCorte
+                            </NavLink>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="/imprimircorte">
+                                <span class="oi oi-box" aria-hidden="true"></span> ImprimirCorte
+                            </NavLink>
+                        </li>
+                    </ul>
+                }
+            </li>
+
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="" @onclick="()=> expandMenuRecauda = !expandMenuRecauda">
+                    <span class="oi oi-cart" aria-hidden="true"></span> Recaudación
+                </NavLink>
+                @if (expandMenuRecauda)
+                {
+                    <ul class="nav flex-column">
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@Ruta">
+                                <NavLink class="nav-link" href="/hacercuenta">
+                                    <span class="oi oi-basket" aria-hidden="true"></span> HacerCuenta
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@Ruta">
+                                <NavLink class="nav-link" href="/cancelaboleto">
+                                    <span class="oi oi-basket" aria-hidden="true"></span> CancelarBoletos
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@Ruta">
+                                <NavLink class="nav-link" href="/liquidacion">
+                                    <span class="oi oi-basket" aria-hidden="true"></span> Liquidación
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@Ruta">
+                                <NavLink class="nav-link" href="/cancelarrecibo">
+                                    <span class="oi oi-basket" aria-hidden="true"></span> CancelarRecibo
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@Ruta">
+                                <NavLink class="nav-link" href="/corterecaudado">
+                                    <span class="oi oi-basket" aria-hidden="true"></span> CorteRecaudado
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="/terminarrecauda">
+                                <span class="oi oi-box" aria-hidden="true"></span> TerminarRecauda
+                            </NavLink>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="/imprimirrecauda">
+                                <span class="oi oi-box" aria-hidden="true"></span> ImprimirRecauda
+                            </NavLink>
+                        </li>
+                    </ul>
+                }
+            </li>
+
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="" @onclick="()=> expandMenuDepositos = !expandMenuDepositos">
+                    <span class="oi oi-cart" aria-hidden="true"></span> ReporteDepositos
+                </NavLink>
+                @if (expandMenuDepositos)
+                {
+                    <ul class="nav flex-column">
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@Ruta">
+                                <NavLink class="nav-link" href="/cortemanual">
+                                    <span class="oi oi-basket" aria-hidden="true"></span> CorteManual
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@Ruta">
+                                <NavLink class="nav-link" href="/fichaboucher">
+                                    <span class="oi oi-basket" aria-hidden="true"></span> FichaBoucher
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@Ruta">
+                                <NavLink class="nav-link" href="/reportedepositos">
+                                    <span class="oi oi-basket" aria-hidden="true"></span> ReporteDepositos
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+                    </ul>
+                }
+            </li>
+
         }
         @if (Tipo == 1)
         {
@@ -169,38 +303,6 @@
                 }
             </li>
         }
-        @if (Tipo != 1)
-        {
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="" @onclick="()=> expandMenuCortes = !expandMenuCortes">
-                    <span class="oi oi-cart" aria-hidden="true"></span> GestionCortes
-                </NavLink>
-                @if (expandMenuCortes)
-                {
-                    <ul class="nav flex-column">
-                        <li class="nav-item px-3">
-                            <CascadingValue Value="@Ruta">
-                                <NavLink class="nav-link" href="/cancelarboletos">
-                                    <span class="oi oi-basket" aria-hidden="true"></span> CancelarBoleto
-                                </NavLink>
-                            </CascadingValue>
-                        </li>
-
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="/terminarcorte">
-                                <span class="oi oi-box" aria-hidden="true"></span> TerminarCorte
-                            </NavLink>
-                        </li>
-
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="/imprimircorte">
-                                <span class="oi oi-box" aria-hidden="true"></span> ImprimirCorte
-                            </NavLink>
-                        </li>
-                    </ul>
-                }
-            </li>
-        }
     </ul>
 </div>
 
@@ -223,6 +325,8 @@
     private bool expandMenuRol;
     private bool expandMenuBoletos;
     private bool expandMenuCortes;
+    private bool expandMenuRecauda;
+    private bool expandMenuDepositos;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

@@ -50,12 +50,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DesarrolloIntegral.Shared\DesarrolloIntegral.Shared.csproj" />
+      <Folder Include="Pages\" />
+      <Folder Include="Shared\" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Pages\" />
-      <Folder Include="Shared\" />
+      <ProjectReference Include="..\DesarrolloIntegral.Shared\DesarrolloIntegral.Shared.csproj" />
     </ItemGroup>
 
 </Project>
