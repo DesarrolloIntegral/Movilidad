@@ -23,7 +23,7 @@ namespace DesarrolloIntegral.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(tbCuentaBancaria cuenta)
+        public async Task<ActionResult> PostAsync(CuentaBancaria cuenta)
         {
             try
             {

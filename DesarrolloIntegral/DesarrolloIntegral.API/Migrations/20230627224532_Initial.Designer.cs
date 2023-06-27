@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230627004833_Initial")]
+    [Migration("20230627224532_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -24,7 +24,31 @@ namespace DesarrolloIntegral.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.tbCuentaBancaria", b =>
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Banco", b =>
+                {
+                    b.Property<int>("IdBanco")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdBanco"));
+
+                    b.Property<int>("EstadoBanco")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NombreBanco")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("IdBanco");
+
+                    b.HasIndex("IdBanco")
+                        .IsUnique();
+
+                    b.ToTable("Bancos");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.CuentaBancaria", b =>
                 {
                     b.Property<int>("IdCuenta")
                         .ValueGeneratedOnAdd()

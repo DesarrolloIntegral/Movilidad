@@ -1,4 +1,5 @@
 ﻿using DesarrolloIntegral.MAUI.Data;
+using DesarrolloIntegral.Shared.Repositories;
 using Microsoft.AspNetCore.Components.WebView.Maui;
 
 namespace DesarrolloIntegral.MAUI
@@ -21,6 +22,9 @@ namespace DesarrolloIntegral.MAUI
 #endif
 
             builder.Services.AddSingleton<WeatherForecastService>();
+
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7009/") });
+            builder.Services.AddScoped<IRepository, Repository>();
 
             return builder.Build();
         }

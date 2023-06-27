@@ -1,0 +1,60 @@
+﻿@page "/bancos"
+@inject IRepository repository
+
+<h3>Bancos</h3>
+
+<div class="mb-3">
+    <a class="btn btn-primary" href="/bancos/create">Nueva Banco</a>
+</div>
+
+<GenericList MyList="Bancos">
+    <Loading>
+        <p>Cargando...</p>
+    </Loading>
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var banco in Bancos!)
+                {
+                    <tr>
+                        <td>
+                            <a class="btn btn-warning">Editar</a>
+                            <button class="btn btn-danger">Borrar</button>
+                        </td>
+                        <td>
+                            @banco.IdBanco
+                        </td>
+                        <td>
+                            @banco.NombreBanco
+                        </td>
+                        <td>
+                            @banco.EstadoBanco
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+@code {
+    [CascadingParameter]
+    public string? Ruta { get; set; }
+
+    public List<Banco>? Bancos { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var responseHppt = await repository.Get<List<Banco>>("api/bancos");
+        Bancos = responseHppt.Response!;
+
+    }
+}

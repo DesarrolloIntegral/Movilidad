@@ -2,7 +2,7 @@
 
 namespace DesarrolloIntegral.Shared.Models
 {
-    public class tbCuentaBancaria
+    public class CuentaBancaria
     {
         [Key]
         public int IdCuenta { get; set; }

@@ -11,6 +11,20 @@ namespace DesarrolloIntegral.API.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Bancos",
+                columns: table => new
+                {
+                    IdBanco = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NombreBanco = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    EstadoBanco = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bancos", x => x.IdBanco);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Cuentas",
                 columns: table => new
                 {
@@ -26,6 +40,12 @@ namespace DesarrolloIntegral.API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bancos_IdBanco",
+                table: "Bancos",
+                column: "IdBanco",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Cuentas_NombreBanco_NumeroCuenta",
                 table: "Cuentas",
                 columns: new[] { "NombreBanco", "NumeroCuenta" },
@@ -35,6 +55,9 @@ namespace DesarrolloIntegral.API.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Bancos");
+
             migrationBuilder.DropTable(
                 name: "Cuentas");
         }
