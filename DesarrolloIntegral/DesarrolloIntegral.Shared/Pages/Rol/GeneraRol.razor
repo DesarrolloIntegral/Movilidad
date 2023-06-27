@@ -1,7 +1,9 @@
 ﻿@page "/generarol"
 
 <h3>Generación de Rol</h3>
+<p>Esta es la direccion local : @Ruta</p>
 
 @code {
-
+    [CascadingParameter]
+    public string? Ruta { get; set; }
 }

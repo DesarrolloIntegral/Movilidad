@@ -1,7 +1,9 @@
-﻿@page "/cancelarecibos"
+﻿@page "/cancelaboleto"
 
 <h3>CancelarBoletos</h3>
+<p>Esta es la direccion local : @Ruta</p>
 
 @code {
-
+    [CascadingParameter]
+    public string? Ruta { get; set; }
 }

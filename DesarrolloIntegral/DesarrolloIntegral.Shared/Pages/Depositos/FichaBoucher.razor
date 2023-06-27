@@ -1,7 +1,9 @@
 ﻿@page "/fichaboucher"
 
 <h3>FichaBoucher</h3>
+<p>Esta es la direccion local : @Ruta</p>
 
 @code {
-
+    [CascadingParameter]
+    public string? Ruta { get; set; }
 }
