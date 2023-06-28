@@ -23,7 +23,7 @@ namespace DesarrolloIntegral.API.Data
                 .IsUnique();
 
             modelBuilder.Entity<Banco>()
-                .HasIndex(b => b.IdBanco)
+                .HasIndex(b => b.NombreBanco)
                 .IsUnique();
         }
     }

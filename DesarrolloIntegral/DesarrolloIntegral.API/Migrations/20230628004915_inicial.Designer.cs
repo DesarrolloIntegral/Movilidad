@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230627224532_Initial")]
-    partial class Initial
+    [Migration("20230628004915_inicial")]
+    partial class inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,7 +42,7 @@ namespace DesarrolloIntegral.API.Migrations
 
                     b.HasKey("IdBanco");
 
-                    b.HasIndex("IdBanco")
+                    b.HasIndex("NombreBanco")
                         .IsUnique();
 
                     b.ToTable("Bancos");

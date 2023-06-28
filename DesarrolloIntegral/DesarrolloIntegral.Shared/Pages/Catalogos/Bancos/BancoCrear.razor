@@ -1,0 +1,33 @@
+﻿@page "/bancos/crear"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Banco</h3>
+<BancoForm Banco="banco" OnValidSubmit="Crear" ReturnAction="Return">
+
+</BancoForm>
+
+@code {
+    private Banco banco = new();
+
+    private async Task Crear()
+    {
+        var responseHttp = await repository.Post("/api/bancos", banco);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message);
+            return;
+        }
+
+        navigationManager.NavigateTo("/bancos");
+    }
+
+    private void Return()
+    {
+        navigationManager.NavigateTo("/bancos");
+    }
+
+}

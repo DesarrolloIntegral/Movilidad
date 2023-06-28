@@ -39,7 +39,7 @@ namespace DesarrolloIntegral.API.Migrations
 
                     b.HasKey("IdBanco");
 
-                    b.HasIndex("IdBanco")
+                    b.HasIndex("NombreBanco")
                         .IsUnique();
 
                     b.ToTable("Bancos");

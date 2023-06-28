@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+
+<EditForm Model="Banco" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator/>
+        <div class="mb-3">
+            <label>Bancos:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Banco.NombreBanco"/>
+                <ValidationMessage For="@(() => Banco.NombreBanco)" />
+
+                <select value="@Banco.IdBanco" @onchange="ChangeState">
+                        <option value="@Banco.IdBanco">1</option>
+                        <option value="@Banco.IdBanco">2</option>
+                </select>
+            </div>
+        </div>
+    <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+    <button class="btn btn-success" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+    [EditorRequired]
+    [Parameter]
+    public Banco Banco { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    void ChangeState(ChangeEventArgs e)
+    {
+        Banco.IdBanco = Convert.ToInt32(e.Value!.ToString());
+    }
+}

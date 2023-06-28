@@ -5,7 +5,7 @@
 namespace DesarrolloIntegral.API.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class inicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -40,9 +40,9 @@ namespace DesarrolloIntegral.API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bancos_IdBanco",
+                name: "IX_Bancos_NombreBanco",
                 table: "Bancos",
-                column: "IdBanco",
+                column: "NombreBanco",
                 unique: true);
 
             migrationBuilder.CreateIndex(
