@@ -1,0 +1,64 @@
+﻿@page "/bancos/editar/{Id:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Editar Banco</h3>
+
+@if (banco is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <BancoForm @ref="bancoForm" Banco="banco" OnValidSubmit="Edit" ReturnAction="Return" />
+}
+
+@code {
+    private Banco? banco;
+    private BancoForm? bancoForm;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<Banco>($"api/bancos/{Id}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("bancos");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        banco = responseHTTP.Response;
+    }
+
+    private async Task Edit()
+    {
+        var responseHTTP = await repository.Put("api/bancos", banco);
+
+        if (responseHTTP.Error)
+        {
+            var mensajeError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        bancoForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("bancos");
+    }
+}

@@ -5,12 +5,12 @@
 
 
 <h3>Crear Banco</h3>
-<BancoForm Banco="banco" OnValidSubmit="Crear" ReturnAction="Return">
-
-</BancoForm>
+<BancoForm @ref="bancoForm" Banco="banco" OnValidSubmit="Crear" ReturnAction="Return"/>
 
 @code {
     private Banco banco = new();
+    private BancoForm? bancoForm;
+
 
     private async Task Crear()
     {
@@ -22,11 +22,12 @@
             return;
         }
 
-        navigationManager.NavigateTo("/bancos");
+        Return();
     }
 
     private void Return()
     {
+        bancoForm!.FormPostedSuccessfully = true;
         navigationManager.NavigateTo("/bancos");
     }
 

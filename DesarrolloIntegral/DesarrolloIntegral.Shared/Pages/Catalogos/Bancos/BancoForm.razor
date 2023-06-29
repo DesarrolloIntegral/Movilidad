@@ -1,6 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService sweetAlertService
 
-<EditForm Model="Banco" OnValidSubmit="OnValidSubmit">
+@*<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigation"/>*@
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator/>
         <div class="mb-3">
             <label>Bancos:</label>
@@ -8,9 +11,9 @@
                 <InputText class="form-control" @bind-Value="@Banco.NombreBanco"/>
                 <ValidationMessage For="@(() => Banco.NombreBanco)" />
 
-                <select value="@Banco.IdBanco" @onchange="ChangeState">
-                        <option value="@Banco.IdBanco">1</option>
-                        <option value="@Banco.IdBanco">2</option>
+                <select value="@Banco.EstadoBanco" @onchange="ChangeState">
+                        <option value="@Banco.EstadoBanco">1</option>
+                        <option value="@Banco.EstadoBanco">2</option>
                 </select>
             </div>
         </div>
@@ -19,6 +22,9 @@
 </EditForm>
 
 @code {
+
+    private EditContext editContext = null!;
+
     [EditorRequired]
     [Parameter]
     public Banco Banco { get; set; } = null!;
@@ -33,6 +39,47 @@
 
     void ChangeState(ChangeEventArgs e)
     {
-        Banco.IdBanco = Convert.ToInt32(e.Value!.ToString());
+        Banco.EstadoBanco = Convert.ToInt32(e.Value!.ToString());
     }
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Banco);
+    }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+
+    /*
+    private async Task OnBeforeInternalNavigation(LocationChangingContext context)
+    {
+        var formWasEdited = editContext.IsModified();
+
+        if (!formWasEdited)
+        {
+            return;
+        }
+
+        if (FormPostedSuccessfully)
+        {
+            return;
+        }
+
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Deseas abandonar la página y perder los cambios?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true
+            });
+
+        var confirm = !string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        context.PreventNavigation();
+    }
+    */
 }
