@@ -4,19 +4,19 @@
 @*<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigation"/>*@
 
 <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
-    <DataAnnotationsValidator/>
-        <div class="mb-3">
-            <label>Bancos:</label>
-            <div>
-                <InputText class="form-control" @bind-Value="@Banco.NombreBanco"/>
-                <ValidationMessage For="@(() => Banco.NombreBanco)" />
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Bancos:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Banco.NombreBanco" />
+            <ValidationMessage For="@(() => Banco.NombreBanco)" />
 
-                <select value="@Banco.EstadoBanco" @onchange="ChangeState">
-                        <option value="@Banco.EstadoBanco">1</option>
-                        <option value="@Banco.EstadoBanco">2</option>
-                </select>
-            </div>
+            <select value="@Banco.EstadoBanco" @onchange="ChangeState">
+                <option value="@Banco.EstadoBanco">1</option>
+                <option value="@Banco.EstadoBanco">2</option>
+            </select>
         </div>
+    </div>
     <button class="btn btn-primary" type="submit">Guardar Cambios</button>
     <button class="btn btn-success" @onclick="ReturnAction">Regresar</button>
 </EditForm>
@@ -51,32 +51,32 @@
 
     /*
     private async Task OnBeforeInternalNavigation(LocationChangingContext context)
-    {
+        {
         var formWasEdited = editContext.IsModified();
 
         if (!formWasEdited)
-        {
-            return;
+            {
+        return;
         }
 
         if (FormPostedSuccessfully)
-        {
-            return;
+            {
+        return;
         }
 
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
-            {
+                {
                 Title = "Confirmación",
                 Text = "¿Deseas abandonar la página y perder los cambios?",
                 Icon = SweetAlertIcon.Warning,
                 ShowCancelButton = true
-            });
+        });
 
         var confirm = !string.IsNullOrEmpty(result.Value);
 
         if (confirm)
-        {
-            return;
+            {
+        return;
         }
 
         context.PreventNavigation();

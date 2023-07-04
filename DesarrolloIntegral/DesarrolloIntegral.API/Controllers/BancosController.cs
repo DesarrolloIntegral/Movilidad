@@ -38,17 +38,59 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpPost]
         public async Task<ActionResult> PostAsync(Banco banco)
         {
-            _context.Add(banco);
-            await _context.SaveChangesAsync();
-            return Ok(banco);
+            try
+            {
+                _context.Add(banco);
+                await _context.SaveChangesAsync();
+                return Ok(banco);
+
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
+                {
+                    return BadRequest("Ya existe un banco con este nombre");
+                }
+                if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
+                {
+                    return BadRequest("Ya existe un banco con este nombre");
+                }
+
+                return BadRequest(dbUpdateException.Message);
+            }       
+            catch(Exception exception)
+            { 
+                return BadRequest(exception.Message); 
+            }
         }
 
         [HttpPut]
         public async Task<ActionResult> PutAsync(Banco banco)
         {
-            _context.Update(banco);
-            await _context.SaveChangesAsync();
-            return Ok(banco);
+            try
+            {
+                _context.Update(banco);
+                await _context.SaveChangesAsync();
+                return Ok(banco);
+
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
+                {
+                    return BadRequest("Ya existe un banco con este nombre");
+                }
+                if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
+                {
+                    return BadRequest("Ya existe un banco con este nombre");
+                }
+
+                return BadRequest(dbUpdateException.Message);
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpDelete("{id:int}")]

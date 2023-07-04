@@ -5,12 +5,11 @@
 
 
 <h3>Crear Banco</h3>
-<BancoForm @ref="bancoForm" Banco="banco" OnValidSubmit="Crear" ReturnAction="Return"/>
+<BancoForm @ref="bancoForm" Banco="banco" OnValidSubmit="Crear" ReturnAction="Return" />
 
 @code {
     private Banco banco = new();
     private BancoForm? bancoForm;
-
 
     private async Task Crear()
     {
@@ -18,7 +17,7 @@
         if (responseHttp.Error)
         {
             var message = await responseHttp.GetErrorMessageAsync();
-            await sweetAlertService.FireAsync("Error", message);
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return;
         }
 
@@ -30,5 +29,4 @@
         bancoForm!.FormPostedSuccessfully = true;
         navigationManager.NavigateTo("/bancos");
     }
-
 }
