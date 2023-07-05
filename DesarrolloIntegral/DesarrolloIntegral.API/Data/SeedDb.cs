@@ -22,8 +22,42 @@ namespace DesarrolloIntegral.API.Data
         {
             if (!_context.Bancos.Any())
             {
-                _context.Bancos.Add(new Banco { NombreBanco = "Banamex", EstadoBanco= 1 });
-                _context.Bancos.Add(new Banco { NombreBanco = "Bancomer", EstadoBanco = 1 });
+                _context.Bancos.Add(new Banco 
+                { 
+                    NombreBanco = "Banamex", 
+                    EstadoBanco= 1,
+                    Cuentas = new List<CuentaBancaria>
+                    {
+                        new CuentaBancaria
+                        {
+                            NumeroCuenta = "4823-74315",
+                            EstadoCuenta= 1, 
+                        },
+                        new CuentaBancaria
+                        {
+                            NumeroCuenta = "4823-123456",
+                            EstadoCuenta= 1
+                        }
+                    }
+                });
+                _context.Bancos.Add(new Banco 
+                { 
+                    NombreBanco = "Bancomer", 
+                    EstadoBanco = 1,
+                    Cuentas = new List<CuentaBancaria>
+                    {
+                        new CuentaBancaria
+                        {
+                            NumeroCuenta = "0175-000123",
+                            EstadoCuenta= 1
+                        },
+                        new CuentaBancaria
+                        {
+                            NumeroCuenta = "0175-000456",
+                            EstadoCuenta= 1
+                        }
+                    }
+                });
             }
 
             await _context.SaveChangesAsync();

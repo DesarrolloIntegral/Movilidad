@@ -1,34 +1,41 @@
-﻿@page "/bancos"
+﻿@page "/bancos/detalles/{Id:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-<h3>Bancos</h3>
+@if(banco is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <h3>@banco.NombreBanco</h3>
+    <div class="mb-2">
+        <a class="btn btn-primary" href="/cuentas/crear/@banco.Id">Nueva Cuenta</a>
+        <a class="btn btn-success" href="/bancos">Regresar</a>
+    </div>
 
-<div class="mb-3">
-    <a class="btn btn-primary mb-3" href="/bancos/crear">Nueva Banco</a>
-</div>
+}
 
-<GenericList MyList="Bancos">
+<GenericList MyList="cuentas">
     <Body>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Nombre</th>
+                    <th>Número</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var banco in Bancos!)
+                @foreach (var cuenta in cuentas!)
                 {
                     <tr>
                         <td>
-                            @banco.NombreBanco
+                            @cuenta.NumeroCuenta
                         </td>
                         <td>
-                            <a class="btn btn-info" href="/bancos/detalles/@banco.Id">Detalles</a>
-                            <a class="btn btn-warning" href="/bancos/editar/@banco.Id">Editar</a>
-                            <button class="btn btn-danger" @onclick=@(() => DeleteAsync(banco.Id))>Borrar</button>
+                            <a class="btn btn-warning" href="/cuentas/editar/@cuenta.Id">Editar</a>
+                            <button class="btn btn-danger" @onclick=@(() => DeleteAsync(cuenta.Id))>Borrar</button>
                         </td>
                     </tr>
                 }
@@ -36,22 +43,38 @@
         </table>
     </Body>
 </GenericList>
+    
 
 @code {
-    [CascadingParameter]
-    public string? Ruta { get; set; }
+    private Banco? banco;
+    private List<CuentaBancaria>? cuentas;
 
-    public List<Banco>? Bancos { get; set; }
+    [Parameter]
+    public int Id { get; set; }
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
     }
 
     private async Task LoadAsync()
     {
-        var responseHppt = await repository.Get<List<Banco>>("api/bancos");
-        Bancos = responseHppt.Response!;
+        var responseHttp = await repository.Get<Banco>($"/api/bancos/{Id}");
+        if (responseHttp.Error)
+        {
+            if (responseHttp.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/bancos");
+                return;
+            }
+
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        banco = responseHttp.Response;
+        cuentas = banco!.Cuentas!.ToList();
     }
 
     private async Task DeleteAsync(int id)
@@ -71,7 +94,7 @@
             return;
         }
 
-        var responseHTTP = await repository.Delete($"api/bancos/{id}");
+        var responseHTTP = await repository.Delete($"api/cuentas/{id}");
 
         if (responseHTTP.Error)
         {

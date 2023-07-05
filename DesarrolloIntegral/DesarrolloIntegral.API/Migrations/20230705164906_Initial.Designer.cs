@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230628004915_inicial")]
-    partial class inicial
+    [Migration("20230705164906_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,11 +26,11 @@ namespace DesarrolloIntegral.API.Migrations
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Banco", b =>
                 {
-                    b.Property<int>("IdBanco")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdBanco"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("EstadoBanco")
                         .HasColumnType("int");
@@ -40,7 +40,7 @@ namespace DesarrolloIntegral.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("IdBanco");
+                    b.HasKey("Id");
 
                     b.HasIndex("NombreBanco")
                         .IsUnique();
@@ -50,29 +50,47 @@ namespace DesarrolloIntegral.API.Migrations
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.CuentaBancaria", b =>
                 {
-                    b.Property<int>("IdCuenta")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdCuenta"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BancoId")
+                        .HasColumnType("int");
 
                     b.Property<int>("EstadoCuenta")
                         .HasColumnType("int");
 
-                    b.Property<string>("NombreBanco")
+                    b.Property<string>("NumeroCuenta")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.Property<int>("NumeroCuenta")
-                        .HasColumnType("int");
+                    b.HasKey("Id");
 
-                    b.HasKey("IdCuenta");
+                    b.HasIndex("BancoId");
 
-                    b.HasIndex("NombreBanco", "NumeroCuenta")
+                    b.HasIndex("NumeroCuenta", "BancoId")
                         .IsUnique();
 
                     b.ToTable("Cuentas");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.CuentaBancaria", b =>
+                {
+                    b.HasOne("DesarrolloIntegral.Shared.Models.Banco", "Banco")
+                        .WithMany("Cuentas")
+                        .HasForeignKey("BancoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Banco");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Banco", b =>
+                {
+                    b.Navigation("Cuentas");
                 });
 #pragma warning restore 612, 618
         }

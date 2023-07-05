@@ -12,6 +12,7 @@ namespace DesarrolloIntegral.API.Data
         }
 
         public DbSet<CuentaBancaria> Cuentas { get; set; }
+
         public DbSet<Banco> Bancos{ get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -19,7 +20,7 @@ namespace DesarrolloIntegral.API.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<CuentaBancaria>()
-                .HasIndex(c => new { c.NombreBanco, c.NumeroCuenta })
+                .HasIndex("NumeroCuenta", "BancoId")
                 .IsUnique();
 
             modelBuilder.Entity<Banco>()

@@ -23,10 +23,21 @@ namespace DesarrolloIntegral.API.Controllers
             return Ok(await _context.Bancos.ToListAsync());
         }
 
+        [HttpGet("full")]
+        public async Task<IActionResult> GetFullAsync()
+        {
+            return Ok(await _context.Bancos
+                .Include(x => x.Cuentas)
+                .ToListAsync());
+        }
+
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult> GetAsync(int id)
         {
-            var banco = await _context.Bancos.FirstOrDefaultAsync(x => x.IdBanco == id);
+            var banco = await _context.Bancos
+                .Include (x => x.Cuentas)
+                .FirstOrDefaultAsync(x => x.Id == id);
             if (banco is null)
             {
                 return NotFound();
@@ -96,17 +107,16 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteAsync(int id)
         {
-            var afectedRows = await _context.Bancos
-                .Where(x => x.IdBanco == id)
-                .ExecuteDeleteAsync();
+            var banco = await _context.Bancos.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (afectedRows == 0)
+            if (banco == null)
             {
                 return NotFound();
             }
 
+            _context.Remove(banco);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
-
     }
 }
