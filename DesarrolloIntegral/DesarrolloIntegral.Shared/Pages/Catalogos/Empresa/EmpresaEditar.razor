@@ -1,36 +1,36 @@
-﻿@page "/bancos/editar/{Id:int}"
+﻿@page "/empresa/editar/{Id:int}"
 @inject NavigationManager navigationManager
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
 
 
-<h3>Editar Banco</h3>
+<h3>Editar Empresa</h3>
 
-@if (banco is null)
+@if (empresa is null)
 {
     <p>Cargando...</p>
 }
 else
 {
-    <BancoForm @ref="bancoForm" Banco="banco" OnValidSubmit="EditAsync" ReturnAction="Return" />
+    <EmpresaForm @ref="empresaForm" Empresa="empresa" OnValidSubmit="EditAsync" ReturnAction="Return" />
 }
 
 @code {
-    private Banco? banco;
-    private BancoForm? bancoForm;
+    private Empresa? empresa;
+    private EmpresaForm? empresaForm;
 
     [Parameter]
     public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var responseHTTP = await repository.Get<Banco>($"api/bancos/{Id}");
+        var responseHTTP = await repository.Get<Empresa>($"api/empresas/{Id}");
 
         if (responseHTTP.Error)
         {
             if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("bancos");
+                navigationManager.NavigateTo("empresas");
                 return;
             }
 
@@ -39,12 +39,12 @@ else
             return;
         }
 
-        banco = responseHTTP.Response;
+        empresa = responseHTTP.Response;
     }
 
     private async Task EditAsync()
     {
-        var responseHTTP = await repository.Put("api/bancos", banco);
+        var responseHTTP = await repository.Put("api/empresas", empresa);
 
         if (responseHTTP.Error)
         {
@@ -58,7 +58,7 @@ else
 
     private void Return()
     {
-        bancoForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo("/bancos");
+        empresaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/empresa");
     }
 }

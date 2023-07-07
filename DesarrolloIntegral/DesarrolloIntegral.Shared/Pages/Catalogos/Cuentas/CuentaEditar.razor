@@ -1,30 +1,29 @@
-﻿@page "/bancos/editar/{Id:int}"
+﻿@page "/cuentas/editar/{CuentaId:int}"
 @inject NavigationManager navigationManager
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
 
+<h3>CuentaEditar</h3>
 
-<h3>Editar Banco</h3>
-
-@if (banco is null)
+@if (cuenta is null)
 {
     <p>Cargando...</p>
 }
 else
 {
-    <BancoForm @ref="bancoForm" Banco="banco" OnValidSubmit="EditAsync" ReturnAction="Return" />
+    <CuentaForm @ref="cuentaForm" Cuenta="cuenta" OnValidSubmit="EditAsync" ReturnAction="Return" />
 }
 
 @code {
-    private Banco? banco;
-    private BancoForm? bancoForm;
+    private CuentaBancaria? cuenta;
+    private CuentaForm? cuentaForm;
 
     [Parameter]
-    public int Id { get; set; }
+    public int CuentaId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var responseHTTP = await repository.Get<Banco>($"api/bancos/{Id}");
+        var responseHTTP = await repository.Get<CuentaBancaria>($"api/cuentas/{CuentaId}");
 
         if (responseHTTP.Error)
         {
@@ -39,12 +38,12 @@ else
             return;
         }
 
-        banco = responseHTTP.Response;
+        cuenta = responseHTTP.Response;
     }
 
     private async Task EditAsync()
     {
-        var responseHTTP = await repository.Put("api/bancos", banco);
+        var responseHTTP = await repository.Put("api/cuentas", cuenta);
 
         if (responseHTTP.Error)
         {
@@ -58,7 +57,7 @@ else
 
     private void Return()
     {
-        bancoForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo("/bancos");
+        cuentaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/bancos/detalles/{cuenta!.BancoId}");
     }
 }

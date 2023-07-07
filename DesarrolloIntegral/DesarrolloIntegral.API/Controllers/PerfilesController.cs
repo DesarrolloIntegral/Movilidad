@@ -1,6 +1,5 @@
 ﻿using DesarrolloIntegral.API.Data;
 using DesarrolloIntegral.API.Helpers;
-using DesarrolloIntegral.Shared;
 using DesarrolloIntegral.Shared.DTOs;
 using DesarrolloIntegral.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,95 +8,97 @@ using Microsoft.EntityFrameworkCore;
 namespace DesarrolloIntegral.API.Controllers
 {
     [ApiController]
-    [Route("/api/cuentas")]
-    public class CuentasController : ControllerBase
+    [Route("/api/perfiles")]
+
+    public class PerfilesController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public CuentasController(DataContext context)
+        public PerfilesController(DataContext context)
         {
             _context = context;
         }
 
-        [HttpGet("SinFiltro")]
-        public async Task<IActionResult> GetAsync() 
+        [HttpGet]
+        public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            return Ok(await _context.Cuentas.ToListAsync());
-        }
-
-       [HttpGet]
-        public async Task<ActionResult> GetAsync([FromQuery] PaginationDTO pagination)
-        {
-            var queryable = _context.Cuentas
-                .Where(x => x.Banco!.Id == pagination.Id)
+            var queryable = _context.PerfilesUsuario
                 .AsQueryable();
 
             return Ok(await queryable
-                        .OrderBy(x => x.NumeroCuenta)
-                        .Paginate(pagination)
-                        .ToListAsync());
-
+                .OrderBy(x => x.Nombre)
+                .Paginate(pagination)
+                .ToListAsync());
         }
 
         [HttpGet("totalPages")]
         public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Cuentas
-                .Where(x => x.Banco!.Id == pagination.Id)
-                .AsQueryable();
-
+            var queryable = _context.PerfilesUsuario.AsQueryable();
             double count = await queryable.CountAsync();
             double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
             return Ok(totalPages);
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult> GetAsync(int id)
+        {
+            var perfil = await _context.PerfilesUsuario
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (perfil is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(perfil);
+        }
+
         [HttpPost]
-        public async Task<ActionResult> PostAsync(CuentaBancaria cuenta)
+        public async Task<ActionResult> PostAsync(PerfilUsuario perfil)
         {
             try
             {
-                _context.Add(cuenta);
+                _context.Add(perfil);
                 await _context.SaveChangesAsync();
-                return Ok(cuenta);
+                return Ok(perfil);
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe una cuenta con este número");
+                    return BadRequest("Ya existe un banco con este nombre");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe una cuenta con este número");
+                    return BadRequest("Ya existe un banco con este nombre");
                 }
 
                 return BadRequest(dbUpdateException.Message);
             }
-            catch (Exception ex) 
-            { 
-                return BadRequest(ex.Message);
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
             }
         }
 
         [HttpPut]
-        public async Task<ActionResult> PutAsync(CuentaBancaria cuenta)
+        public async Task<ActionResult> PutAsync(PerfilUsuario perfil)
         {
             try
             {
-                _context.Update(cuenta);
+                _context.Update(perfil);
                 await _context.SaveChangesAsync();
-                return Ok(cuenta);
-
+                return Ok(perfil);
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe una cuenta con este número");
+                    return BadRequest("Ya existe un banco con este nombre");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe una cuenta con este número");
+                    return BadRequest("Ya existe un banco con este nombre");
                 }
 
                 return BadRequest(dbUpdateException.Message);
@@ -111,14 +112,14 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteAsync(int id)
         {
-            var cuenta = await _context.Cuentas.FirstOrDefaultAsync(x => x.Id == id);
+            var perfil = await _context.PerfilesUsuario.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (cuenta == null)
+            if (perfil == null)
             {
                 return NotFound();
             }
 
-            _context.Remove(cuenta);
+            _context.Remove(perfil);
             await _context.SaveChangesAsync();
             return NoContent();
         }

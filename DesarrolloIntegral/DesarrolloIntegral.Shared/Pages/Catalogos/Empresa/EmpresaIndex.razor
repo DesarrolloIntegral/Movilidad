@@ -1,0 +1,63 @@
+﻿@page "/empresa"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Empresa</h3>
+
+<div class="mb-3">
+    <a class="btn btn-primary mb-3" href="/empresa/crear" >Nueva Empresa</a>
+</div>
+
+<GenericList MyList="Empresas">
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Abreviatura</th>
+                    <th style="width:260px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var empresa in Empresas!)
+                {
+                    <tr>
+                        <td>
+                            @empresa.Nombre
+                        </td>
+                        <td>
+                            @empresa.Abreviatura
+                        </td>
+                        <td>
+                            <a class="btn btn-warning" href="/empresa/editar/@empresa.Id">Editar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+
+
+@code {
+    [CascadingParameter]
+    public string? Ruta { get; set; }
+
+    public List<Empresa>? Empresas { get; set; }
+
+    public bool habilitaboton { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        habilitaboton = false;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var responseHppt = await repository.Get<List<Empresa>>("api/empresas");
+        Empresas = responseHppt.Response!;
+    }
+}

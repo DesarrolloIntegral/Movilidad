@@ -1,19 +1,19 @@
-﻿@page "/bancos"
+﻿@page "/perfiles"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-<h3>Bancos</h3>
+<h3>Perfiles</h3>
 
 <div class="mb-3">
-    <a class="btn btn-primary mb-3" href="/bancos/crear">Nueva Banco</a>
+    <a class="btn btn-primary mb-3" href="/perfiles/crear">Nuevo Perfil</a>
 </div>
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPageAsync" />
 
-<GenericList MyList="Bancos">
+<GenericList MyList="Perfiles">
     <Body>
         <table class="table table-striped">
             <thead>
@@ -23,16 +23,15 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var banco in Bancos!)
+                @foreach (var perfil in Perfiles!)
                 {
                     <tr>
                         <td>
-                            @banco.NombreBanco
+                            @perfil.Nombre
                         </td>
                         <td>
-                            <a class="btn btn-info" href="/bancos/detalles/@banco.Id">Detalles</a>
-                            <a class="btn btn-warning" href="/bancos/editar/@banco.Id">Editar</a>
-                            <button class="btn btn-danger" @onclick=@(() => DeleteAsync(banco.Id))>Borrar</button>
+                            <a class="btn btn-warning" href="/perfiles/editar/@perfil.Id">Editar</a>
+                            <button class="btn btn-danger" @onclick=@(() => DeleteAsync(perfil.Id))>Borrar</button>
                         </td>
                     </tr>
                 }
@@ -45,11 +44,10 @@
     [CascadingParameter]
     public string? Ruta { get; set; }
 
-    public List<Banco>? Bancos { get; set; }
+    public List<PerfilUsuario>? Perfiles { get; set; }
 
     private int currentPage = 1;
     private int totalPages;
-
 
     protected async override Task OnInitializedAsync()
     {
@@ -58,12 +56,12 @@
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/bancos?page={page}";
-        string url2 = $"api/bancos/totalPages";
+        string url1 = $"api/perfiles?page={page}";
+        string url2 = $"api/perfiles/totalPages";
 
-        var responseHppt = await repository.Get<List<Banco>>(url1);
+        var responseHppt = await repository.Get<List<PerfilUsuario>>(url1);
         var responseHppt2 = await repository.Get<int>(url2);
-        Bancos = responseHppt.Response!;
+        Perfiles = responseHppt.Response!;
         totalPages = responseHppt2.Response!;
     }
 
@@ -84,7 +82,7 @@
             return;
         }
 
-        var responseHTTP = await repository.Delete($"api/bancos/{id}");
+        var responseHTTP = await repository.Delete($"api/perfiles/{id}");
 
         if (responseHTTP.Error)
         {

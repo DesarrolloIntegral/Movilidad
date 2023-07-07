@@ -1,0 +1,37 @@
+﻿@page "/cuentas/crear/{BancoId:int}"
+
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Nueva Cuenta</h3>
+
+<CuentaForm @ref="cuentaForm" Cuenta="cuenta" OnValidSubmit="CrearAsync" ReturnAction="Return" />
+
+@code {
+    private CuentaBancaria cuenta = new();
+    private CuentaForm? cuentaForm;
+
+    [Parameter]
+    public int BancoId { get; set; }
+
+    private async Task CrearAsync()
+    {
+        cuenta.BancoId = BancoId;
+        var responseHttp = await repository.Post("/api/cuentas", cuenta);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        cuentaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/bancos/detalles/{BancoId}");
+    }
+}

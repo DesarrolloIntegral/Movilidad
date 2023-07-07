@@ -3,6 +3,7 @@ using DesarrolloIntegral.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230706224321_addlineas")]
+    partial class addlineas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,29 +125,6 @@ namespace DesarrolloIntegral.API.Migrations
                         .IsUnique();
 
                     b.ToTable("Lineas");
-                });
-
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.PerfilUsuario", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nombre")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Nombre")
-                        .IsUnique()
-                        .HasFilter("[Nombre] IS NOT NULL");
-
-                    b.ToTable("PerfilesUsuario");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.CuentaBancaria", b =>

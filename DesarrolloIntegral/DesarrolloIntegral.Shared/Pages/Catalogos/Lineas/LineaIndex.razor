@@ -1,19 +1,19 @@
-﻿@page "/bancos"
+﻿@page "/lineas"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-<h3>Bancos</h3>
+<h3>Lineas</h3>
 
 <div class="mb-3">
-    <a class="btn btn-primary mb-3" href="/bancos/crear">Nueva Banco</a>
+    <a class="btn btn-primary mb-3" href="/lineas/crear">Nueva Linea</a>
 </div>
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPageAsync" />
 
-<GenericList MyList="Bancos">
+<GenericList MyList="Lineas">
     <Body>
         <table class="table table-striped">
             <thead>
@@ -23,16 +23,15 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var banco in Bancos!)
+                @foreach (var linea in Lineas!)
                 {
                     <tr>
                         <td>
-                            @banco.NombreBanco
+                            @linea.Nombre
                         </td>
                         <td>
-                            <a class="btn btn-info" href="/bancos/detalles/@banco.Id">Detalles</a>
-                            <a class="btn btn-warning" href="/bancos/editar/@banco.Id">Editar</a>
-                            <button class="btn btn-danger" @onclick=@(() => DeleteAsync(banco.Id))>Borrar</button>
+                            <a class="btn btn-warning" href="/lineas/editar/@linea.Id">Editar</a>
+                            <button class="btn btn-danger" @onclick=@(() => DeleteAsync(linea.Id))>Borrar</button>
                         </td>
                     </tr>
                 }
@@ -45,11 +44,10 @@
     [CascadingParameter]
     public string? Ruta { get; set; }
 
-    public List<Banco>? Bancos { get; set; }
+    public List<Linea>? Lineas { get; set; }
 
     private int currentPage = 1;
     private int totalPages;
-
 
     protected async override Task OnInitializedAsync()
     {
@@ -58,12 +56,12 @@
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/bancos?page={page}";
-        string url2 = $"api/bancos/totalPages";
+        string url1 = $"api/lineas?page={page}";
+        string url2 = $"api/lineas/totalPages";
 
-        var responseHppt = await repository.Get<List<Banco>>(url1);
+        var responseHppt = await repository.Get<List<Linea>>(url1);
         var responseHppt2 = await repository.Get<int>(url2);
-        Bancos = responseHppt.Response!;
+        Lineas = responseHppt.Response!;
         totalPages = responseHppt2.Response!;
     }
 
@@ -84,7 +82,7 @@
             return;
         }
 
-        var responseHTTP = await repository.Delete($"api/bancos/{id}");
+        var responseHTTP = await repository.Delete($"api/lineas/{id}");
 
         if (responseHTTP.Error)
         {

@@ -1,0 +1,32 @@
+﻿@page "/lineas/crear"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Banco</h3>
+<LineaForm @ref="lineaForm" Linea="linea" OnValidSubmit="Crear" ReturnAction="Return" />
+
+@code {
+    private Linea linea = new();
+    private LineaForm? lineaForm;
+
+    private async Task Crear()
+    {
+        var responseHttp = await repository.Post("/api/lineas", linea);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        lineaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/lineas");
+    }
+}

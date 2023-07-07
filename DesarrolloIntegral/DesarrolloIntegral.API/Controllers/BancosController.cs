@@ -1,4 +1,6 @@
 ﻿using DesarrolloIntegral.API.Data;
+using DesarrolloIntegral.API.Helpers;
+using DesarrolloIntegral.Shared.DTOs;
 using DesarrolloIntegral.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +20,28 @@ namespace DesarrolloIntegral.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            return Ok(await _context.Bancos.ToListAsync());
+            var queryable = _context.Bancos
+                .Include(x => x.Cuentas)
+                .AsQueryable();
+
+            return Ok(await queryable
+                .OrderBy(x => x.NombreBanco)
+                .Paginate(pagination)
+                .ToListAsync());
+
         }
+
+        [HttpGet("totalPages")]
+        public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
+        {
+            var queryable = _context.Bancos.AsQueryable();
+            double count = await queryable.CountAsync();
+            double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
+            return Ok(totalPages);
+        }
+
 
         [HttpGet("full")]
         public async Task<IActionResult> GetFullAsync()

@@ -1,0 +1,51 @@
+﻿@page "/empresa/crear"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Banco</h3>
+<EmpresaForm @ref="empresaForm" Empresa="empresa" OnValidSubmit="Crear" ReturnAction="Return" />
+
+@code {
+    private Empresa empresa = new();
+    private EmpresaForm? empresaForm;
+
+    public List<Empresa>? Empresas { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+
+        if (Empresas!.Count > 0)
+        {
+            await sweetAlertService.FireAsync("Advertencia", "Sólo puede dar de alta una empresa", SweetAlertIcon.Info);
+            Return();
+        }
+    }
+
+    private async Task Crear()
+    {
+        var responseHttp = await repository.Post("/api/empresas", empresa);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        empresaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/empresa");
+    }
+
+    private async Task LoadAsync()
+    {
+        var responseHppt = await repository.Get<List<Empresa>>("api/empresas");
+        Empresas = responseHppt.Response!;
+    }
+}

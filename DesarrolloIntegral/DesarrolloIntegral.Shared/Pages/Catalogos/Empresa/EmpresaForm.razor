@@ -1,0 +1,45 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService sweetAlertService
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Nombre:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Empresa.Nombre" />
+            <ValidationMessage For="@(() => Empresa.Nombre)" />
+        </div>
+        <label>Abreviatura:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Empresa.Abreviatura" />
+            <ValidationMessage For="@(() => Empresa.Abreviatura)" />
+        </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+    <button class="btn btn-success" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public Empresa Empresa { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Empresa);
+    }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+
+}

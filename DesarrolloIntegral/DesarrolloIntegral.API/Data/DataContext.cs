@@ -15,6 +15,12 @@ namespace DesarrolloIntegral.API.Data
 
         public DbSet<Banco> Bancos{ get; set; }
 
+        public DbSet<Empresa> Empresa { get; set; }
+
+        public DbSet<Linea> Lineas { get; set; }
+
+        public DbSet<PerfilUsuario> PerfilesUsuario { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -25,6 +31,18 @@ namespace DesarrolloIntegral.API.Data
 
             modelBuilder.Entity<Banco>()
                 .HasIndex(b => b.NombreBanco)
+                .IsUnique();
+
+            modelBuilder.Entity<Empresa>()
+                .HasIndex(b => b.Nombre)
+                .IsUnique();
+
+            modelBuilder.Entity<Linea>()
+                .HasIndex(b => b.Nombre)
+                .IsUnique();
+
+            modelBuilder.Entity<PerfilUsuario>()
+                .HasIndex(b => b.Nombre)
                 .IsUnique();
         }
     }
