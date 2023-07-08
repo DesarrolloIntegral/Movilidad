@@ -1,0 +1,60 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Empleados :</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Personal.Nombre" />
+            <ValidationMessage For="@(() => Personal.Nombre)" />
+        </div>
+        <div>
+            <InputSelect @bind-Value="Personal.PuestoId">
+                @foreach (var puesto in Puestos!)
+                {
+                    <option value="@puesto.Id">@puesto.Nombre</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    public string? Ruta { get; set; }
+
+    public List<Puesto>? Puestos { get; set; }
+
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public Personal Personal { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Personal);
+    }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+
+    private async Task LoadAsync(int page = 1)
+    {
+        string url = $"api/puestos/sinfiltro";
+
+        var responseHppt = await repository.Get<List<Puesto>>(url);
+        Puestos = responseHppt.Response!;
+    }
+}

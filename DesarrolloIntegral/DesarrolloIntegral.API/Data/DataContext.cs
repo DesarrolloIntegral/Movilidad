@@ -21,6 +21,10 @@ namespace DesarrolloIntegral.API.Data
 
         public DbSet<PerfilUsuario> PerfilesUsuario { get; set; }
 
+        public DbSet<Puesto> Puestos { get; set; }
+
+        public DbSet<Personal> Personal { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -30,7 +34,7 @@ namespace DesarrolloIntegral.API.Data
                 .IsUnique();
 
             modelBuilder.Entity<Banco>()
-                .HasIndex(b => b.NombreBanco)
+                .HasIndex(b => b.Nombre)
                 .IsUnique();
 
             modelBuilder.Entity<Empresa>()
@@ -42,6 +46,14 @@ namespace DesarrolloIntegral.API.Data
                 .IsUnique();
 
             modelBuilder.Entity<PerfilUsuario>()
+                .HasIndex(b => b.Nombre)
+                .IsUnique();
+
+            modelBuilder.Entity<Puesto>()
+                .HasIndex(b => b.Nombre)
+                .IsUnique();
+
+            modelBuilder.Entity<Personal>()
                 .HasIndex(b => b.Nombre)
                 .IsUnique();
         }

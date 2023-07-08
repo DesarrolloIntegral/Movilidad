@@ -3,6 +3,7 @@ using DesarrolloIntegral.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230708005135_addpersonales")]
+    partial class addpersonales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,7 +177,7 @@ namespace DesarrolloIntegral.API.Migrations
 
                     b.HasIndex("PuestoId");
 
-                    b.ToTable("Personal");
+                    b.ToTable("Personales");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Puesto", b =>

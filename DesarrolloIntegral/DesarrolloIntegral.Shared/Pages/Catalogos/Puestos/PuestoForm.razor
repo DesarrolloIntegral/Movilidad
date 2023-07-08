@@ -4,10 +4,10 @@
 <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
     <div class="mb-3">
-        <label>Perfiles Usuario:</label>
+        <label>Puestos:</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Perfil.Nombre" />
-            <ValidationMessage For="@(() => Perfil.Nombre)" />
+            <InputText class="form-control" @bind-Value="@Puesto.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Puesto.Nombre = __value?.ToUpper(), Puesto.Nombre?.ToUpper())" />
+            <ValidationMessage For="@(() => Puesto.Nombre)" />
         </div>
     </div>
     <button class="btn btn-success" type="submit">Guardar Cambios</button>
@@ -15,11 +15,12 @@
 </EditForm>
 
 @code {
+
     private EditContext editContext = null!;
 
     [EditorRequired]
     [Parameter]
-    public PerfilUsuario Perfil { get; set; } = null!;
+    public Puesto Puesto { get; set; } = null!;
 
     [EditorRequired]
     [Parameter]
@@ -31,7 +32,7 @@
 
     protected override void OnInitialized()
     {
-        editContext = new(Perfil);
+        editContext = new(Puesto);
     }
 
     public bool FormPostedSuccessfully { get; set; } = false;

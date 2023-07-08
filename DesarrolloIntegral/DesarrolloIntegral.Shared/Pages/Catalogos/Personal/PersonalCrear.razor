@@ -1,0 +1,32 @@
+﻿@page "/personales/crear"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Puesto</h3>
+<PersonalForm @ref="personalForm" Personal="personal" OnValidSubmit="Crear" ReturnAction="Return" />
+
+@code {
+    private Personal personal = new();
+    private PersonalForm? personalForm;
+
+    private async Task Crear()
+    {
+        var responseHttp = await repository.Post("/api/personales", personal);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        personalForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/personales");
+    }
+}

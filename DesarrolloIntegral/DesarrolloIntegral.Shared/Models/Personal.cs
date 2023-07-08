@@ -8,16 +8,21 @@ using System.Xml.Linq;
 
 namespace DesarrolloIntegral.Shared.Models
 {
-    public class PerfilUsuario
+    public class Personal
     {
         public int Id { get; set; }
 
-        [Display(Name = "Nombre del perfil")]
+        [Display(Name = "Nombre del Empleado")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
-        [MaxLength(20, ErrorMessage = "El campo {0} no puede contener más de {1} caracteres.")]
+        [MaxLength(100, ErrorMessage = "El campo {0} no puede contener más de {1} caracteres.")]
 
         public string? Nombre { get; set; }
-
         public int Estado { get; set; }
+
+        [Display(Name = "Puesto del Empleado")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+        public int PuestoId { get; set; }
+        public Puesto? Puesto { get; set; }
+
     }
 }

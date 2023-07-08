@@ -1,0 +1,64 @@
+﻿@page "/puestos/editar/{Id:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Editar Puesto</h3>
+
+@if (puesto is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <PuestoForm @ref="puestoForm" Puesto="puesto" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+@code {
+    private Puesto? puesto;
+    private PuestoForm? puestoForm;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<Puesto>($"api/puestos/{Id}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("puestos");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        puesto = responseHTTP.Response;
+    }
+
+    private async Task EditAsync()
+    {
+        var responseHTTP = await repository.Put("api/puestos", puesto);
+
+        if (responseHTTP.Error)
+        {
+            var mensajeError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        puestoForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/puestos");
+    }
+}

@@ -27,7 +27,7 @@ namespace DesarrolloIntegral.API.Controllers
                 .AsQueryable();
 
             return Ok(await queryable
-                .OrderBy(x => x.NombreBanco)
+                .OrderBy(x => x.Nombre)
                 .Paginate(pagination)
                 .ToListAsync());
 

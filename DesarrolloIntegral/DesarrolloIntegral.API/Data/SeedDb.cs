@@ -24,8 +24,8 @@ namespace DesarrolloIntegral.API.Data
             {
                 _context.Bancos.Add(new Banco 
                 { 
-                    NombreBanco = "Banamex", 
-                    EstadoBanco= 1,
+                    Nombre = "Banamex", 
+                    Estado = 1,
                     Cuentas = new List<CuentaBancaria>
                     {
                         new CuentaBancaria
@@ -42,8 +42,8 @@ namespace DesarrolloIntegral.API.Data
                 });
                 _context.Bancos.Add(new Banco 
                 { 
-                    NombreBanco = "Bancomer", 
-                    EstadoBanco = 1,
+                    Nombre = "Bancomer", 
+                    Estado = 1,
                     Cuentas = new List<CuentaBancaria>
                     {
                         new CuentaBancaria

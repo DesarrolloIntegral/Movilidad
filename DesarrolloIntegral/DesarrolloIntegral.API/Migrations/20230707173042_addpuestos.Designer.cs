@@ -3,6 +3,7 @@ using DesarrolloIntegral.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230707173042_addpuestos")]
+    partial class addpuestos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,17 +32,17 @@ namespace DesarrolloIntegral.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Estado")
+                    b.Property<int>("EstadoBanco")
                         .HasColumnType("int");
 
-                    b.Property<string>("Nombre")
+                    b.Property<string>("NombreBanco")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Nombre")
+                    b.HasIndex("NombreBanco")
                         .IsUnique();
 
                     b.ToTable("Bancos");
@@ -136,45 +139,15 @@ namespace DesarrolloIntegral.API.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Nombre")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Nombre] IS NOT NULL");
 
                     b.ToTable("PerfilesUsuario");
-                });
-
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Personal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("PuestoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Nombre")
-                        .IsUnique();
-
-                    b.HasIndex("PuestoId");
-
-                    b.ToTable("Personal");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Puesto", b =>
@@ -189,14 +162,13 @@ namespace DesarrolloIntegral.API.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Nombre")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Nombre] IS NOT NULL");
 
                     b.ToTable("Puestos");
                 });
@@ -212,25 +184,9 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Navigation("Banco");
                 });
 
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Personal", b =>
-                {
-                    b.HasOne("DesarrolloIntegral.Shared.Models.Puesto", "Puesto")
-                        .WithMany("Personals")
-                        .HasForeignKey("PuestoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Puesto");
-                });
-
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Banco", b =>
                 {
                     b.Navigation("Cuentas");
-                });
-
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Puesto", b =>
-                {
-                    b.Navigation("Personals");
                 });
 #pragma warning restore 612, 618
         }
