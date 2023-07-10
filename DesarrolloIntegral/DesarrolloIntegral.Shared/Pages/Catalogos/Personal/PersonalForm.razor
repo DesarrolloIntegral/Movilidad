@@ -5,18 +5,28 @@
 <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
     <div class="mb-3">
-        <label>Empleados :</label>
+        <label>Clave :</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Personal.Nombre" />
+            <InputText class="form-control" @bind-Value="@Personal.Clave" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Personal.Clave = __value?.ToUpper(), Personal.Clave?.ToUpper())" />
+            <ValidationMessage For="@(() => Personal.Clave)" />
+        </div>
+        <label>Nombre :</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Personal.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Personal.Nombre = __value?.ToUpper(), Personal.Nombre?.ToUpper())" />
             <ValidationMessage For="@(() => Personal.Nombre)" />
         </div>
+        <label>Puesto :</label>
         <div>
-            <InputSelect @bind-Value="Personal.PuestoId">
-                @foreach (var puesto in Puestos!)
+            <select @bind="Personal.PuestoId">
+                <option value=0>Seleccione Puesto...</option>
+                @if (Puestos != null)
                 {
-                    <option value="@puesto.Id">@puesto.Nombre</option>
+                    @foreach (var pue in Puestos)
+                    {
+                        <option value="@pue.Id">@pue.Nombre</option>
+                    }
                 }
-            </InputSelect>
+            </select>
         </div>
     </div>
     <button class="btn btn-success" type="submit">Guardar Cambios</button>
@@ -43,9 +53,10 @@
     [Parameter]
     public EventCallback ReturnAction { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         editContext = new(Personal);
+        await LoadAsync();
     }
 
     public bool FormPostedSuccessfully { get; set; } = false;

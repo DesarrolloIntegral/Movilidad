@@ -6,7 +6,7 @@
     <div class="mb-3">
         <label>Nombre:</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Empresa.Nombre" />
+            <InputText class="form-control" @bind-Value="@Empresa.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Empresa.Nombre = __value?.ToUpper(), Empresa.Nombre?.ToUpper())" />
             <ValidationMessage For="@(() => Empresa.Nombre)" />
         </div>
         <label>Abreviatura:</label>

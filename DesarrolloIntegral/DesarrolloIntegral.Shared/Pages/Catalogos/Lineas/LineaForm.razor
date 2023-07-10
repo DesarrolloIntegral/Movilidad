@@ -6,7 +6,7 @@
     <div class="mb-3">
         <label>Lineas:</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Linea.Nombre" />
+            <InputText class="form-control" @bind-Value="@Linea.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Linea.Nombre = __value?.ToUpper(), Linea.Nombre?.ToUpper())" />
             <ValidationMessage For="@(() => Linea.Nombre)" />
         </div>
     </div>

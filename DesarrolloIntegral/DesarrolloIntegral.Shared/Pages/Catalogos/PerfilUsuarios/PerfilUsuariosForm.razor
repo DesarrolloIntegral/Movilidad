@@ -6,7 +6,7 @@
     <div class="mb-3">
         <label>Perfiles Usuario:</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Perfil.Nombre" />
+            <InputText class="form-control" @bind-Value="@Perfil.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Perfil.Nombre = __value?.ToUpper(), Perfil.Nombre?.ToUpper())" />
             <ValidationMessage For="@(() => Perfil.Nombre)" />
         </div>
     </div>

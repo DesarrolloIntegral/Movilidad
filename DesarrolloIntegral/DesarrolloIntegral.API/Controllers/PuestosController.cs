@@ -21,13 +21,16 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("sinfiltro")]
         public async Task<IActionResult> GetAsync()
         {
-            return Ok(await _context.Empresa.OrderBy(p => p.Nombre).ToListAsync());
+            return Ok(await _context.Puestos
+                .Include(s => s.Personals)
+                .OrderBy(p => p.Nombre).ToListAsync());
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
             var queryable = _context.Puestos
+                .Include(p => p.Personals)
                 .AsQueryable();
 
             return Ok(await queryable
@@ -49,6 +52,7 @@ namespace DesarrolloIntegral.API.Controllers
         public async Task<ActionResult> GetAsync(int id)
         {
             var puesto = await _context.Puestos
+                .Include(p => p.Personals)
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (puesto is null)
             {

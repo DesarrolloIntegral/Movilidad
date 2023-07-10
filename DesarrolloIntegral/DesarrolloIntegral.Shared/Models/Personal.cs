@@ -12,6 +12,12 @@ namespace DesarrolloIntegral.Shared.Models
     {
         public int Id { get; set; }
 
+        [Display(Name = "Clave del Empleado")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+        [MaxLength(5, ErrorMessage = "El campo {0} no puede contener más de {1} caracteres.")]
+
+        public string? Clave { get; set; }
+
         [Display(Name = "Nombre del Empleado")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         [MaxLength(100, ErrorMessage = "El campo {0} no puede contener más de {1} caracteres.")]
@@ -21,8 +27,8 @@ namespace DesarrolloIntegral.Shared.Models
 
         [Display(Name = "Puesto del Empleado")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+
         public int PuestoId { get; set; }
         public Puesto? Puesto { get; set; }
-
     }
 }

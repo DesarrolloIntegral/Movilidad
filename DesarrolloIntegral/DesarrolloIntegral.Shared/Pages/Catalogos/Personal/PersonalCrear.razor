@@ -13,6 +13,12 @@
 
     private async Task Crear()
     {
+        if (personal.PuestoId == 0)
+        {
+            await sweetAlertService.FireAsync("Validación", "Aún no ha seleccionado el puesto", SweetAlertIcon.Info);
+            return;
+        }
+        personal.Estado = 1;
         var responseHttp = await repository.Post("/api/personales", personal);
         if (responseHttp.Error)
         {
