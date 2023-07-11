@@ -16,7 +16,6 @@ namespace DesarrolloIntegral.Shared.Models
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         [MaxLength(20, ErrorMessage = "El campo {0} no puede contener más de {1} caracteres.")]
         public string? Nombre { get; set; }
-
         public int Estado { get; set; }
     }
 }

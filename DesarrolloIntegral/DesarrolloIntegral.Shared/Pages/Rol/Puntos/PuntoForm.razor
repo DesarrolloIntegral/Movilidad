@@ -1,0 +1,48 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService sweetAlertService
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <div>
+            <label>Nombre del Punto :</label>
+            <InputText class="form-control" @bind-Value="@Punto.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Punto.Nombre = __value?.ToUpper(), Punto.Nombre?.ToUpper())" />
+            <ValidationMessage For="@(() => Punto.Nombre)" />
+            <label>Abreviatura :</label>
+            <InputText class="form-control" @bind-Value="@Punto.Abreviatura" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Punto.Abreviatura = __value?.ToUpper(), Punto.Abreviatura?.ToUpper())" />
+            <ValidationMessage For="@(() => Punto.Abreviatura)" />
+            <label>Latitud :</label>
+            <InputText class="form-control" @bind-Value="@Punto.Latitud" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Punto.Latitud = __value?.ToUpper(), Punto.Latitud?.ToUpper())" />
+            <ValidationMessage For="@(() => Punto.Latitud)" />
+            <label>Longitud :</label>
+            <InputText class="form-control" @bind-Value="@Punto.Longitud" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Punto.Longitud = __value?.ToUpper(), Punto.Longitud?.ToUpper())" />
+            <ValidationMessage For="@(() => Punto.Longitud)" />
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public PuntoRecorrido Punto { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Punto);
+    }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+}

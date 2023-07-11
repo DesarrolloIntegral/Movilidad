@@ -64,6 +64,7 @@ namespace DesarrolloIntegral.API.Controllers
         {
             try
             {
+                cuenta.EstadoCuenta = 1;
                 _context.Add(cuenta);
                 await _context.SaveChangesAsync();
                 return Ok(cuenta);

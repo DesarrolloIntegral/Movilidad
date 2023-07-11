@@ -58,6 +58,7 @@ namespace DesarrolloIntegral.API.Controllers
         {
             try
             {
+                perfil.Estado = 1;
                 _context.Add(perfil);
                 await _context.SaveChangesAsync();
                 return Ok(perfil);

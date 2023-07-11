@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 namespace DesarrolloIntegral.API.Controllers
 {
     [ApiController]
-    [Route("/api/lineas")]
-    public class LineasController : ControllerBase
+    [Route("/api/puntos")]
+    public class PuntosController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public LineasController(DataContext context)
+        public PuntosController(DataContext context)
         {
             _context = context;
         }
@@ -21,7 +21,7 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Lineas
+            var queryable = _context.Puntos
                 .AsQueryable();
 
             return Ok(await queryable
@@ -33,45 +33,45 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("totalPages")]
         public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Lineas.AsQueryable();
+            var queryable = _context.Puntos.AsQueryable();
             double count = await queryable.CountAsync();
             double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
             return Ok(totalPages);
         }
 
-
         [HttpGet("{id:int}")]
         public async Task<ActionResult> GetAsync(int id)
         {
-            var linea = await _context.Lineas
+            var punto = await _context.Puntos
                 .FirstOrDefaultAsync(x => x.Id == id);
-            if (linea is null)
+
+            if (punto is null)
             {
                 return NotFound();
             }
 
-            return Ok(linea);
+            return Ok(punto);
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(Linea linea)
+        public async Task<ActionResult> PostAsync(PuntoRecorrido punto)
         {
             try
             {
-                linea.Estado = 1;
-                _context.Add(linea);
+                punto.Estado = 1;
+                _context.Add(punto);
                 await _context.SaveChangesAsync();
-                return Ok(linea);
+                return Ok(punto);
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un banco con este nombre");
+                    return BadRequest("Ya existe un empleado con este nombre");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un banco con este nombre");
+                    return BadRequest("Ya existe un empleado con este nombre");
                 }
 
                 return BadRequest(dbUpdateException.Message);
@@ -83,23 +83,23 @@ namespace DesarrolloIntegral.API.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> PutAsync(Linea linea)
+        public async Task<ActionResult> PutAsync(PuntoRecorrido punto)
         {
             try
             {
-                _context.Update(linea);
+                _context.Update(punto);
                 await _context.SaveChangesAsync();
-                return Ok(linea);
+                return Ok(punto);
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un banco con este nombre");
+                    return BadRequest("Ya existe un puesto con este nombre");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un banco con este nombre");
+                    return BadRequest("Ya existe un puesto con este nombre");
                 }
 
                 return BadRequest(dbUpdateException.Message);
@@ -113,14 +113,14 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteAsync(int id)
         {
-            var linea = await _context.Lineas.FirstOrDefaultAsync(x => x.Id == id);
+            var punto = await _context.Puntos.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (linea == null)
+            if (punto == null)
             {
                 return NotFound();
             }
 
-            _context.Remove(linea);
+            _context.Remove(punto);
             await _context.SaveChangesAsync();
             return NoContent();
         }

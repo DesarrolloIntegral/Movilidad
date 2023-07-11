@@ -67,6 +67,7 @@ namespace DesarrolloIntegral.API.Controllers
         {
             try
             {
+                puesto.Estado = 1;
                 _context.Add(puesto);
                 await _context.SaveChangesAsync();
                 return Ok(puesto);

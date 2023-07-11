@@ -24,6 +24,7 @@ namespace DesarrolloIntegral.API.Data
         public DbSet<Puesto> Puestos { get; set; }
 
         public DbSet<Personal> Personal { get; set; }
+        public DbSet<PuntoRecorrido> Puntos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,6 +55,10 @@ namespace DesarrolloIntegral.API.Data
                 .IsUnique();
 
             modelBuilder.Entity<Personal>()
+                .HasIndex(b => b.Nombre)
+                .IsUnique();
+
+            modelBuilder.Entity<PuntoRecorrido>()
                 .HasIndex(b => b.Nombre)
                 .IsUnique();
         }

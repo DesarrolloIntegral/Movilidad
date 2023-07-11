@@ -44,7 +44,7 @@ namespace DesarrolloIntegral.API.Controllers
         public async Task<ActionResult> GetAsync(int id)
         {
             var personal = await _context.Personal
-                //.Include(p => p.Puesto)
+                .Include(p => p.Puesto)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (personal is null)
@@ -60,6 +60,7 @@ namespace DesarrolloIntegral.API.Controllers
         {
             try
             {
+                personal.Estado = 1;
                 _context.Add(personal);
                 await _context.SaveChangesAsync();
                 return Ok(personal);

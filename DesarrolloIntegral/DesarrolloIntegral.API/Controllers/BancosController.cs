@@ -71,6 +71,7 @@ namespace DesarrolloIntegral.API.Controllers
         {
             try
             {
+                banco.Estado = 1;
                 _context.Add(banco);
                 await _context.SaveChangesAsync();
                 return Ok(banco);

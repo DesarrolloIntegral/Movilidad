@@ -1,0 +1,32 @@
+﻿@page "/puntos/crear"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Punto Recorrido</h3>
+<PuntoForm @ref="puntoForm" Punto="punto" OnValidSubmit="Crear" ReturnAction="Return" />
+
+@code {
+    private PuntoRecorrido punto = new();
+    private PuntoForm? puntoForm;
+
+    private async Task Crear()
+    {
+        var responseHttp = await repository.Post("/api/puntos", punto);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        puntoForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/puntos");
+    }
+}

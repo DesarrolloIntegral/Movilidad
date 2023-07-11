@@ -3,6 +3,7 @@ using DesarrolloIntegral.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230710221327_addPuntos")]
+    partial class addPuntos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -225,6 +228,9 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Property<string>("Latitud")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("LineaId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Longitud")
                         .HasColumnType("nvarchar(max)");
 
@@ -235,10 +241,9 @@ namespace DesarrolloIntegral.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Nombre")
-                        .IsUnique();
+                    b.HasIndex("LineaId");
 
-                    b.ToTable("Puntos");
+                    b.ToTable("PuntoRecorrido");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.CuentaBancaria", b =>
@@ -263,9 +268,25 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Navigation("Puesto");
                 });
 
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.PuntoRecorrido", b =>
+                {
+                    b.HasOne("DesarrolloIntegral.Shared.Models.Linea", "Linea")
+                        .WithMany("Puntos")
+                        .HasForeignKey("LineaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Linea");
+                });
+
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Banco", b =>
                 {
                     b.Navigation("Cuentas");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Linea", b =>
+                {
+                    b.Navigation("Puntos");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Puesto", b =>
