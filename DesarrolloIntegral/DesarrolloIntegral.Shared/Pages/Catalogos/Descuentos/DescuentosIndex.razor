@@ -150,7 +150,7 @@
         }
 
         descuento.Estado = 1;
-        var responseHTTP = await repository.Put($"api/personales/", descuento);
+        var responseHTTP = await repository.Put($"api/descuentos/", descuento);
 
         if (responseHTTP.Error)
         {

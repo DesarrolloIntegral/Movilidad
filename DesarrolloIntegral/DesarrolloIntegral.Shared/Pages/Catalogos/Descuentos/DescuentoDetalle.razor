@@ -1,0 +1,116 @@
+﻿@page "/descuentos/detalles/{Id:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+@if (descuento is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <h3>@descuento.Nombre</h3>
+    <div class="mb-2">
+        <a class="btn btn-primary" href="/descuentosdetalles/crear/@descuento.Id">Nuevo Detalle</a>
+        <a class="btn btn-success" href="/descuentos">Regresar</a>
+    </div>
+
+}
+
+<Pagination CurrentPage="currentPage"
+            TotalPages="totalPages"
+            SelectedPage="SelectedPage" />
+
+<GenericList MyList="detalles">
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th style="width:260px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detalle in detalles!)
+                {
+                    <tr>
+                        <td>
+                            @detalle.Id
+                        </td>
+                        <td>
+                            <a class="btn btn-warning" href="/descuentosdetalles/editar/@detalle.Id">Editar</a>
+                            <button class="btn btn-danger" @onclick=@(() => DeleteAsync(detalle.Id))>Borrar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+
+@code {
+    private Descuento? descuento;
+    private List<DescuentoDetalle>? detalles;
+
+    private int currentPage = 1;
+    private int totalPages;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        currentPage = page;
+        await LoadAsync(page);
+    }
+
+    private async Task LoadAsync(int page = 1)
+    {
+        string url1 = $"api/descuentosdetalles?id={Id}&page={page}";
+        string url2 = $"api/descuentosdetalles/totalPages?id={Id}";
+        var responseHppt = await repository.Get<Descuento>($"api/descuentos/{Id}");
+        var responseHppt2 = await repository.Get<List<DescuentoDetalle>>(url1);
+        var responseHppt3 = await repository.Get<int>(url2);
+        descuento = responseHppt.Response;
+        detalles = responseHppt2.Response;
+        totalPages = responseHppt3.Response;
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Esta seguro que quieres borrar el registro?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        var responseHTTP = await repository.Delete($"api/descuentosdetalles/{id}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+            {
+                var mensajeError = await responseHTTP.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                return;
+            }
+        }
+
+        await LoadAsync();
+    }
+}

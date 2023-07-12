@@ -93,7 +93,9 @@ namespace DesarrolloIntegral.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Nombre")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -384,7 +386,7 @@ namespace DesarrolloIntegral.API.Migrations
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.DescuentoOrigenDestino", b =>
                 {
                     b.HasOne("DesarrolloIntegral.Shared.Models.DescuentoDetalle", "DescuentoDetalle")
-                        .WithMany()
+                        .WithMany("OrigenDestinos")
                         .HasForeignKey("DescuentoDetalleId");
 
                     b.HasOne("DesarrolloIntegral.Shared.Models.PuntoRecorrido", "PuntoDestino")
@@ -421,6 +423,11 @@ namespace DesarrolloIntegral.API.Migrations
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Descuento", b =>
                 {
                     b.Navigation("DescuentoDetalles");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.DescuentoDetalle", b =>
+                {
+                    b.Navigation("OrigenDestinos");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Linea", b =>

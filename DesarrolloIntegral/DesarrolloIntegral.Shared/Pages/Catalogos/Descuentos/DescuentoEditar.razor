@@ -1,0 +1,63 @@
+﻿@page "/descuentos/editar/{Id:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Descuento</h3>
+
+@if (descuento is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+        <DescuentoForm @ref="descuentoForm" Descuento="descuento" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+@code {
+    private Descuento? descuento;
+    private DescuentoForm? descuentoForm;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<Descuento>($"api/descuentos/{Id}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("descuentos");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        descuento = responseHTTP.Response;
+    }
+
+    private async Task EditAsync()
+    {
+        var responseHTTP = await repository.Put("api/descuentos", descuento);
+
+        if (responseHTTP.Error)
+        {
+            var mensajeError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        descuentoForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/descuentos");
+    }
+}

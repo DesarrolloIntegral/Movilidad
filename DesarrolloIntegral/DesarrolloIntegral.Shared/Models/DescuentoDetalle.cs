@@ -21,5 +21,7 @@ namespace DesarrolloIntegral.Shared.Models
 
         public Descuento? Descuento { get; set; }
         public int DescuentoId { get; set; }
+
+        public ICollection<DescuentoOrigenDestino>? OrigenDestinos { get; set; }
     }
 }

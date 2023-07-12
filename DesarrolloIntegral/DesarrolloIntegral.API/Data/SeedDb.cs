@@ -15,7 +15,7 @@ namespace DesarrolloIntegral.API.Data
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync();
-            await CheckBancosAsync();
+            //await CheckBancosAsync();
         }
 
         private async Task CheckBancosAsync()

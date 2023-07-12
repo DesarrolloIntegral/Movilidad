@@ -47,6 +47,11 @@
 
     protected override void OnInitialized()
     {
+        if (Descuento.Id == 0)
+        {
+            Descuento.FechaInicio = DateTime.Now.Date;
+            Descuento.FechaFin = DateTime.Now.Date;
+        }
         editContext = new(Descuento);
     }
 
