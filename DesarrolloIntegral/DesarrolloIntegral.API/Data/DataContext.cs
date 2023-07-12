@@ -24,7 +24,14 @@ namespace DesarrolloIntegral.API.Data
         public DbSet<Puesto> Puestos { get; set; }
 
         public DbSet<Personal> Personal { get; set; }
+
         public DbSet<PuntoRecorrido> Puntos { get; set; }
+
+        public DbSet<Descuento> Descuentos { get; set; }
+
+        public DbSet<DescuentoDetalle> DescuentosDetalles { get; set; }
+
+        public DbSet<DescuentoOrigenDestino> DescuentosOrigenDestino { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

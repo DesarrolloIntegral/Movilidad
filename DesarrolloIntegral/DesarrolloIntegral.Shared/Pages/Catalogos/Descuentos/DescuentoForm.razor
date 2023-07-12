@@ -1,0 +1,54 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Nombre :</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Descuento.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Descuento.Nombre = __value?.ToUpper(), Descuento.Nombre?.ToUpper())" />
+            <ValidationMessage For="@(() => Descuento.Nombre)" />
+        </div>
+        <label>Fecha de Inicio :</label>
+        <div>
+            <InputDate @bind-Value="@Descuento.FechaInicio" />
+            <ValidationMessage For="@(() => Descuento.FechaInicio)" />
+        </div>
+        <label>Fecha de Fin :</label>
+        <div>
+            <InputDate @bind-Value="@Descuento.FechaFin" />
+            <ValidationMessage For="@(() => Descuento.FechaFin)" />
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    public string? Ruta { get; set; }
+
+    public List<Descuento>? Descuentos { get; set; }
+
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public Descuento Descuento { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Descuento);
+    }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+}

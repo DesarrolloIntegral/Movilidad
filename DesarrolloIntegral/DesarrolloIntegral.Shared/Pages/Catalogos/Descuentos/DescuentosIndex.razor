@@ -1,0 +1,167 @@
+﻿@page "/descuentos"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Descuentos</h3>
+
+<div class="mb-3">
+    <a class="btn btn-primary mb-3" href="/descuentos/crear">Nuevo Descuento</a>
+</div>
+
+<Pagination CurrentPage="currentPage"
+            TotalPages="totalPages"
+            SelectedPage="SelectedPageAsync" />
+
+<GenericList MyList="Descuentos">
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>FechaInicio</th>
+                    <th>FechaFin</th>
+                    <th>Status</th>
+                    <th style="width:400px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var descuento in Descuentos!)
+                {
+                    <tr>
+                        <td>
+                            @descuento.Nombre
+                        </td>
+                        <td>
+                            @descuento.FechaInicio.ToString("dd-MM-yyyy")
+                        </td>
+                        <td>
+                            @descuento.FechaFin.ToString("dd-MM-yyyy")
+                        </td>
+                        <td>
+                            @if (descuento.Estado == 1)
+                            {
+                                <p>Activo</p>
+                            }
+                            else
+                            {
+                                <p>Baja</p>
+                            }
+                        </td>
+                        <td>
+                            <a class="btn btn-info" href="/descuentos/detalles/@descuento.Id">Detalles</a>
+                            <a class="btn btn-warning" href="/descuentos/editar/@descuento.Id">Editar</a>
+                            @if (descuento.Estado == 1)
+                            {
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(descuento))>Desactivar</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(descuento))>Activar</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+@code {
+    [CascadingParameter]
+    public string? Ruta { get; set; }
+
+    public List<Descuento>? Descuentos { get; set; }
+
+    private int currentPage = 1;
+    private int totalPages;
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync(int page = 1)
+    {
+        string url1 = $"api/descuentos?page={page}";
+        string url2 = $"api/descuentos/totalPages";
+
+        var responseHppt = await repository.Get<List<Descuento>>(url1);
+        var responseHppt2 = await repository.Get<int>(url2);
+        Descuentos = responseHppt.Response!;
+        totalPages = responseHppt2.Response!;
+    }
+
+    private async Task SelectedPageAsync(int page)
+    {
+        currentPage = page;
+        await LoadAsync(page);
+    }
+
+    private async Task DesactivarAsync(Descuento descuento)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Esta seguro que quieres Desactivar el Empleado?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        descuento.Estado = 0;
+        var responseHTTP = await repository.Put($"api/descuentos/", descuento);
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+            {
+                var mensajeError = await responseHTTP.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                return;
+            }
+        }
+
+        await LoadAsync();
+    }
+
+    private async Task ActivarAsync(Descuento descuento)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Esta seguro que quieres activar el Empleado?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        descuento.Estado = 1;
+        var responseHTTP = await repository.Put($"api/personales/", descuento);
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+            {
+                var mensajeError = await responseHTTP.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                return;
+            }
+        }
+
+        await LoadAsync();
+    }
+}

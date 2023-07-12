@@ -17,5 +17,7 @@ namespace DesarrolloIntegral.Shared.Models
         [MaxLength(20, ErrorMessage = "El campo {0} no puede contener más de {1} caracteres.")]
         public string? Nombre { get; set; }
         public int Estado { get; set; }
+
+        public ICollection<DescuentoDetalle>? DescuentoDetalles { get; set; }
     }
 }
