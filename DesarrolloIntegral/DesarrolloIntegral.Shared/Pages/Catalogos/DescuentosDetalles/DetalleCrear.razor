@@ -1,0 +1,49 @@
+﻿@page "/detalles/crear/{DescuentoId:int}"
+
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Nueva Cuenta</h3>
+
+<DetalleForm @ref="detalleForm" Detalle="detalle" OnValidSubmit="CrearAsync" ReturnAction="Return" />
+
+@code {
+    private DescuentoDetalle detalle = new();
+    private DetalleForm? detalleForm;
+    private Linea linea = new();
+
+    [Parameter]
+    public int DescuentoId { get; set; }
+
+    private async Task CrearAsync()
+    {
+        if (detalle.LineaId == 0)
+        {
+            await sweetAlertService.FireAsync("Error", "No ha seleccionado la línea", SweetAlertIcon.Error);
+            return;
+        }
+        if (detalle.Tipo == 0)
+        {
+            await sweetAlertService.FireAsync("Error", "No ha seleccionado el tipo de descuento", SweetAlertIcon.Error);
+            return;
+        }
+
+        detalle.DescuentoId = DescuentoId;
+        var responseHttp = await repository.Post("/api/descuentosdetalles", detalle);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        detalleForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/descuentos/detalles/{DescuentoId}");
+    }
+}

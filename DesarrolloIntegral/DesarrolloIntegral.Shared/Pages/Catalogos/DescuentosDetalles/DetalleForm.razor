@@ -1,0 +1,87 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService sweetAlertService
+@inject IRepository repository
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Linea :</label>
+        <div>
+            <select @bind="Detalle.LineaId">
+                <option value=0>Seleccione Linea...</option>
+                @if (Lineas != null)
+                {
+                    @foreach (var lin in Lineas)
+                    {
+                        <option value="@lin.Id">@lin.Nombre</option>
+                    }
+                }
+            </select>
+        </div>
+        <label>Tipo :</label>
+        <div>
+            <select @bind="Detalle.Tipo">
+                <option value=0>Seleccione Tipo...</option>
+                <option value=1>Valor</option>
+                <option value=2>Porcentaje</option>
+            </select>
+        </div>
+        <label>Valor :</label>
+        <div>
+            <InputNumber @bind-Value="@Detalle.Valor" />
+            <ValidationMessage For="@(() => Detalle.Valor)" />
+        </div>
+        <label>Fecha de Inicio :</label>
+        <div>
+            <InputDate @bind-Value="@Detalle.FechaInicio" />
+            <ValidationMessage For="@(() => Detalle.FechaInicio)" />
+        </div>
+        <label>Fecha de Fin :</label>
+        <div>
+            <InputDate @bind-Value="@Detalle.FechaFin" />
+            <ValidationMessage For="@(() => Detalle.FechaFin)" />
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+
+    public List<Linea>? Lineas { get; set; }
+
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public DescuentoDetalle Detalle { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Detalle.Id == 0)
+        {
+            Detalle.FechaInicio = DateTime.Now.Date;
+            Detalle.FechaFin = DateTime.Now.Date;
+        }
+        editContext = new(Detalle);
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        string url = $"api/lineas/sinfiltro";
+
+        var responseHppt = await repository.Get<List<Linea>>(url);
+        Lineas = responseHppt.Response!;
+    }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+}
