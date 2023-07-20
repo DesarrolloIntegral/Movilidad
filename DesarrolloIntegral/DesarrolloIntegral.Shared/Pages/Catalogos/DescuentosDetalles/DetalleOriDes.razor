@@ -1,4 +1,4 @@
-﻿@page "/descuentos/detalles/{Id:int}"
+﻿@page "/detalles/orides/{Id:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
@@ -10,25 +10,24 @@
 else
 {
     <h3>@descuento.Nombre</h3>
+    <h2>@detalle?.Linea?.Nombre</h2>
     <div class="mb-2">
-        <a class="btn btn-primary" href="/detalles/crear/@descuento.Id">Nuevo Detalle</a>
-        <a class="btn btn-success" href="/descuentos">Regresar</a>
+        <a class="btn btn-primary" href="/origendestino/crear/@detalle?.Id">Nuevo Detalle</a>
+        <a class="btn btn-success" href="/descuentos/detalles/@descuento.Id">Regresar</a>
     </div>
-
 }
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPage" />
 
-<GenericList MyList="detalles">
+<GenericList MyList="OrigenDestino">
     <Body>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Linea</th>
-                    <th>Tipo</th>
-                    <th>Valor</th>
+                    <th>Origen</th>
+                    <th>Destino</th>
                     <th>FechaInicio</th>
                     <th>FechaFin</th>
                     <th>Status</th>
@@ -36,33 +35,23 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var detalle in detalles!)
+                @foreach (var orides in OrigenDestino!)
                 {
                     <tr>
                         <td>
-                            @detalle.Linea!.Nombre
+                            @orides.PuntoOrigen?.Nombre
                         </td>
                         <td>
-                            @if (@detalle.Tipo == 1)
-                            {
-                                <p>Valor</p>
-                            }
-                            @if (@detalle.Tipo == 2)
-                            {
-                                <p>Porcentaje</p>
-                            }
+                            @orides.PuntoDestino?.Nombre
                         </td>
                         <td>
-                            @detalle.Valor
+                            @orides.FechaInicio.ToString("dd-MM-yyyy")
                         </td>
                         <td>
-                            @detalle.FechaInicio.ToString("dd-MM-yyyy")
+                            @orides.FechaFin.ToString("dd-MM-yyyy")
                         </td>
                         <td>
-                            @detalle.FechaFin.ToString("dd-MM-yyyy")
-                        </td>
-                        <td>
-                            @if (detalle.Estado == 1)
+                            @if (orides.Estado == 1)
                             {
                                 <p>Activo</p>
                             }
@@ -72,15 +61,14 @@ else
                             }
                         </td>
                         <td>
-                            <a class="btn btn-info" href="/detalles/orides/@detalle.Id">Detalles</a>
-                            <a class="btn btn-warning" href="/detalles/editar/@detalle.Id">Editar</a>
-                            @if (detalle.Estado == 1)
+                            <a class="btn btn-warning" href="/origendestino/editar/@orides.Id">Editar</a>
+                            @if (orides.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(detalle))>Desactivar</button>
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(orides))>Desactivar</button>
                             }
                             else
                             {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(detalle))>Activar</button>
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(orides))>Activar</button>
                             }
 
                         </td>
@@ -94,7 +82,8 @@ else
 
 @code {
     private Descuento? descuento;
-    private List<Models.DescuentoDetalle>? detalles;
+    private DescuentoDetalle? detalle;
+    private List<DescuentoOrigenDestino>? OrigenDestino;
 
     private int currentPage = 1;
     private int totalPages;
@@ -115,49 +104,19 @@ else
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/descuentosdetalles?id={Id}&page={page}";
-        string url2 = $"api/descuentosdetalles/totalPages?id={Id}";
-        var responseHppt = await repository.Get<Descuento>($"api/descuentos/{Id}");
-        var responseHppt2 = await repository.Get<List<Models.DescuentoDetalle>>(url1);
+        string url1 = $"api/origendestino?id={Id}&page={page}";
+        string url2 = $"api/origendestino/totalPages?id={Id}";
+        var responseHppt = await repository.Get<DescuentoDetalle>($"api/descuentosdetalles/{Id}");
+        var responseHppt2 = await repository.Get<List<DescuentoOrigenDestino>>(url1);
         var responseHppt3 = await repository.Get<int>(url2);
-        descuento = responseHppt.Response;
-        detalles = responseHppt2.Response;
+        var responseHppt4 = await repository.Get<Descuento>($"api/descuentos/{Id}");
+        detalle = responseHppt.Response;
+        OrigenDestino = responseHppt2.Response;
         totalPages = responseHppt3.Response;
+        descuento = responseHppt4.Response;
     }
 
-    private async Task DeleteAsync(int id)
-    {
-        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
-            {
-                Title = "Confirmación",
-                Text = "¿Esta seguro que quieres borrar el registro?",
-                Icon = SweetAlertIcon.Question,
-                ShowCancelButton = true
-            });
-
-        var confirm = string.IsNullOrEmpty(result.Value);
-
-        if (confirm)
-        {
-            return;
-        }
-
-        var responseHTTP = await repository.Delete($"api/descuentosdetalles/{id}");
-
-        if (responseHTTP.Error)
-        {
-            if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
-            {
-                var mensajeError = await responseHTTP.GetErrorMessageAsync();
-                await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
-                return;
-            }
-        }
-
-        await LoadAsync();
-    }
-
-    private async Task DesactivarAsync(Models.DescuentoDetalle detalle)
+    private async Task DesactivarAsync(DescuentoOrigenDestino detalle)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
@@ -175,7 +134,7 @@ else
         }
 
         detalle.Estado = 0;
-        var responseHTTP = await repository.Put($"api/descuentosdetalles/", detalle);
+        var responseHTTP = await repository.Put($"api/origendestino/", detalle);
 
         if (responseHTTP.Error)
         {
@@ -190,7 +149,7 @@ else
         await LoadAsync();
     }
 
-    private async Task ActivarAsync(Models.DescuentoDetalle detalle)
+    private async Task ActivarAsync(DescuentoOrigenDestino detalle)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
@@ -208,7 +167,7 @@ else
         }
 
         detalle.Estado = 1;
-        var responseHTTP = await repository.Put($"api/descuentosdetalles/", detalle);
+        var responseHTTP = await repository.Put($"api/origendestino/", detalle);
 
         if (responseHTTP.Error)
         {

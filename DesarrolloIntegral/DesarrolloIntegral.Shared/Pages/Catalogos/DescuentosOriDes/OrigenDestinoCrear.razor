@@ -1,0 +1,54 @@
+﻿@page "/origendestino/crear/{DetalleId:int}"
+
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Nuevo Detalle Origen Destino</h3>
+
+<OrigenDestinoForm @ref="oridesForm" OrigenDestino="orides" DetalleId="DetalleId" OnValidSubmit="CrearAsync" ReturnAction="Return" />
+
+@code {
+    private DescuentoOrigenDestino orides = new();
+    private OrigenDestinoForm? oridesForm;
+    private DescuentoDetalle? detalle;
+
+    [Parameter]
+    public int DetalleId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var x = DetalleId;
+    }
+
+    private async Task CrearAsync()
+    {
+        if (orides.PuntoOrigenId == 0)
+        {
+            await sweetAlertService.FireAsync("Error", "No ha seleccionado el Origen", SweetAlertIcon.Error);
+            return;
+        }
+        if (orides.PuntoDestinoId == 0)
+        {
+            await sweetAlertService.FireAsync("Error", "No ha seleccionado el Destino", SweetAlertIcon.Error);
+            return;
+        }
+
+        orides.DescuentoDetalleId = DetalleId;
+        var responseHttp = await repository.Post("/api/origendestino", orides);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        oridesForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/detalles/orides/{DetalleId}");
+    }
+}

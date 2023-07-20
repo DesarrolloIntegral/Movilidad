@@ -31,7 +31,7 @@ namespace DesarrolloIntegral.API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     FechaInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FechaFin = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Estado = table.Column<int>(type: "int", nullable: false)
@@ -197,12 +197,9 @@ namespace DesarrolloIntegral.API.Migrations
                     FechaInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FechaFin = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Estado = table.Column<int>(type: "int", nullable: false),
-                    DetalleId = table.Column<int>(type: "int", nullable: false),
-                    DescuentoDetalleId = table.Column<int>(type: "int", nullable: true),
-                    OrigenId = table.Column<int>(type: "int", nullable: false),
-                    PuntoOrigenId = table.Column<int>(type: "int", nullable: true),
-                    DestinoId = table.Column<int>(type: "int", nullable: false),
-                    PuntoDestinoId = table.Column<int>(type: "int", nullable: true)
+                    DescuentoDetalleId = table.Column<int>(type: "int", nullable: false),
+                    PuntoOrigenId = table.Column<int>(type: "int", nullable: false),
+                    PuntoDestinoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -211,7 +208,8 @@ namespace DesarrolloIntegral.API.Migrations
                         name: "FK_DescuentosOrigenDestino_DescuentosDetalles_DescuentoDetalleId",
                         column: x => x.DescuentoDetalleId,
                         principalTable: "DescuentosDetalles",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_DescuentosOrigenDestino_Puntos_PuntoDestinoId",
                         column: x => x.PuntoDestinoId,

@@ -1,0 +1,108 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService sweetAlertService
+@inject IRepository repository
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Origen :</label>
+        <div>
+            <select @bind="OrigenDestino.PuntoOrigenId">
+                <option value=0>Seleccione Origen...</option>
+                @if (Origenes != null)
+                {
+                    @foreach (var ori in Origenes)
+                    {
+                        <option value="@ori.Id">@ori.Nombre</option>
+                    }
+                }
+            </select>
+        </div>
+        <label>Destino :</label>
+        <div>
+            <select @bind="OrigenDestino.PuntoDestinoId">
+                <option value=0>Seleccione Destino...</option>
+                @if (Destinos != null)
+                {
+                    @foreach (var des in Destinos)
+                    {
+                        <option value="@des.Id">@des.Nombre</option>
+                    }
+                }
+            </select>
+        </div>
+        <label>Fecha de Inicio :</label>
+        <div>
+            <InputDate @bind-Value="@OrigenDestino.FechaInicio" />
+            <ValidationMessage For="@(() => OrigenDestino.FechaInicio)" />
+        </div>
+        <label>Fecha de Fin :</label>
+        <div>
+            <InputDate @bind-Value="@OrigenDestino.FechaFin" />
+            <ValidationMessage For="@(() => OrigenDestino.FechaFin)" />
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+
+    public List<Linea>? Lineas { get; set; }
+
+    public List<PuntoRecorrido>? Origenes { get; set; }
+
+    public List<PuntoRecorrido>? Destinos { get; set; }
+
+    public DescuentoDetalle? detalle { get; set; }
+
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public DescuentoOrigenDestino OrigenDestino { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public int DetalleId { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (OrigenDestino.Id == 0)
+        {
+            OrigenDestino.FechaInicio = DateTime.Now.Date;
+            OrigenDestino.FechaFin = DateTime.Now.Date;
+        }
+        editContext = new(OrigenDestino);
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        string url = $"api/lineas/sinfiltro";
+
+        var responseHppt = await repository.Get<List<Linea>>(url);
+        Lineas = responseHppt.Response!;
+
+        string urlPunto = $"api/puntos/sinfiltro";
+
+        var responseHppt2 = await repository.Get<List<PuntoRecorrido>>(urlPunto);
+        Origenes = responseHppt2.Response!;
+
+        var responseHppt3 = await repository.Get<List<PuntoRecorrido>>(urlPunto);
+        Destinos = responseHppt2.Response!;
+
+        var responseHppt4 = await repository.Get<DescuentoDetalle>($"api/descuentosdetalles/{DetalleId}/0");
+        detalle = responseHppt4.Response!;
+    }
+}

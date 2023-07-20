@@ -148,13 +148,7 @@ namespace DesarrolloIntegral.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("DescuentoDetalleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DestinoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DetalleId")
+                    b.Property<int>("DescuentoDetalleId")
                         .HasColumnType("int");
 
                     b.Property<int>("Estado")
@@ -166,13 +160,10 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Property<DateTime>("FechaInicio")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("OrigenId")
+                    b.Property<int>("PuntoDestinoId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PuntoDestinoId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PuntoOrigenId")
+                    b.Property<int>("PuntoOrigenId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -387,15 +378,21 @@ namespace DesarrolloIntegral.API.Migrations
                 {
                     b.HasOne("DesarrolloIntegral.Shared.Models.DescuentoDetalle", "DescuentoDetalle")
                         .WithMany("OrigenDestinos")
-                        .HasForeignKey("DescuentoDetalleId");
+                        .HasForeignKey("DescuentoDetalleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DesarrolloIntegral.Shared.Models.PuntoRecorrido", "PuntoDestino")
-                        .WithMany()
-                        .HasForeignKey("PuntoDestinoId");
+                        .WithMany("PuntoDestinos")
+                        .HasForeignKey("PuntoDestinoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("DesarrolloIntegral.Shared.Models.PuntoRecorrido", "PuntoOrigen")
-                        .WithMany()
-                        .HasForeignKey("PuntoOrigenId");
+                        .WithMany("PuntoOrigenes")
+                        .HasForeignKey("PuntoOrigenId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("DescuentoDetalle");
 
@@ -438,6 +435,13 @@ namespace DesarrolloIntegral.API.Migrations
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Puesto", b =>
                 {
                     b.Navigation("Personals");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.PuntoRecorrido", b =>
+                {
+                    b.Navigation("PuntoDestinos");
+
+                    b.Navigation("PuntoOrigenes");
                 });
 #pragma warning restore 612, 618
         }

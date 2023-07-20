@@ -1,0 +1,63 @@
+﻿@page "/detalles/editar/{DetalleId:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Detalle Descuento</h3>
+
+@if (detalle is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <DetalleForm @ref="detalleForm" Detalle="detalle" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+@code {
+    private DescuentoDetalle? detalle;
+    private DetalleForm? detalleForm;
+
+    [Parameter]
+    public int DetalleId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<DescuentoDetalle>($"api/descuentosdetalles/{DetalleId}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/descuentos/detalles/");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        detalle = responseHTTP.Response;
+    }
+
+    private async Task EditAsync()
+    {
+        var responseHTTP = await repository.Put("api/descuentosdetalles", detalle);
+
+        if (responseHTTP.Error)
+        {
+            var mensajeError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        detalleForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/descuentos/detalles/{detalle!.DescuentoId}");
+    }
+}

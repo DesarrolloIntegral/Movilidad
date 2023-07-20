@@ -17,8 +17,8 @@
             </select>
 *@        </div>
     </div>
-    <button class="btn btn-success" type="submit">Guardar Cambios</button>
-    <button class="btn btn-primary" @onclick="ReturnAction">Regresar</button>
+    <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+    <button class="btn btn-success" type="button" @onclick="ReturnAction">Regresar</button>
 </EditForm>
 
 @code {
@@ -37,6 +37,8 @@
     [Parameter]
     public EventCallback ReturnAction { get; set; }
 
+    public bool FormPostedSuccessfully { get; set; }
+
     void ChangeState(ChangeEventArgs e)
     {
         Banco.Estado = Convert.ToInt32(e.Value!.ToString());
@@ -47,7 +49,6 @@
         editContext = new(Banco);
     }
 
-    public bool FormPostedSuccessfully { get; set; } = false;
 
     /*
     private async Task OnBeforeInternalNavigation(LocationChangingContext context)

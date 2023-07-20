@@ -1,6 +1,7 @@
 ﻿using DesarrolloIntegral.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using System.Text.RegularExpressions;
 
 namespace DesarrolloIntegral.API.Data
 {
@@ -68,6 +69,19 @@ namespace DesarrolloIntegral.API.Data
             modelBuilder.Entity<PuntoRecorrido>()
                 .HasIndex(b => b.Nombre)
                 .IsUnique();
+
+            modelBuilder.Entity<DescuentoOrigenDestino>()
+                    .HasOne(m => m.PuntoOrigen)
+                    .WithMany(t => t.PuntoOrigenes)
+                    .HasForeignKey(m => m.PuntoOrigenId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DescuentoOrigenDestino>()
+                    .HasOne(m => m.PuntoDestino)
+                    .WithMany(t => t.PuntoDestinos)
+                    .HasForeignKey(m => m.PuntoDestinoId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
         }
     }
 }

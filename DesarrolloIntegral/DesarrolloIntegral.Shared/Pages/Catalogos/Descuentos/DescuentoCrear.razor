@@ -5,13 +5,13 @@
 
 
 <h3>Crear Descuento</h3>
-<DescuentoForm @ref="descuentoForm" Descuento="descuento" OnValidSubmit="Crear" ReturnAction="Return" />
+<DescuentoForm @ref="descuentoForm" Descuento="descuento" OnValidSubmit="CrearAsync" ReturnAction="Return" />
 
 @code {
     private Descuento descuento = new();
     private DescuentoForm? descuentoForm;
 
-    private async Task Crear()
+    private async Task CrearAsync()
     {
         var responseHttp = await repository.Post("/api/descuentos", descuento);
         if (responseHttp.Error)

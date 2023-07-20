@@ -8,40 +8,39 @@ using Microsoft.EntityFrameworkCore;
 namespace DesarrolloIntegral.API.Controllers
 {
     [ApiController]
-    [Route("/api/puntos")]
-    public class PuntosController : ControllerBase
+    [Route("/api/origendestino")]
+    public class DescuentosOrigenDestinoController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public PuntosController(DataContext context)
+        public DescuentosOrigenDestinoController(DataContext context)
         {
             _context = context;
         }
 
-        [HttpGet("sinfiltro")]
-        public async Task<IActionResult> GetAsync()
-        {
-            return Ok(await _context.Puntos
-                .OrderBy(p => p.Nombre).ToListAsync());
-        }
-
-
         [HttpGet]
-        public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
+        public async Task<ActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Puntos
+            var queryable = _context.DescuentosOrigenDestino
+                .Include(n => n.PuntoOrigen)
+                .Include(n => n.PuntoDestino)
+                .Include(d => d.DescuentoDetalle)
+                .Where(x => x.DescuentoDetalle!.Id == pagination.Id)
                 .AsQueryable();
 
             return Ok(await queryable
-                .OrderBy(x => x.Nombre)
-                .Paginate(pagination)
-                .ToListAsync());
+                        .Paginate(pagination)
+                        .ToListAsync());
+
         }
 
         [HttpGet("totalPages")]
         public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Puntos.AsQueryable();
+            var queryable = _context.DescuentosOrigenDestino
+                .Where(x => x.DescuentoDetalle!.Id == pagination.Id)
+                .AsQueryable();
+
             double count = await queryable.CountAsync();
             double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
             return Ok(totalPages);
@@ -50,64 +49,68 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult> GetAsync(int id)
         {
-            var punto = await _context.Puntos
+            var origendestino = await _context.DescuentosOrigenDestino
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (punto is null)
+            if (origendestino is null)
             {
                 return NotFound();
             }
 
-            return Ok(punto);
+            return Ok(origendestino);
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(PuntoRecorrido punto)
+        public async Task<ActionResult> PostAsync(DescuentoOrigenDestino origendestino)
         {
             try
             {
-                punto.Estado = 1;
-                _context.Add(punto);
+                origendestino.Estado = 1;
+                _context.Add(origendestino);
                 await _context.SaveChangesAsync();
-                return Ok(punto);
+                return Ok(origendestino);
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un empleado con este nombre");
+                    return BadRequest("Ya existe descuento con esos datos");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un empleado con este nombre");
+                    return BadRequest("Ya existe descuento con esos datos");
                 }
 
                 return BadRequest(dbUpdateException.Message);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                return BadRequest(exception.Message);
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPut]
-        public async Task<ActionResult> PutAsync(PuntoRecorrido punto)
+        public async Task<ActionResult> PutAsync(DescuentoOrigenDestino origendestino)
         {
             try
             {
-                _context.Update(punto);
+                origendestino.DescuentoDetalle = null;
+                origendestino.PuntoOrigen = null;
+                origendestino.PuntoDestino = null;
+                _context.Update(origendestino);
                 await _context.SaveChangesAsync();
-                return Ok(punto);
+                return Ok(origendestino);
+
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un puesto con este nombre");
+                    return BadRequest("Ya existe descuento con esos datos");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un puesto con este nombre");
+                    return BadRequest("Ya existe descuento con esos datos");
                 }
 
                 return BadRequest(dbUpdateException.Message);
@@ -116,21 +119,6 @@ namespace DesarrolloIntegral.API.Controllers
             {
                 return BadRequest(exception.Message);
             }
-        }
-
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> DeleteAsync(int id)
-        {
-            var punto = await _context.Puntos.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (punto == null)
-            {
-                return NotFound();
-            }
-
-            _context.Remove(punto);
-            await _context.SaveChangesAsync();
-            return NoContent();
         }
     }
 }

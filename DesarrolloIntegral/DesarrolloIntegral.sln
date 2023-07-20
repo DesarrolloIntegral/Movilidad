@@ -5,8 +5,6 @@ VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesarrolloIntegral.API", "DesarrolloIntegral.API\DesarrolloIntegral.API.csproj", "{F612798F-74D8-4F16-9A0B-B415721C1BB7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesarrolloIntegral.WEB", "DesarrolloIntegral.WEB\DesarrolloIntegral.WEB.csproj", "{8DC61B22-0496-43F4-B003-D3934685375D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesarrolloIntegral.Shared", "DesarrolloIntegral.Shared\DesarrolloIntegral.Shared.csproj", "{9776A1FB-91D1-4571-8A55-AC0362F5B0CC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesarrolloIntegral.MAUI", "DesarrolloIntegral.MAUI\DesarrolloIntegral.MAUI.csproj", "{88D00EC9-BAB7-4DF5-ABFA-7DBE4F620C41}"
@@ -26,10 +24,6 @@ Global
 		{F612798F-74D8-4F16-9A0B-B415721C1BB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F612798F-74D8-4F16-9A0B-B415721C1BB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F612798F-74D8-4F16-9A0B-B415721C1BB7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8DC61B22-0496-43F4-B003-D3934685375D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8DC61B22-0496-43F4-B003-D3934685375D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8DC61B22-0496-43F4-B003-D3934685375D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8DC61B22-0496-43F4-B003-D3934685375D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9776A1FB-91D1-4571-8A55-AC0362F5B0CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9776A1FB-91D1-4571-8A55-AC0362F5B0CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9776A1FB-91D1-4571-8A55-AC0362F5B0CC}.Release|Any CPU.ActiveCfg = Release|Any CPU

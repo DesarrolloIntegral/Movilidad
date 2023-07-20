@@ -23,6 +23,7 @@ namespace DesarrolloIntegral.API.Controllers
         {
             var queryable = _context.DescuentosDetalles
                 .Include(od => od.OrigenDestinos)
+                .Include(l => l.Linea)
                 .Where(x => x.Descuento!.Id == pagination.Id)
                 .AsQueryable();
 
@@ -48,6 +49,21 @@ namespace DesarrolloIntegral.API.Controllers
         public async Task<ActionResult> GetAsync(int id)
         {
             var detalle = await _context.DescuentosDetalles
+                .Include(l => l.Linea)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (detalle is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(detalle);
+        }
+
+        [HttpGet("{id:int}/{cero:int}")]
+        public async Task<ActionResult> GetAsync(int id, int cero)
+        {
+            var detalle = await _context.DescuentosDetalles
+                .Include(d => d.Descuento)
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (detalle is null)
             {
@@ -91,6 +107,8 @@ namespace DesarrolloIntegral.API.Controllers
         {
             try
             {
+                detalle.Linea = null;
+                detalle.Descuento = null;
                 _context.Update(detalle);
                 await _context.SaveChangesAsync();
                 return Ok(detalle);

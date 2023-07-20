@@ -1,0 +1,63 @@
+﻿@page "/origendestino/editar/{OrigenDestinoId:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Origen Destino</h3>
+
+@if (origendestino is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <OrigenDestinoForm @ref="origendestinoForm" DetalleId="origendestino.DescuentoDetalleId" OrigenDestino="origendestino" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+@code {
+    private DescuentoOrigenDestino? origendestino;
+    private OrigenDestinoForm? origendestinoForm;
+
+    [Parameter]
+    public int OrigenDestinoId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<DescuentoOrigenDestino>($"api/origendestino/{OrigenDestinoId}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/descuentos/detalles/");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        origendestino = responseHTTP.Response;
+    }
+
+    private async Task EditAsync()
+    {
+        var responseHTTP = await repository.Put("api/origendestino", origendestino);
+
+        if (responseHTTP.Error)
+        {
+            var mensajeError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        origendestinoForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/detalles/orides/{origendestino!.DescuentoDetalleId}");
+    }
+}

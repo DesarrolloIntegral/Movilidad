@@ -14,13 +14,13 @@ namespace DesarrolloIntegral.Shared.Models
 
         public int Estado { get; set; }
 
-        public int DetalleId { get; set; }
+        public int DescuentoDetalleId { get; set; }
         public DescuentoDetalle? DescuentoDetalle { get; set; }
 
-        public int OrigenId { get; set; }
-        public PuntoRecorrido? PuntoOrigen { get; set; }
+        public int PuntoOrigenId { get; set; }
+        public int PuntoDestinoId { get; set; }
 
-        public int DestinoId { get; set; }
+        public PuntoRecorrido? PuntoOrigen { get; set; }
         public PuntoRecorrido? PuntoDestino { get; set; }
     }
 }
