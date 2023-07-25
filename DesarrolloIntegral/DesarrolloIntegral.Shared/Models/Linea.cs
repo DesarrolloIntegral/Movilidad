@@ -19,5 +19,6 @@ namespace DesarrolloIntegral.Shared.Models
         public int Estado { get; set; }
 
         public ICollection<DescuentoDetalle>? DescuentoDetalles { get; set; }
+        public ICollection<Ruta>? Rutas { get; set; }
     }
 }

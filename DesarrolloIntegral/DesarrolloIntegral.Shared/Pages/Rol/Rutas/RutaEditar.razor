@@ -1,0 +1,63 @@
+﻿@page "/rutas/editar/{Id:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Ruta</h3>
+
+@if (ruta is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <RutaForm @ref="rutaForm" Ruta="ruta" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+@code {
+    private Ruta? ruta;
+    private RutaForm? rutaForm;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<Ruta>($"api/rutas/{Id}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/rutas");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        ruta = responseHTTP.Response;
+    }
+
+    private async Task EditAsync()
+    {
+        var responseHTTP = await repository.Put("api/rutas", ruta);
+
+        if (responseHTTP.Error)
+        {
+            var mensajeError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        rutaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/rutas");
+    }
+}

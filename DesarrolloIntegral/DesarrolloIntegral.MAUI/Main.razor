@@ -1,6 +1,6 @@
 ﻿<Router AppAssembly="@typeof(Main).Assembly" AdditionalAssemblies="new[] {typeof(Shared.MainLayout).Assembly}">
 	<Found Context="routeData">
-		<CascadingValue Value="@Ruta">
+		<CascadingValue Value="@rutaCnx">
 			<CascadingValue Value="@Tipo">
 				<RouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.MainLayout)" />
 				<FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -17,7 +17,7 @@
 @code
 {
 	public static string plat = DeviceInfo.Platform.ToString();
-	public static string Ruta = GeneraRuta(plat);
+	public static string rutaCnx = GeneraRuta(plat);
 	public static int Tipo = 1;
 
 	public static string GeneraRuta(string plat)

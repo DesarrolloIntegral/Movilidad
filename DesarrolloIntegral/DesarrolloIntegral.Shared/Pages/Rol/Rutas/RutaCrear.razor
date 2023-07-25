@@ -1,0 +1,32 @@
+﻿@page "/rutas/crear"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Punto Recorrido</h3>
+<RutaForm @ref="rutaForm" Ruta="ruta" OnValidSubmit="Crear" ReturnAction="Return" />
+
+@code {
+    private Ruta ruta = new();
+    private RutaForm? rutaForm;
+
+    private async Task Crear()
+    {
+        var responseHttp = await repository.Post("/api/rutas", ruta);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        rutaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/rutas");
+    }
+}

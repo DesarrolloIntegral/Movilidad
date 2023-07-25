@@ -17,6 +17,14 @@
             <label>Longitud :</label>
             <InputText class="form-control" @bind-Value="@Punto.Longitud" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Punto.Longitud = __value?.ToUpper(), Punto.Longitud?.ToUpper())" />
             <ValidationMessage For="@(() => Punto.Longitud)" />
+            <label>Venta :</label>
+            <div>
+                <select @bind="Punto.Venta">
+                    <option value=0>No</option>
+                    <option value=1>Si</option>
+                </select>
+            </div>
+
         </div>
     </div>
     <button class="btn btn-success" type="submit">Guardar Cambios</button>

@@ -1,20 +1,18 @@
 ﻿using DesarrolloIntegral.Shared.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using System.Text.RegularExpressions;
 
 namespace DesarrolloIntegral.API.Data
 {
-    public class DataContext: DbContext
+    public class DataContext : DbContext
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-            
+
         }
 
         public DbSet<CuentaBancaria> Cuentas { get; set; }
 
-        public DbSet<Banco> Bancos{ get; set; }
+        public DbSet<Banco> Bancos { get; set; }
 
         public DbSet<Empresa> Empresa { get; set; }
 
@@ -33,6 +31,12 @@ namespace DesarrolloIntegral.API.Data
         public DbSet<DescuentoDetalle> DescuentosDetalles { get; set; }
 
         public DbSet<DescuentoOrigenDestino> DescuentosOrigenDestino { get; set; }
+
+        public DbSet<Tarifa> Tarifas { get; set; }
+
+        public DbSet<Ruta> Rutas { get; set; }
+
+        public DbSet<Trayecto> Trayectos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -82,6 +86,13 @@ namespace DesarrolloIntegral.API.Data
                     .HasForeignKey(m => m.PuntoDestinoId)
                     .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<Tarifa>()
+                    .HasIndex(b => b.Nombre)
+                    .IsUnique();
+
+            modelBuilder.Entity<Ruta>()
+                    .HasIndex(b => b.Nombre)
+                    .IsUnique();
         }
     }
 }

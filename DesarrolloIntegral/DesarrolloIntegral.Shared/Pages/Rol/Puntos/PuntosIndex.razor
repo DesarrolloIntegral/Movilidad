@@ -22,6 +22,7 @@
                     <th>Abreviatura</th>
                     <th>Latitud</th>
                     <th>Longitud</th>
+                    <th>Venta</th>
                     <th>Status</th>
                     <th style="width:400px"></th>
                 </tr>
@@ -41,6 +42,16 @@
                         </td>
                         <td>
                             @punto.Longitud
+                        </td>
+                        <td>
+                            @if (punto.Venta == 0)
+                            {
+                                <p>No</p>
+                            }
+                            else if (punto.Venta == 1)
+                            {
+                                <p>Si</p>
+                            }
                         </td>
                         <td>
                             @if (punto.Estado == 1)
@@ -72,7 +83,7 @@
 
 @code {
     [CascadingParameter]
-    public string? Ruta { get; set; }
+    public string? rutaCnx { get; set; }
 
     public List<PuntoRecorrido>? Puntos { get; set; }
 

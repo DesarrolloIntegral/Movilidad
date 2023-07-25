@@ -24,8 +24,11 @@ namespace DesarrolloIntegral.Shared.Models
         public int Estado { get; set; }
         public string? Latitud { get; set; }
         public string? Longitud { get; set; }
+        public int Venta { get; set; } //0:No 1:Si
 
         public ICollection<DescuentoOrigenDestino>? PuntoOrigenes { get; set; }
         public ICollection<DescuentoOrigenDestino>? PuntoDestinos { get; set; }
+
+        public ICollection<Trayecto>? Trayectos { get; set; }
     }
 }

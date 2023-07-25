@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 namespace DesarrolloIntegral.API.Controllers
 {
     [ApiController]
-    [Route("/api/descuentosdetalles")]
-    public class DescuentosDetallesController : ControllerBase
+    [Route("/api/rutas")]
+    public class RutasController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public DescuentosDetallesController(DataContext context)
+        public RutasController(DataContext context)
         {
             _context = context;
         }
@@ -21,10 +21,9 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.DescuentosDetalles
-                .Include(od => od.OrigenDestinos)
+            var queryable = _context.Rutas
+                .Include(t => t.Trayectos)
                 .Include(l => l.Linea)
-                .Where(x => x.Descuento!.Id == pagination.Id)
                 .AsQueryable();
 
             return Ok(await queryable
@@ -35,10 +34,7 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("totalPages")]
         public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.DescuentosDetalles
-                .Where(x => x.Descuento!.Id == pagination.Id)
-                .AsQueryable();
-
+            var queryable = _context.Rutas.AsQueryable();
             double count = await queryable.CountAsync();
             double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
             return Ok(totalPages);
@@ -47,81 +43,68 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult> GetAsync(int id)
         {
-            var detalle = await _context.DescuentosDetalles
+            var ruta = await _context.Rutas
+                .Include(t => t.Trayectos)
                 .Include(l => l.Linea)
                 .FirstOrDefaultAsync(x => x.Id == id);
-            if (detalle is null)
+            if (ruta is null)
             {
                 return NotFound();
             }
 
-            return Ok(detalle);
-        }
-
-        [HttpGet("{id:int}/{cero:int}")]
-        public async Task<ActionResult> GetAsync(int id, int cero)
-        {
-            var detalle = await _context.DescuentosDetalles
-                .Include(d => d.Descuento)
-                .FirstOrDefaultAsync(x => x.Id == id);
-            if (detalle is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(detalle);
+            return Ok(ruta);
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(DescuentoDetalle detalle)
+        public async Task<ActionResult> PostAsync(Ruta ruta)
         {
             try
             {
-                detalle.Estado = 1;
-                _context.Add(detalle);
+                ruta.Estado = 1;
+                _context.Add(ruta);
                 await _context.SaveChangesAsync();
-                return Ok(detalle);
+                return Ok(ruta);
+
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe descuento con esos datos");
+                    return BadRequest("Ya existe una ruta con este nombre");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe descuento con esos datos");
+                    return BadRequest("Ya existe una ruta con este nombre");
                 }
 
                 return BadRequest(dbUpdateException.Message);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(exception.Message);
             }
         }
 
         [HttpPut]
-        public async Task<ActionResult> PutAsync(DescuentoDetalle detalle)
+        public async Task<ActionResult> PutAsync(Ruta ruta)
         {
             try
             {
-                detalle.Linea = null;
-                detalle.Descuento = null;
-                _context.Update(detalle);
+                ruta.Linea = null;
+                _context.Update(ruta);
                 await _context.SaveChangesAsync();
-                return Ok(detalle);
+                return Ok(ruta);
 
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe descuento con esos datos");
+                    return BadRequest("Ya existe una ruta con este nombre");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe descuento con esos datos");
+                    return BadRequest("YYa existe una ruta con este nombre");
                 }
 
                 return BadRequest(dbUpdateException.Message);

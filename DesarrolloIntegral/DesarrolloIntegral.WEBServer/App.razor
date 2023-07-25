@@ -1,6 +1,6 @@
 ﻿<Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="new[] {typeof(Shared.MainLayout).Assembly}">
     <Found Context="routeData">
-        <CascadingValue Value="@ruta">
+        <CascadingValue Value="@rutaCnx">
             <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </CascadingValue>
@@ -15,5 +15,5 @@
 
 @code
 {
-    public string ruta = "se graba en sqlserver";
+    public string rutaCnx = "se graba en sqlserver";
 }

@@ -1,45 +1,68 @@
-﻿@page "/personales"
+﻿@page "/rutas/detalles/{Id:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-<h3>Personal</h3>
+@if (descuento is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <h3>@descuento.Nombre</h3>
+    <div class="mb-2">
+        <a class="btn btn-primary" href="/detalles/crear/@descuento.Id">Nuevo Detalle</a>
+        <a class="btn btn-success" href="/descuentos">Regresar</a>
+    </div>
 
-<div class="mb-3">
-    <a class="btn btn-primary mb-3" href="/personales/crear">Nuevo Empleado</a>
-</div>
+}
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
-            SelectedPage="SelectedPageAsync" />
+            SelectedPage="SelectedPage" />
 
-<GenericList MyList="Personales">
+<GenericList MyList="detalles">
     <Body>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Clave</th>
-                    <th>Nombre</th>
-                    <th>Puesto</th>
+                    <th>Linea</th>
+                    <th>Tipo</th>
+                    <th>Valor</th>
+                    <th>FechaInicio</th>
+                    <th>FechaFin</th>
                     <th>Status</th>
                     <th style="width:400px"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var personal in Personales!)
+                @foreach (var detalle in detalles!)
                 {
                     <tr>
                         <td>
-                            @personal.Clave
+                            @detalle.Linea!.Nombre
                         </td>
                         <td>
-                            @personal.Nombre
+                            @if (@detalle.Tipo == 1)
+                            {
+                                <p>Valor</p>
+                            }
+                            @if (@detalle.Tipo == 2)
+                            {
+                                <p>Porcentaje</p>
+                            }
                         </td>
                         <td>
-                            @personal.Puesto?.Nombre
+                            @detalle.Valor
                         </td>
                         <td>
-                            @if(personal.Estado == 1)
+                            @detalle.FechaInicio.ToString("dd-MM-yyyy")
+                        </td>
+                        <td>
+                            @detalle.FechaFin.ToString("dd-MM-yyyy")
+                        </td>
+                        <td>
+                            @if (detalle.Estado == 1)
                             {
                                 <p>Activo</p>
                             }
@@ -49,16 +72,17 @@
                             }
                         </td>
                         <td>
-                            <a class="btn btn-warning" href="/personales/editar/@personal.Id">Editar</a>
-                            <button class="btn btn-danger" @onclick=@(() => DeleteAsync(personal.Id))>Borrar</button>
-                            @if (personal.Estado == 1)
+                            <a class="btn btn-info" href="/detalles/orides/@detalle.Id">Detalles</a>
+                            <a class="btn btn-warning" href="/detalles/editar/@detalle.Id">Editar</a>
+                            @if (detalle.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(personal))>Desactivar</button>
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(detalle))>Desactivar</button>
                             }
                             else
                             {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(personal))>Activar</button>
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(detalle))>Activar</button>
                             }
+
                         </td>
                     </tr>
                 }
@@ -67,29 +91,38 @@
     </Body>
 </GenericList>
 
-@code {
-    [CascadingParameter]
-    public string? rutaCnx { get; set; }
 
-    public List<Personal>? Personales { get; set; }
+@code {
+    private Ruta? ruta;
+    private List<Trayecto>? trayectos;
 
     private int currentPage = 1;
     private int totalPages;
 
-    protected async override Task OnInitializedAsync()
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
     }
 
+    private async Task SelectedPage(int page)
+    {
+        currentPage = page;
+        await LoadAsync(page);
+    }
+
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/personales?page={page}";
-        string url2 = $"api/personales/totalPages";
-
-        var responseHppt = await repository.Get<List<Personal>>(url1);
-        var responseHppt2 = await repository.Get<int>(url2);
-        Personales = responseHppt.Response!;
-        totalPages = responseHppt2.Response!;
+        string url1 = $"api/descuentosdetalles?id={Id}&page={page}";
+        string url2 = $"api/descuentosdetalles/totalPages?id={Id}";
+        var responseHppt = await repository.Get<Descuento>($"api/descuentos/{Id}");
+        var responseHppt2 = await repository.Get<List<Models.DescuentoDetalle>>(url1);
+        var responseHppt3 = await repository.Get<int>(url2);
+        descuento = responseHppt.Response;
+        detalles = responseHppt2.Response;
+        totalPages = responseHppt3.Response;
     }
 
     private async Task DeleteAsync(int id)
@@ -109,7 +142,7 @@
             return;
         }
 
-        var responseHTTP = await repository.Delete($"api/personales/{id}");
+        var responseHTTP = await repository.Delete($"api/descuentosdetalles/{id}");
 
         if (responseHTTP.Error)
         {
@@ -124,13 +157,7 @@
         await LoadAsync();
     }
 
-    private async Task SelectedPageAsync(int page)
-    {
-        currentPage = page;
-        await LoadAsync(page);
-    }
-
-    private async Task DesactivarAsync(Personal personal)
+    private async Task DesactivarAsync(Models.DescuentoDetalle detalle)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
@@ -147,8 +174,8 @@
             return;
         }
 
-        personal.Estado = 0;
-        var responseHTTP = await repository.Put($"api/personales/", personal);
+        detalle.Estado = 0;
+        var responseHTTP = await repository.Put($"api/descuentosdetalles/", detalle);
 
         if (responseHTTP.Error)
         {
@@ -162,7 +189,8 @@
 
         await LoadAsync();
     }
-    private async Task ActivarAsync(Personal personal)
+
+    private async Task ActivarAsync(Models.DescuentoDetalle detalle)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
@@ -179,8 +207,8 @@
             return;
         }
 
-        personal.Estado = 1;
-        var responseHTTP = await repository.Put($"api/personales/", personal);
+        detalle.Estado = 1;
+        var responseHTTP = await repository.Put($"api/descuentosdetalles/", detalle);
 
         if (responseHTTP.Error)
         {
