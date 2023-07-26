@@ -3,19 +3,12 @@
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-@if (descuento is null)
-{
-    <p>Cargando...</p>
-}
-else
-{
-    <h3>@descuento.Nombre</h3>
+    <h3>@descuento?.Nombre</h3>
     <h2>@detalle?.Linea?.Nombre</h2>
     <div class="mb-2">
         <a class="btn btn-primary" href="/origendestino/crear/@detalle?.Id">Nuevo Detalle</a>
-        <a class="btn btn-success" href="/descuentos/detalles/@descuento.Id">Regresar</a>
+        <a class="btn btn-success" href="/descuentos/detalles/@descuento?.Id">Regresar</a>
     </div>
-}
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
@@ -109,8 +102,8 @@ else
         var responseHppt = await repository.Get<DescuentoDetalle>($"api/descuentosdetalles/{Id}");
         var responseHppt2 = await repository.Get<List<DescuentoOrigenDestino>>(url1);
         var responseHppt3 = await repository.Get<int>(url2);
-        var responseHppt4 = await repository.Get<Descuento>($"api/descuentos/{Id}");
         detalle = responseHppt.Response;
+        var responseHppt4 = await repository.Get<Descuento>($"api/descuentos/{detalle?.DescuentoId}");
         OrigenDestino = responseHppt2.Response;
         totalPages = responseHppt3.Response;
         descuento = responseHppt4.Response;

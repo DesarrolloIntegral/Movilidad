@@ -2,6 +2,7 @@
 @inject SweetAlertService sweetAlertService
 @inject IRepository repository
 
+<h3>@descuento?.Nombre</h3>
 <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
     <div class="mb-3">
@@ -49,12 +50,17 @@
 @code {
 
     public List<Linea>? Lineas { get; set; }
+    public Descuento? descuento;
 
     private EditContext editContext = null!;
 
     [EditorRequired]
     [Parameter]
     public DescuentoDetalle Detalle { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public int DescuentoId { get; set; }
 
     [EditorRequired]
     [Parameter]
@@ -83,5 +89,8 @@
 
         var responseHppt = await repository.Get<List<Linea>>(url);
         Lineas = responseHppt.Response!;
+
+        var responseHTTP2 = await repository.Get<Descuento>($"api/descuentos/{DescuentoId}");
+        descuento = responseHTTP2.Response;
     }
 }

@@ -4,9 +4,10 @@
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-<h3>Nueva Cuenta</h3>
+<h3>Nuevo Detalle</h3>
+<h1></h1>
 
-<DetalleForm @ref="detalleForm" Detalle="detalle" OnValidSubmit="CrearAsync" ReturnAction="Return" />
+<DetalleForm @ref="detalleForm" Detalle="detalle" DescuentoId="DescuentoId" OnValidSubmit="CrearAsync" ReturnAction="Return" />
 
 @code {
     private DescuentoDetalle detalle = new();

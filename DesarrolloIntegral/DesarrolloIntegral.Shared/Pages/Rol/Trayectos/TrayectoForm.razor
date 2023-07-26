@@ -27,19 +27,6 @@
                 <option value=3>Llegada</option>
             </select>
         </div>
-        <label>Posicion Trayecto :</label>
-        <div>
-            <InputNumber class="form-control" @bind-Value="@Trayecto.Posicion" />
-            <ValidationMessage For="@(() => Trayecto.Posicion)" />
-        </div>
-        <label>Terminal :</label>
-        <div>
-            <select @bind="Trayecto.Terminal">
-                <option value=0>Terminal?...</option>
-                <option value=1>Si</option>
-                <option value=2>No</option>
-            </select>
-        </div>
         <label>Kilometros :</label>
         <div>
             <InputNumber class="form-control" @bind-Value="@Trayecto.Kilometros" />
@@ -50,10 +37,25 @@
             <InputNumber class="form-control" @bind-Value="@Trayecto.Minutos" />
             <ValidationMessage For="@(() => Trayecto.Minutos)" />
         </div>
+        <label>Es Terminal? :</label>
+        <div>
+            <select @bind="Trayecto.Terminal">
+                <option value=0>...</option>
+                <option value=1>Si</option>
+                <option value=2>No</option>
+            </select>
+        </div>
         <label>Estancia en Terminal :</label>
         <div>
             <InputNumber class="form-control" @bind-Value="@Trayecto.Estancia" />
             <ValidationMessage For="@(() => Trayecto.Estancia)" />
+        </div>
+        <label>Posicion Trayecto :</label>
+        <div>
+            @*            <InputNumber class="form-control" @bind-Value="@Trayecto.Posicion" />
+            <ValidationMessage For="@(() => Trayecto.Posicion)" />
+            *@
+            <p>@Trayecto.Posicion</p>
         </div>
     </div>
     <button class="btn btn-success" type="submit">Guardar Cambios</button>

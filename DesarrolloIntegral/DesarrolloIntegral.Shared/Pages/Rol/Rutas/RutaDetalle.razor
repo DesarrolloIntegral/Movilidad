@@ -10,6 +10,7 @@
 else
 {
     <h3>@ruta.Nombre</h3>
+    <h4>Detalle Puntos Trayecto</h4>
     <div class="mb-2">
         <a class="btn btn-primary" href="/trayectos/crear/@ruta.Id">Nuevo Punto</a>
         <a class="btn btn-success" href="/rutas">Regresar</a>
@@ -93,12 +94,14 @@ else
                             <a class="btn btn-warning" href="/trayectos/editar/@trayecto.Id">Editar</a>
                             @if (trayecto.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(trayecto))>Desactivar</button>
+                                <button class="btn btn-secondary ms-1" @onclick=@(() => DesactivarAsync(trayecto))>Desactivar</button>
                             }
                             else
                             {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(trayecto))>Activar</button>
+                                <button class="btn btn-success ms-1" @onclick=@(() => ActivarAsync(trayecto))>Activar</button>
                             }
+                            <button class="btn btn-primary ms-1" @onclick=@(() => Subir(trayecto))>Subir</button>
+                            <button class="btn btn-danger ms-1" @onclick=@(() => Bajar(trayecto))>Bajar</button>
                         </td>
                     </tr>
                 }
@@ -203,6 +206,101 @@ else
                 var mensajeError = await responseHTTP.GetErrorMessageAsync();
                 await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
                 return;
+            }
+        }
+
+        await LoadAsync();
+    }
+    private async Task Subir(Trayecto trayecto)
+    {
+        int posActual = trayecto.Posicion;
+        int posSiguiente = posActual + 1;
+
+        var ultimo = trayectos?.OrderByDescending(x => x.Posicion).Take(1).FirstOrDefault();
+        int posUltimo = ultimo!.Posicion;
+
+        if (posActual == posUltimo)
+        {
+            return;
+        }
+
+        if (posUltimo > posActual)
+        {
+            Trayecto? trSiguiente = trayectos?.Where(p => p.Posicion == posSiguiente).FirstOrDefault();
+            trSiguiente!.Posicion = posActual;
+
+            //Actualiza el registro actual
+            trayecto.Posicion = posSiguiente;
+            trayecto.Ruta = null;
+            var responseHTTP = await repository.Put($"api/trayectos/", trayecto);
+
+            if (responseHTTP.Error)
+            {
+                if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+                {
+                    var mensajeError = await responseHTTP.GetErrorMessageAsync();
+                    await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                    return;
+                }
+            }
+
+            trSiguiente.Ruta = null;
+            var responseHTTP2 = await repository.Put($"api/trayectos/", trSiguiente);
+
+            if (responseHTTP2.Error)
+            {
+                if (responseHTTP2.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+                {
+                    var mensajeError = await responseHTTP2.GetErrorMessageAsync();
+                    await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                    return;
+                }
+            }
+        }
+
+        await LoadAsync();
+    }
+    private async Task Bajar(Trayecto trayecto)
+    {
+        int posActual = trayecto.Posicion;
+        int posAnterior = posActual - 1;
+
+        if (posActual == 1)
+        {
+            return;
+        }
+
+        if (posActual > 1)
+        {
+            Trayecto? trAnterior = trayectos?.Where(p => p.Posicion == posAnterior).FirstOrDefault();
+            trAnterior!.Posicion = posActual;
+
+            //Actualiza el registro actual
+            trayecto.Posicion = posAnterior;
+            trayecto.Ruta = null;
+            var responseHTTP = await repository.Put($"api/trayectos/", trayecto);
+
+            if (responseHTTP.Error)
+            {
+                if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+                {
+                    var mensajeError = await responseHTTP.GetErrorMessageAsync();
+                    await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                    return;
+                }
+            }
+
+            trAnterior.Ruta = null;
+            var responseHTTP2 = await repository.Put($"api/trayectos/", trAnterior);
+
+            if (responseHTTP2.Error)
+            {
+                if (responseHTTP2.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+                {
+                    var mensajeError = await responseHTTP2.GetErrorMessageAsync();
+                    await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                    return;
+                }
             }
         }
 

@@ -4,7 +4,7 @@
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-<h3>Nueva Punto</h3>
+<h3>Nuevo Punto Trayecto</h3>
 
 <TrayectoForm @ref="trayectoForm" Trayecto="trayecto" OnValidSubmit="CrearAsync" ReturnAction="Return" />
 
@@ -15,8 +15,19 @@
     [Parameter]
     public int RutaId { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await BuscarPosicion();
+    }
+
     private async Task CrearAsync()
     {
+        if (trayecto.Terminal == 0)
+        {
+            await sweetAlertService.FireAsync("Error", "Indique si es terminal o no", SweetAlertIcon.Info);
+            return;
+        }
+
         trayecto.RutaId = RutaId;
         var responseHttp = await repository.Post("/api/trayectos", trayecto);
         if (responseHttp.Error)
@@ -33,5 +44,22 @@
     {
         trayectoForm!.FormPostedSuccessfully = true;
         navigationManager.NavigateTo($"/rutas/detalles/{RutaId}");
+    }
+
+    private async Task BuscarPosicion()
+    {
+        string url = $"api/trayectos/{RutaId}/0";
+
+        var responseHppt = await repository.Get<Trayecto>(url);
+        Trayecto tra = responseHppt.Response!;
+
+        if (tra==null)
+        {
+            trayecto.Posicion = 1;
+        }
+        else
+        {
+            trayecto.Posicion = tra.Posicion + 1;
+        }
     }
 }

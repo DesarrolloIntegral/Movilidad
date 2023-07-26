@@ -19,6 +19,28 @@ namespace DesarrolloIntegral.API.Controllers
             _context = context;
         }
 
+        [HttpGet("{Id:int}/{prueba:int}")]
+        public async Task<IActionResult> GetAsync(int Id, int prueba)
+        {
+            var Res = await _context.Trayectos
+                .Where(p => p.RutaId == Id)
+                .OrderByDescending(o => o.Posicion).FirstOrDefaultAsync();
+
+            if (Res== null)
+            {
+                return Ok(new Trayecto());
+            }
+            else
+            {
+                return Ok(Res);
+            }
+            /*
+            return Ok(await _context.Trayectos
+                .Where(p => p.RutaId == Id)
+                .OrderByDescending(o => o.Posicion).FirstOrDefaultAsync());
+            */
+        }
+
         [HttpGet]
         public async Task<ActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
@@ -26,6 +48,7 @@ namespace DesarrolloIntegral.API.Controllers
                 .Include(p => p.Punto)
                 .Include(r => r.Ruta)
                 .Where(x => x.Ruta!.Id == pagination.Id)
+                .OrderBy(x => x.Posicion)
                 .AsQueryable();
 
             return Ok(await queryable
