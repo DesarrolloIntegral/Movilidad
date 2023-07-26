@@ -1,0 +1,64 @@
+﻿@page "/trayectos/editar/{Id:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Trayecto</h3>
+
+@if (trayecto is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <TrayectoForm @ref="trayectoForm" Trayecto="trayecto" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+@code {
+    private Trayecto? trayecto;
+    private TrayectoForm? trayectoForm;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<Trayecto>($"api/trayectos/{Id}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/trayectos");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        trayecto = responseHTTP.Response;
+    }
+
+    private async Task EditAsync()
+    {
+        trayecto!.Ruta = null;
+        var responseHTTP = await repository.Put("api/trayectos", trayecto);
+
+        if (responseHTTP.Error)
+        {
+            var mensajeError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        trayectoForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/rutas/detalles/{trayecto?.RutaId}");
+    }
+}

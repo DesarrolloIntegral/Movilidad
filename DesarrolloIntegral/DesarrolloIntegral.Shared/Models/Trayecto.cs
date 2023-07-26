@@ -4,11 +4,11 @@
     {
         public int Id { get; set; }
 
-        public int Tipo { get; set; } //0:Salida    1: Paso   2:LLegada
+        public int Tipo { get; set; } //1:Salida    2: Paso   3:LLegada
 
         public int Posicion { get; set; }
 
-        public int Terminal { get; set; } //0:Si  1: No
+        public int Terminal { get; set; } //1:Si  2: No
 
         public int Kilometros { get; set; }
 

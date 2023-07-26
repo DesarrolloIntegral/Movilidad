@@ -1,0 +1,37 @@
+﻿@page "/trayectos/crear/{RutaId:int}"
+
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Nueva Punto</h3>
+
+<TrayectoForm @ref="trayectoForm" Trayecto="trayecto" OnValidSubmit="CrearAsync" ReturnAction="Return" />
+
+@code {
+    private Trayecto trayecto = new();
+    private TrayectoForm? trayectoForm;
+
+    [Parameter]
+    public int RutaId { get; set; }
+
+    private async Task CrearAsync()
+    {
+        trayecto.RutaId = RutaId;
+        var responseHttp = await repository.Post("/api/trayectos", trayecto);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        trayectoForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/rutas/detalles/{RutaId}");
+    }
+}

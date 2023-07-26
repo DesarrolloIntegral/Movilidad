@@ -3,66 +3,84 @@
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-@if (descuento is null)
+@if (ruta is null)
 {
     <p>Cargando...</p>
 }
 else
 {
-    <h3>@descuento.Nombre</h3>
+    <h3>@ruta.Nombre</h3>
     <div class="mb-2">
-        <a class="btn btn-primary" href="/detalles/crear/@descuento.Id">Nuevo Detalle</a>
-        <a class="btn btn-success" href="/descuentos">Regresar</a>
+        <a class="btn btn-primary" href="/trayectos/crear/@ruta.Id">Nuevo Punto</a>
+        <a class="btn btn-success" href="/rutas">Regresar</a>
     </div>
-
 }
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPage" />
 
-<GenericList MyList="detalles">
+<GenericList MyList="trayectos">
     <Body>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Linea</th>
+                    <th>Punto</th>
                     <th>Tipo</th>
-                    <th>Valor</th>
-                    <th>FechaInicio</th>
-                    <th>FechaFin</th>
+                    <th>Posicion</th>
+                    <th>Terminal</th>
+                    <th>Kilometros</th>
+                    <th>Minutos</th>
+                    <th>Estancia</th>
                     <th>Status</th>
                     <th style="width:400px"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var detalle in detalles!)
+                @foreach (var trayecto in trayectos!)
                 {
                     <tr>
                         <td>
-                            @detalle.Linea!.Nombre
+                            @trayecto.Punto?.Nombre
                         </td>
                         <td>
-                            @if (@detalle.Tipo == 1)
+                            @if (@trayecto.Tipo == 1)
                             {
-                                <p>Valor</p>
+                                <p>Salida</p>
                             }
-                            @if (@detalle.Tipo == 2)
+                            else if (@trayecto.Tipo == 2)
                             {
-                                <p>Porcentaje</p>
+                                <p>Paso</p>
+                            }
+                            else if (@trayecto.Tipo == 3)
+                            {
+                                <p>Llegada</p>
                             }
                         </td>
                         <td>
-                            @detalle.Valor
+                            @trayecto.Posicion
                         </td>
                         <td>
-                            @detalle.FechaInicio.ToString("dd-MM-yyyy")
+                            @if (@trayecto.Terminal == 1)
+                            {
+                                <p>Si</p>
+                            }
+                            else if (@trayecto.Terminal == 2)
+                            {
+                                <p>No</p>
+                            }
                         </td>
                         <td>
-                            @detalle.FechaFin.ToString("dd-MM-yyyy")
+                            @trayecto.Kilometros
                         </td>
                         <td>
-                            @if (detalle.Estado == 1)
+                            @trayecto.Minutos
+                        </td>
+                        <td>
+                            @trayecto.Estancia
+                        </td>
+                        <td>
+                            @if (@trayecto.Estado == 1)
                             {
                                 <p>Activo</p>
                             }
@@ -72,17 +90,15 @@ else
                             }
                         </td>
                         <td>
-                            <a class="btn btn-info" href="/detalles/orides/@detalle.Id">Detalles</a>
-                            <a class="btn btn-warning" href="/detalles/editar/@detalle.Id">Editar</a>
-                            @if (detalle.Estado == 1)
+                            <a class="btn btn-warning" href="/trayectos/editar/@trayecto.Id">Editar</a>
+                            @if (trayecto.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(detalle))>Desactivar</button>
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(trayecto))>Desactivar</button>
                             }
                             else
                             {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(detalle))>Activar</button>
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(trayecto))>Activar</button>
                             }
-
                         </td>
                     </tr>
                 }
@@ -115,49 +131,17 @@ else
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/descuentosdetalles?id={Id}&page={page}";
-        string url2 = $"api/descuentosdetalles/totalPages?id={Id}";
-        var responseHppt = await repository.Get<Descuento>($"api/descuentos/{Id}");
-        var responseHppt2 = await repository.Get<List<Models.DescuentoDetalle>>(url1);
+        string url1 = $"api/trayectos?id={Id}&page={page}";
+        string url2 = $"api/trayectos/totalPages?id={Id}";
+        var responseHppt = await repository.Get<Ruta>($"api/rutas/{Id}");
+        var responseHppt2 = await repository.Get<List<Trayecto>>(url1);
         var responseHppt3 = await repository.Get<int>(url2);
-        descuento = responseHppt.Response;
-        detalles = responseHppt2.Response;
+        ruta = responseHppt.Response;
+        trayectos = responseHppt2.Response;
         totalPages = responseHppt3.Response;
     }
 
-    private async Task DeleteAsync(int id)
-    {
-        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
-            {
-                Title = "Confirmación",
-                Text = "¿Esta seguro que quieres borrar el registro?",
-                Icon = SweetAlertIcon.Question,
-                ShowCancelButton = true
-            });
-
-        var confirm = string.IsNullOrEmpty(result.Value);
-
-        if (confirm)
-        {
-            return;
-        }
-
-        var responseHTTP = await repository.Delete($"api/descuentosdetalles/{id}");
-
-        if (responseHTTP.Error)
-        {
-            if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
-            {
-                var mensajeError = await responseHTTP.GetErrorMessageAsync();
-                await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
-                return;
-            }
-        }
-
-        await LoadAsync();
-    }
-
-    private async Task DesactivarAsync(Models.DescuentoDetalle detalle)
+    private async Task DesactivarAsync(Trayecto trayecto)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
@@ -174,8 +158,9 @@ else
             return;
         }
 
-        detalle.Estado = 0;
-        var responseHTTP = await repository.Put($"api/descuentosdetalles/", detalle);
+        trayecto.Estado = 0;
+        trayecto.Ruta = null;
+        var responseHTTP = await repository.Put($"api/trayectos/", trayecto);
 
         if (responseHTTP.Error)
         {
@@ -190,7 +175,7 @@ else
         await LoadAsync();
     }
 
-    private async Task ActivarAsync(Models.DescuentoDetalle detalle)
+    private async Task ActivarAsync(Trayecto trayecto)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
@@ -207,8 +192,9 @@ else
             return;
         }
 
-        detalle.Estado = 1;
-        var responseHTTP = await repository.Put($"api/descuentosdetalles/", detalle);
+        trayecto.Estado = 1;
+        trayecto.Ruta = null;
+        var responseHTTP = await repository.Put($"api/trayectos/", trayecto);
 
         if (responseHTTP.Error)
         {

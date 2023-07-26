@@ -8,7 +8,7 @@
 <BancoForm @ref="bancoForm" Banco="banco" OnValidSubmit="Crear" ReturnAction="Return" />
 
 @code {
-    private Banco banco = new();
+    private Models.Banco banco = new();
     private BancoForm? bancoForm;
 
     private async Task Crear()

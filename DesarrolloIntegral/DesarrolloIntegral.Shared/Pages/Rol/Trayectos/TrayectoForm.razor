@@ -1,0 +1,95 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Punto Recorrido :</label>
+        <div>
+            <select @bind="Trayecto.PuntoId">
+                <option value=0>Seleccione Punto...</option>
+                @if (Puntos != null)
+                {
+                    @foreach (var pun in Puntos)
+                    {
+                        <option value="@pun.Id">@pun.Nombre</option>
+                    }
+                }
+            </select>
+        </div>
+        <label>Tipo :</label>
+        <div>
+            <select @bind="Trayecto.Tipo">
+                <option value=0>Seleccione Tipo...</option>
+                <option value=1>Salida</option>
+                <option value=2>Paso</option>
+                <option value=3>Llegada</option>
+            </select>
+        </div>
+        <label>Posicion Trayecto :</label>
+        <div>
+            <InputNumber class="form-control" @bind-Value="@Trayecto.Posicion" />
+            <ValidationMessage For="@(() => Trayecto.Posicion)" />
+        </div>
+        <label>Terminal :</label>
+        <div>
+            <select @bind="Trayecto.Terminal">
+                <option value=0>Terminal?...</option>
+                <option value=1>Si</option>
+                <option value=2>No</option>
+            </select>
+        </div>
+        <label>Kilometros :</label>
+        <div>
+            <InputNumber class="form-control" @bind-Value="@Trayecto.Kilometros" />
+            <ValidationMessage For="@(() => Trayecto.Kilometros)" />
+        </div>
+        <label>Minutos :</label>
+        <div>
+            <InputNumber class="form-control" @bind-Value="@Trayecto.Minutos" />
+            <ValidationMessage For="@(() => Trayecto.Minutos)" />
+        </div>
+        <label>Estancia en Terminal :</label>
+        <div>
+            <InputNumber class="form-control" @bind-Value="@Trayecto.Estancia" />
+            <ValidationMessage For="@(() => Trayecto.Estancia)" />
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+    public List<PuntoRecorrido>? Puntos { get; set; }
+
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public Trayecto Trayecto { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(Trayecto);
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        string url = $"api/puntos/sinfiltro";
+
+        var responseHppt = await repository.Get<List<PuntoRecorrido>>(url);
+        Puntos = responseHppt.Response!;
+    }
+}
