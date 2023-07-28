@@ -75,11 +75,11 @@ namespace DesarrolloIntegral.API.Controllers
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un empleado con este nombre");
+                    return BadRequest("Ya existe un punto con este nombre");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un empleado con este nombre");
+                    return BadRequest("Ya existe un punto con este nombre");
                 }
 
                 return BadRequest(dbUpdateException.Message);
@@ -103,11 +103,11 @@ namespace DesarrolloIntegral.API.Controllers
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un puesto con este nombre");
+                    return BadRequest("Ya existe un punto con este nombre");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un puesto con este nombre");
+                    return BadRequest("Ya existe un punto con este nombre");
                 }
 
                 return BadRequest(dbUpdateException.Message);

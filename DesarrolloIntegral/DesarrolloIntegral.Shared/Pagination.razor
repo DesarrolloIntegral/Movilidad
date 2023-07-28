@@ -62,6 +62,11 @@
             return;
         }
 
+        if (pageModel.Page == TotalPages + 1)
+        {
+            return;
+        }
+
         await SelectedPage.InvokeAsync(pageModel.Page);
     }
 

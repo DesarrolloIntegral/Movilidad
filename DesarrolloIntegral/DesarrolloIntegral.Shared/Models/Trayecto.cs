@@ -10,7 +10,7 @@
 
         public int Terminal { get; set; } //1:Si  2: No
 
-        public int Kilometros { get; set; }
+        public decimal Kilometros { get; set; }
 
         public int Minutos { get; set; }
 

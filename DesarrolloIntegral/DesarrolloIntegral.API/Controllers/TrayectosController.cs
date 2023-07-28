@@ -19,6 +19,7 @@ namespace DesarrolloIntegral.API.Controllers
             _context = context;
         }
 
+        //para sacar la ultima posicion en la ruta
         [HttpGet("{Id:int}/{prueba:int}")]
         public async Task<IActionResult> GetAsync(int Id, int prueba)
         {
@@ -34,11 +35,15 @@ namespace DesarrolloIntegral.API.Controllers
             {
                 return Ok(Res);
             }
-            /*
-            return Ok(await _context.Trayectos
+        }
+
+        //para cargar los datos completos de la ruta para subir-bajar
+        [HttpGet("{Id:int}/{prueba1:int}/{prueba2:int}")]
+        public async Task<IActionResult> GetAsync(int Id, int prueba1, int prueba2)
+        {
+                return Ok(await _context.Trayectos
                 .Where(p => p.RutaId == Id)
-                .OrderByDescending(o => o.Posicion).FirstOrDefaultAsync());
-            */
+                .ToListAsync());
         }
 
         [HttpGet]

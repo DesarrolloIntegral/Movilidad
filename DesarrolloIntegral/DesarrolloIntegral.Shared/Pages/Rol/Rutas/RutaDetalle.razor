@@ -17,9 +17,12 @@ else
     </div>
 }
 
-<Pagination CurrentPage="currentPage"
+@if (_isVisible)
+{
+    <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPage" />
+}
 
 <GenericList MyList="trayectos">
     <Body>
@@ -110,13 +113,15 @@ else
     </Body>
 </GenericList>
 
-
 @code {
     private Ruta? ruta;
     private List<Trayecto>? trayectos;
+    private List<Trayecto>? trayectosTodos;
 
     private int currentPage = 1;
     private int totalPages;
+
+    private bool _isVisible = true;
 
     [Parameter]
     public int Id { get; set; }
@@ -124,12 +129,14 @@ else
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
+        await LoadAsyncAll();
     }
 
     private async Task SelectedPage(int page)
     {
         currentPage = page;
         await LoadAsync(page);
+        await LoadAsyncAll();
     }
 
     private async Task LoadAsync(int page = 1)
@@ -142,6 +149,14 @@ else
         ruta = responseHppt.Response;
         trayectos = responseHppt2.Response;
         totalPages = responseHppt3.Response;
+    }
+
+    private async Task LoadAsyncAll()
+    {
+        string url = $"api/trayectos/{Id}/0/0";
+
+        var responseHppt = await repository.Get<List<Trayecto>>(url);
+        trayectosTodos = responseHppt.Response!;
     }
 
     private async Task DesactivarAsync(Trayecto trayecto)
@@ -211,12 +226,13 @@ else
 
         await LoadAsync();
     }
-    private async Task Subir(Trayecto trayecto)
+
+    private async Task Bajar(Trayecto trayecto)
     {
         int posActual = trayecto.Posicion;
         int posSiguiente = posActual + 1;
 
-        var ultimo = trayectos?.OrderByDescending(x => x.Posicion).Take(1).FirstOrDefault();
+        var ultimo = trayectosTodos?.OrderByDescending(x => x.Posicion).Take(1).FirstOrDefault();
         int posUltimo = ultimo!.Posicion;
 
         if (posActual == posUltimo)
@@ -226,7 +242,7 @@ else
 
         if (posUltimo > posActual)
         {
-            Trayecto? trSiguiente = trayectos?.Where(p => p.Posicion == posSiguiente).FirstOrDefault();
+            Trayecto? trSiguiente = trayectosTodos?.Where(p => p.Posicion == posSiguiente).FirstOrDefault();
             trSiguiente!.Posicion = posActual;
 
             //Actualiza el registro actual
@@ -258,9 +274,11 @@ else
             }
         }
 
-        await LoadAsync();
+        await LoadAsync(currentPage);
+        await LoadAsyncAll();
     }
-    private async Task Bajar(Trayecto trayecto)
+
+    private async Task Subir(Trayecto trayecto)
     {
         int posActual = trayecto.Posicion;
         int posAnterior = posActual - 1;
@@ -272,7 +290,7 @@ else
 
         if (posActual > 1)
         {
-            Trayecto? trAnterior = trayectos?.Where(p => p.Posicion == posAnterior).FirstOrDefault();
+            Trayecto? trAnterior = trayectosTodos?.Where(p => p.Posicion == posAnterior).FirstOrDefault();
             trAnterior!.Posicion = posActual;
 
             //Actualiza el registro actual
@@ -304,6 +322,7 @@ else
             }
         }
 
-        await LoadAsync();
+        await LoadAsync(currentPage);
+        await LoadAsyncAll();
     }
 }

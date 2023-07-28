@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230719235250_Initial")]
-    partial class Initial
+    [Migration("20230727195551_kmsDecimal")]
+    partial class kmsDecimal
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -339,12 +339,128 @@ namespace DesarrolloIntegral.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("Venta")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Nombre")
                         .IsUnique();
 
                     b.ToTable("Puntos");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Ruta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LineaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LineaId");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("Rutas");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Tarifa", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaFin")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaInicio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LineaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LineaId");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("Tarifas");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Trayecto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Estancia")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Kilometros")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Minutos")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Posicion")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PuntoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RutaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Terminal")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PuntoId");
+
+                    b.HasIndex("RutaId");
+
+                    b.ToTable("Trayectos");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.CuentaBancaria", b =>
@@ -415,6 +531,47 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Navigation("Puesto");
                 });
 
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Ruta", b =>
+                {
+                    b.HasOne("DesarrolloIntegral.Shared.Models.Linea", "Linea")
+                        .WithMany("Rutas")
+                        .HasForeignKey("LineaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Linea");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Tarifa", b =>
+                {
+                    b.HasOne("DesarrolloIntegral.Shared.Models.Linea", "Linea")
+                        .WithMany()
+                        .HasForeignKey("LineaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Linea");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Trayecto", b =>
+                {
+                    b.HasOne("DesarrolloIntegral.Shared.Models.PuntoRecorrido", "Punto")
+                        .WithMany("Trayectos")
+                        .HasForeignKey("PuntoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DesarrolloIntegral.Shared.Models.Ruta", "Ruta")
+                        .WithMany("Trayectos")
+                        .HasForeignKey("RutaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Punto");
+
+                    b.Navigation("Ruta");
+                });
+
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Banco", b =>
                 {
                     b.Navigation("Cuentas");
@@ -433,6 +590,8 @@ namespace DesarrolloIntegral.API.Migrations
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Linea", b =>
                 {
                     b.Navigation("DescuentoDetalles");
+
+                    b.Navigation("Rutas");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Puesto", b =>
@@ -445,6 +604,13 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Navigation("PuntoDestinos");
 
                     b.Navigation("PuntoOrigenes");
+
+                    b.Navigation("Trayectos");
+                });
+
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Ruta", b =>
+                {
+                    b.Navigation("Trayectos");
                 });
 #pragma warning restore 612, 618
         }

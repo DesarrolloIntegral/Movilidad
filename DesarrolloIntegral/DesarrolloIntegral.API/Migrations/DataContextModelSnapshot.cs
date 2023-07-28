@@ -430,8 +430,8 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Property<int>("Estancia")
                         .HasColumnType("int");
 
-                    b.Property<int>("Kilometros")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Kilometros")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Minutos")
                         .HasColumnType("int");

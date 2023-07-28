@@ -24,7 +24,7 @@ namespace DesarrolloIntegral.Shared.Models
         public ICollection<Trayecto>? Trayectos { get; set; }
 
         [Display(Name = "Kilometros")]
-        public int KmsTotal => Trayectos == null ? 0 : Trayectos.Sum(k => k.Kilometros);
+        public decimal KmsTotal => Trayectos == null ? 0 : Trayectos.Sum(k => k.Kilometros);
 
         [Display(Name = "Minutos")]
         public int MinTotal => Trayectos == null ? 0 : Trayectos.Sum(k => k.Minutos + k.Estancia);
