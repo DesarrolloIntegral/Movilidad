@@ -26,11 +26,11 @@ namespace DesarrolloIntegral.Shared.Models
         public int Estado { get; set; }
 
         public int LineaId { get; set; }
-        public Linea? Linea { get; set; }
+        public virtual Linea? Linea { get; set; }
 
         public int DescuentoId { get; set; }
 
-        public Descuento? Descuento { get; set; }
+        public virtual Descuento? Descuento { get; set; }
 
         public ICollection<DescuentoOrigenDestino>? OrigenDestinos { get; set; }
     }

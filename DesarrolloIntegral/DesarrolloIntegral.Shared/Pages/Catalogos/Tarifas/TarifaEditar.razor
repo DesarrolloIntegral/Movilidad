@@ -1,35 +1,36 @@
-﻿@page "/detalles/editar/{DetalleId:int}"
+﻿@page "/tarifas/editar/{Id:int}"
 @inject NavigationManager navigationManager
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
 
-<h3>Editar Detalle Descuento</h3>
 
-@if (detalle is null)
+<h3>Editar Tarifa</h3>
+
+@if (tarifa is null)
 {
     <p>Cargando...</p>
 }
 else
 {
-    <DetalleForm @ref="detalleForm" Detalle="detalle" DescuentoId="DetalleId" OnValidSubmit="EditAsync" ReturnAction="Return" />
+    <TarifaForm @ref="tarifaForm" Tarifa="tarifa" OnValidSubmit="EditAsync" ReturnAction="Return" />
 }
 
 @code {
-    private DescuentoDetalle? detalle = new();
-    private DetalleForm? detalleForm;
+    private Tarifa? tarifa;
+    private TarifaForm? tarifaForm;
 
     [Parameter]
-    public int DetalleId { get; set; }
+    public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var responseHTTP = await repository.Get<DescuentoDetalle>($"api/descuentosdetalles/{DetalleId}");
+        var responseHTTP = await repository.Get<Tarifa>($"api/tarifas/{Id}");
 
         if (responseHTTP.Error)
         {
             if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("/descuentos/detalles/");
+                navigationManager.NavigateTo("tarifas");
                 return;
             }
 
@@ -38,12 +39,12 @@ else
             return;
         }
 
-        detalle = responseHTTP.Response;
+        tarifa = responseHTTP.Response;
     }
 
     private async Task EditAsync()
     {
-        var responseHTTP = await repository.Put("api/descuentosdetalles", detalle);
+        var responseHTTP = await repository.Put("api/tarifas", tarifa);
 
         if (responseHTTP.Error)
         {
@@ -57,7 +58,7 @@ else
 
     private void Return()
     {
-        detalleForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo($"/descuentos/detalles/{detalle!.DescuentoId}");
+        tarifaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/tarifas");
     }
 }

@@ -18,7 +18,8 @@ namespace DesarrolloIntegral.Shared.Models
         public string? Nombre { get; set; }
         public int Estado { get; set; }
 
-        public ICollection<DescuentoDetalle>? DescuentoDetalles { get; set; }
-        public ICollection<Ruta>? Rutas { get; set; }
+        public virtual ICollection<DescuentoDetalle>? DescuentoDetalles { get; set; }
+        public virtual ICollection<Ruta>? Rutas { get; set; }
+        public virtual ICollection<Tarifa>? Tarifas { get; set; }
     }
 }

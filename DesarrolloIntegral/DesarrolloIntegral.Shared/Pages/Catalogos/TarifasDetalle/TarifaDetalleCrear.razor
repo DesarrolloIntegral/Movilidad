@@ -1,0 +1,36 @@
+﻿@page "/tarifasdetalle/crear/{TarifaId:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Nuevo Detalle de Tarifa</h3>
+<TarifaDetalleForm @ref="taridetallefaForm" TarifaId="TarifaId" Detalle="tarifadetalle" OnValidSubmit="CrearAsync" ReturnAction="Return" />
+
+@code {
+    private TarifaDetalle tarifadetalle = new();
+    private TarifaDetalleForm? taridetallefaForm;
+
+    [Parameter]
+    public int TarifaId { get; set; }
+
+    private async Task CrearAsync()
+    {
+        tarifadetalle.TarifaId = TarifaId;
+        var responseHttp = await repository.Post("/api/tarifasDetalle", tarifadetalle);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        taridetallefaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/tarifas/detalles/{TarifaId}");
+    }
+}

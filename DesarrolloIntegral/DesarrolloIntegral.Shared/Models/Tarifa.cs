@@ -19,6 +19,8 @@ namespace DesarrolloIntegral.Shared.Models
         public int Estado { get; set; }
 
         public int LineaId { get; set; }
-        public Linea? Linea { get; set; }
+        public virtual Linea? Linea { get; set; }
+
+        public virtual ICollection<Tarifa>? Tarifas { get; set; }
     }
 }

@@ -1,20 +1,27 @@
-﻿@page "/detalles/orides/{Id:int}"
+﻿@page "/tarifas/detalles/{Id:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-    <h3>@descuento?.Nombre</h3>
-    <h2>@detalle?.Linea?.Nombre</h2>
+@if (tarifa is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <h3>@tarifa.Nombre</h3>
+    <h4>@tarifa.Linea?.Nombre</h4>
     <div class="mb-2">
-        <a class="btn btn-primary" href="/origendestino/crear/@detalle?.Id">Nuevo Detalle</a>
-        <a class="btn btn-success" href="/descuentos/detalles/@descuento?.Id">Regresar</a>
+        <a class="btn btn-primary" href="/tarifasdetalle/crear/@tarifa.Id">Nuevo Detalle</a>
+        <a class="btn btn-success" href="/tarifas">Regresar</a>
     </div>
+}
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPage" />
 
-<GenericList MyList="OrigenDestino">
+<GenericList MyList="detalles">
     <Body>
         <table class="table table-striped">
             <thead>
@@ -23,28 +30,32 @@
                     <th>Destino</th>
                     <th>FechaInicio</th>
                     <th>FechaFin</th>
+                    <th>Precio</th>
                     <th>Status</th>
                     <th style="width:400px"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var orides in OrigenDestino!)
+                @foreach (var detalle in detalles!)
                 {
                     <tr>
                         <td>
-                            @orides.PuntoOrigen?.Nombre
+                            @detalle.PuntoOrigen!.Nombre
                         </td>
                         <td>
-                            @orides.PuntoDestino?.Nombre
+                            @detalle.PuntoDestino!.Nombre
                         </td>
                         <td>
-                            @orides.FechaInicio.ToString("dd-MM-yyyy")
+                            @detalle.FechaInicio.ToString("dd-MM-yyyy")
                         </td>
                         <td>
-                            @orides.FechaFin.ToString("dd-MM-yyyy")
+                            @detalle.FechaFin.ToString("dd-MM-yyyy")
                         </td>
                         <td>
-                            @if (orides.Estado == 1)
+                            @detalle.Precio
+                        </td>
+                        <td>
+                            @if (detalle.Estado == 1)
                             {
                                 <p>Activo</p>
                             }
@@ -54,14 +65,14 @@
                             }
                         </td>
                         <td>
-                            <a class="btn btn-warning" href="/origendestino/editar/@orides.Id">Editar</a>
-                            @if (orides.Estado == 1)
+                            <a class="btn btn-warning" href="/tarifasdetalle/editar/@detalle.Id">Editar</a>
+                            @if (detalle.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(orides))>Desactivar</button>
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(detalle))>Desactivar</button>
                             }
                             else
                             {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(orides))>Activar</button>
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(detalle))>Activar</button>
                             }
 
                         </td>
@@ -74,9 +85,8 @@
 
 
 @code {
-    private Descuento? descuento;
-    private DescuentoDetalle? detalle;
-    private List<DescuentoOrigenDestino>? OrigenDestino;
+    private Tarifa? tarifa;
+    private List<Models.TarifaDetalle>? detalles;
 
     private int currentPage = 1;
     private int totalPages;
@@ -97,24 +107,22 @@
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/origendestino?id={Id}&page={page}";
-        string url2 = $"api/origendestino/totalPages?id={Id}";
-        var responseHppt = await repository.Get<DescuentoDetalle>($"api/descuentosdetalles/{Id}");
-        var responseHppt2 = await repository.Get<List<DescuentoOrigenDestino>>(url1);
+        string url1 = $"api/tarifasDetalle?id={Id}&page={page}";
+        string url2 = $"api/tarifasDetalle/totalPages?id={Id}";
+        var responseHppt = await repository.Get<Tarifa>($"api/tarifas/{Id}");
+        var responseHppt2 = await repository.Get<List<Models.TarifaDetalle>>(url1);
         var responseHppt3 = await repository.Get<int>(url2);
-        detalle = responseHppt.Response;
-        var responseHppt4 = await repository.Get<Descuento>($"api/descuentos/{detalle?.DescuentoId}");
-        OrigenDestino = responseHppt2.Response;
+        tarifa = responseHppt.Response;
+        detalles = responseHppt2.Response;
         totalPages = responseHppt3.Response;
-        descuento = responseHppt4.Response;
     }
 
-    private async Task DesactivarAsync(DescuentoOrigenDestino detalle)
+    private async Task DesactivarAsync(Models.TarifaDetalle detalle)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres Desactivar el Descuento?",
+                Text = "¿Esta seguro que quieres Desactivar esta Tarifa?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -127,7 +135,7 @@
         }
 
         detalle.Estado = 0;
-        var responseHTTP = await repository.Put($"api/origendestino/", detalle);
+        var responseHTTP = await repository.Put($"api/tarifasDetalle/", detalle);
 
         if (responseHTTP.Error)
         {
@@ -142,12 +150,12 @@
         await LoadAsync();
     }
 
-    private async Task ActivarAsync(DescuentoOrigenDestino detalle)
+    private async Task ActivarAsync(Models.TarifaDetalle detalle)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres activar el Descuento?",
+                Text = "¿Esta seguro que quieres activar esta Tarifa?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -160,7 +168,7 @@
         }
 
         detalle.Estado = 1;
-        var responseHTTP = await repository.Put($"api/origendestino/", detalle);
+        var responseHTTP = await repository.Put($"api/tarifasDetalle/", detalle);
 
         if (responseHTTP.Error)
         {

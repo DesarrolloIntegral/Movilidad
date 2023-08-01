@@ -2,35 +2,36 @@
 @inject SweetAlertService sweetAlertService
 @inject IRepository repository
 
-<h3>@descuento?.Nombre</h3>
+<h3>@tarifa?.Nombre</h3>
+<h4>@tarifa?.Linea?.Nombre</h4>
 <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
     <div class="mb-3">
-        <label>Linea :</label>
+        <label>Origen :</label>
         <div>
-            <select @bind="Detalle.LineaId">
-                <option value=0>Seleccione Linea...</option>
-                @if (Lineas != null)
+            <select @bind="Detalle.PuntoOrigenId">
+                <option value=0>Seleccione Origen...</option>
+                @if (Origenes != null)
                 {
-                    @foreach (var lin in Lineas)
+                    @foreach (var ori in Origenes)
                     {
-                        <option value="@lin.Id">@lin.Nombre</option>
+                        <option value="@ori.Id">@ori.Nombre</option>
                     }
                 }
             </select>
         </div>
-        <label>Tipo :</label>
+        <label>Destino :</label>
         <div>
-            <select @bind="Detalle.Tipo">
-                <option value=0>Seleccione Tipo...</option>
-                <option value=1>Valor</option>
-                <option value=2>Porcentaje</option>
+            <select @bind="Detalle.PuntoDestinoId">
+                <option value=0>Seleccione Destino...</option>
+                @if (Destinos != null)
+                {
+                    @foreach (var des in Destinos)
+                    {
+                        <option value="@des.Id">@des.Nombre</option>
+                    }
+                }
             </select>
-        </div>
-        <label>Valor :</label>
-        <div>
-            <InputNumber @bind-Value="@Detalle.Valor" />
-            <ValidationMessage For="@(() => Detalle.Valor)" />
         </div>
         <label>Fecha de Inicio :</label>
         <div>
@@ -42,6 +43,11 @@
             <InputDate @bind-Value="@Detalle.FechaFin" />
             <ValidationMessage For="@(() => Detalle.FechaFin)" />
         </div>
+        <label>Precio :</label>
+        <div>
+            <InputNumber @bind-Value="@Detalle.Precio" />
+            <ValidationMessage For="@(() => Detalle.Precio)" />
+        </div>
     </div>
     <button class="btn btn-success" type="submit">Guardar Cambios</button>
     <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>
@@ -51,17 +57,21 @@
 
     public List<Linea>? Lineas { get; set; }
 
-    public Descuento? descuento { get; set; }
+    public List<PuntoRecorrido>? Origenes { get; set; }
+
+    public List<PuntoRecorrido>? Destinos { get; set; }
+
+    public Tarifa? tarifa { get; set; }
 
     private EditContext editContext = null!;
 
     [EditorRequired]
     [Parameter]
-    public DescuentoDetalle Detalle { get; set; } = null!;
+    public TarifaDetalle Detalle { get; set; } = null!;
 
     [EditorRequired]
     [Parameter]
-    public int DescuentoId { get; set; }
+    public int TarifaId { get; set; }
 
     [EditorRequired]
     [Parameter]
@@ -91,7 +101,15 @@
         var responseHppt = await repository.Get<List<Linea>>(url);
         Lineas = responseHppt.Response!;
 
-        var responseHTTP2 = await repository.Get<Descuento>($"api/descuentos/{DescuentoId}");
-        descuento = responseHTTP2.Response;
+        var responseHTTP2 = await repository.Get<Tarifa>($"api/tarifas/{TarifaId}");
+        tarifa = responseHTTP2.Response;
+
+        string urlPunto = $"api/puntos/sinfiltro";
+
+        var responseHppt2 = await repository.Get<List<PuntoRecorrido>>(urlPunto);
+        Origenes = responseHppt2.Response!;
+
+        var responseHppt3 = await repository.Get<List<PuntoRecorrido>>(urlPunto);
+        Destinos = responseHppt2.Response!;
     }
 }

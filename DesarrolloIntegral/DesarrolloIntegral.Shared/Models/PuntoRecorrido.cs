@@ -30,5 +30,9 @@ namespace DesarrolloIntegral.Shared.Models
         public ICollection<DescuentoOrigenDestino>? PuntoDestinos { get; set; }
 
         public ICollection<Trayecto>? Trayectos { get; set; }
+
+        public ICollection<TarifaDetalle>? PuntoOriDetalles { get; set; }
+        public ICollection<TarifaDetalle>? PuntoDesDetalles { get; set; }
+
     }
 }

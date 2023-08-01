@@ -1,35 +1,35 @@
-﻿@page "/detalles/editar/{DetalleId:int}"
+﻿@page "/tarifasdetalle/editar/{DetalleId:int}"
 @inject NavigationManager navigationManager
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
 
-<h3>Editar Detalle Descuento</h3>
+<h3>Editar Detalle Tarifa</h3>
 
-@if (detalle is null)
+@if (tarifadetalle is null)
 {
     <p>Cargando...</p>
 }
 else
 {
-    <DetalleForm @ref="detalleForm" Detalle="detalle" DescuentoId="DetalleId" OnValidSubmit="EditAsync" ReturnAction="Return" />
+    <TarifaDetalleForm @ref="taridetallefaForm" Detalle="tarifadetalle" TarifaId="DetalleId" OnValidSubmit="EditAsync" ReturnAction="Return" />
 }
 
 @code {
-    private DescuentoDetalle? detalle = new();
-    private DetalleForm? detalleForm;
+    private TarifaDetalle? tarifadetalle = new();
+    private TarifaDetalleForm? taridetallefaForm;
 
     [Parameter]
     public int DetalleId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var responseHTTP = await repository.Get<DescuentoDetalle>($"api/descuentosdetalles/{DetalleId}");
+        var responseHTTP = await repository.Get<TarifaDetalle>($"api/tarifasDetalle/{DetalleId}");
 
         if (responseHTTP.Error)
         {
             if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("/descuentos/detalles/");
+                navigationManager.NavigateTo($"/tarifas/detalles/{tarifadetalle!.TarifaId}");
                 return;
             }
 
@@ -38,12 +38,12 @@ else
             return;
         }
 
-        detalle = responseHTTP.Response;
+        tarifadetalle = responseHTTP.Response;
     }
 
     private async Task EditAsync()
     {
-        var responseHTTP = await repository.Put("api/descuentosdetalles", detalle);
+        var responseHTTP = await repository.Put("api/tarifasDetalle", tarifadetalle);
 
         if (responseHTTP.Error)
         {
@@ -57,7 +57,7 @@ else
 
     private void Return()
     {
-        detalleForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo($"/descuentos/detalles/{detalle!.DescuentoId}");
+        taridetallefaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/tarifas/detalles/{tarifadetalle!.TarifaId}");
     }
-}
+}|

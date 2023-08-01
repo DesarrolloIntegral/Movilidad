@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Catalogos\TarifasDetalle\" />
     <Folder Include="Pages\Catalogos\Unidades\" />
   </ItemGroup>
 

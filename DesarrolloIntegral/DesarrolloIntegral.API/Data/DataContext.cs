@@ -34,6 +34,8 @@ namespace DesarrolloIntegral.API.Data
 
         public DbSet<Tarifa> Tarifas { get; set; }
 
+        public DbSet<TarifaDetalle> TarifasDetalle { get; set; }
+
         public DbSet<Ruta> Rutas { get; set; }
 
         public DbSet<Trayecto> Trayectos { get; set; }
@@ -93,6 +95,18 @@ namespace DesarrolloIntegral.API.Data
             modelBuilder.Entity<Ruta>()
                     .HasIndex(b => b.Nombre)
                     .IsUnique();
+
+            modelBuilder.Entity<TarifaDetalle>()
+                    .HasOne(m => m.PuntoOrigen)
+                    .WithMany(t => t.PuntoOriDetalles)
+                    .HasForeignKey(m => m.PuntoOrigenId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<TarifaDetalle>()
+                    .HasOne(m => m.PuntoDestino)
+                    .WithMany(t => t.PuntoDesDetalles)
+                    .HasForeignKey(m => m.PuntoDestinoId)
+                    .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

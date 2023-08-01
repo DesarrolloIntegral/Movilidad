@@ -1,0 +1,32 @@
+﻿@page "/tarifas/crear"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Tarifa</h3>
+<TarifaForm @ref="tarifaForm" Tarifa="tarifa" OnValidSubmit="CrearAsync" ReturnAction="Return" />
+
+@code {
+    private Tarifa tarifa = new();
+    private TarifaForm? tarifaForm;
+
+    private async Task CrearAsync()
+    {
+        var responseHttp = await repository.Post("/api/tarifas", tarifa);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        tarifaForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/tarifas");
+    }
+}
