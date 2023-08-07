@@ -1,8 +1,7 @@
-﻿@page "/tarifasdetalle/crear/{TarifaId:int}"
+﻿@page "/tarifasdetalle/crear/{TarifaId:int}/{Page:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
-
 
 <h3>Nuevo Detalle de Tarifa</h3>
 <TarifaDetalleForm @ref="taridetallefaForm" TarifaId="TarifaId" Detalle="tarifadetalle" OnValidSubmit="CrearAsync" ReturnAction="Return" />
@@ -13,6 +12,9 @@
 
     [Parameter]
     public int TarifaId { get; set; }
+
+    [Parameter]
+    public int Page { get; set; }
 
     private async Task CrearAsync()
     {
@@ -31,6 +33,6 @@
     private void Return()
     {
         taridetallefaForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo($"/tarifas/detalles/{TarifaId}");
+        navigationManager.NavigateTo($"/tarifas/detalles/{TarifaId}/{Page}");
     }
 }

@@ -47,6 +47,15 @@ namespace DesarrolloIntegral.API.Controllers
                 .ToListAsync());
         }
 
+        [HttpGet("{id:int}/{idActual:int}")]
+        public async Task<IActionResult> GetFullAsync(int id, int idActual)
+        {
+            return Ok(await _context.Tarifas
+                .Where(t => t.Id != idActual)
+                .OrderBy(x => x.Nombre)
+                .ToListAsync());
+        }
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult> GetAsync(int id)
         {

@@ -42,7 +42,9 @@ namespace DesarrolloIntegral.API.Controllers
         public async Task<IActionResult> GetAsync(int Id, int prueba1, int prueba2)
         {
                 return Ok(await _context.Trayectos
+                .Include(n => n.Punto)
                 .Where(p => p.RutaId == Id)
+                .OrderBy(o => o.Posicion)
                 .ToListAsync());
         }
 

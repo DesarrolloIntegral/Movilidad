@@ -1,92 +1,190 @@
-﻿@page "/tarifas/detalles/{Id:int}"
+﻿@page "/tarifas/detalles/{Id:int}/{Page:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
+@using Microsoft.AspNetCore.Components.Forms
 
-@if (tarifa is null)
+
+<h3>@tarifa?.Nombre</h3>
+<h4>@tarifa?.Linea?.Nombre</h4>
+<div class="mb-2">
+    <a class="btn btn-primary" href="/tarifasdetalle/crear/@tarifa?.Id/1">Nuevo Detalle</a>
+    <a class="btn btn-success" href="/tarifas">Regresar</a>
+</div>
+
+@if (detalles?.Count==0)
 {
-    <p>Cargando...</p>
+    <h4>Crear a partir de :</h4>
+    <h5>Tarifa Existente :</h5>
+    <div>
+        <select id="ddlTarifa" value="@IdTarifaExistente" @onchange="@ddlTarifa_OnChange">
+            <option value=0>Seleccione Tarifa...</option>
+            @if (tarifas != null)
+            {
+                @foreach (var tar in tarifas)
+                {
+                    <option value="@tar.Id">@tar.Nombre</option>
+                }
+            }
+        </select>
+    </div>
+    <h5>Tipo Aumento:</h5>
+    <div>
+        <select id="ddlAumento" @bind="@TipoAumento" disabled="@DisabledAumento">
+            <option value=0>Seleccione Aumento...</option>
+            <option value=1>Porcentaje</option>
+            <option value=2>Valor</option>
+        </select>
+    </div>
+    <label>Valor :</label>
+    <div>
+        <input id="InValorAumento" type="number" @bind="@ValorAumento" disabled="@DisabledAumento"/>
+    </div>
+    <h5>Ruta :</h5>
+    <div>
+        <select id="ddlRuta" value="@IdRuta" @onchange="@ddlRuta_OnChange">
+            <option value=0>Seleccione Ruta...</option>
+            @if (rutas != null)
+            {
+                @foreach (var rut in rutas)
+                {
+                    <option value="@rut.Id">@rut.Nombre</option>
+                }
+            }
+        </select>
+    </div>
+    <button class="btn btn-success" @onclick=@(() => MostrarDatos())>Mostrar Datos para Generar Tarifa</button>
+
+    <h5>Datos para generar Tarifa :</h5>
+
+    <GenericList MyList="tarifaOrigen">
+        <Body>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Origen</th>
+                        <th>Destino</th>
+                        <th>FechaInicio</th>
+                        <th>FechaFin</th>
+                        <th>Precio Actual</th>
+                        <th>Precio Nuevo</th>
+                        <th style="width:400px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in tarifaOrigen!)
+                    {
+                        <tr>
+                            <td>
+                                @detalle.NombreOrigen
+                            </td>
+                            <td>
+                                @detalle.NombreDestino
+                            </td>
+                            <td>
+                                @detalle.FechaInicio.ToString("dd-MM-yyyy")
+                            </td>
+                            <td>
+                                @detalle.FechaFin.ToString("dd-MM-yyyy")
+                            </td>
+                            <td>
+                                @detalle.PrecioOriginal
+                            </td>
+                            <td>
+                                @detalle.PrecioNuevo
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </Body>
+    </GenericList>
+
+    <button class="btn btn-success" @onclick=@(() => GeneraTarifa())>Generar</button>
 }
 else
 {
-    <h3>@tarifa.Nombre</h3>
-    <h4>@tarifa.Linea?.Nombre</h4>
-    <div class="mb-2">
-        <a class="btn btn-primary" href="/tarifasdetalle/crear/@tarifa.Id">Nuevo Detalle</a>
-        <a class="btn btn-success" href="/tarifas">Regresar</a>
-    </div>
+    <Pagination CurrentPage="currentPage"
+                TotalPages="totalPages"
+                SelectedPage="SelectedPage" />
+
+    <GenericList MyList="detalles">
+        <Body>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Origen</th>
+                        <th>Destino</th>
+                        <th>FechaInicio</th>
+                        <th>FechaFin</th>
+                        <th>Precio</th>
+                        <th>Status</th>
+                        <th style="width:400px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in detalles!)
+                    {
+                        <tr>
+                            <td>
+                                @detalle.PuntoOrigen!.Nombre
+                            </td>
+                            <td>
+                                @detalle.PuntoDestino!.Nombre
+                            </td>
+                            <td>
+                                @detalle.FechaInicio.ToString("dd-MM-yyyy")
+                            </td>
+                            <td>
+                                @detalle.FechaFin.ToString("dd-MM-yyyy")
+                            </td>
+                            <td>
+                                @detalle.Precio
+                            </td>
+                            <td>
+                                @if (detalle.Estado == 1)
+                                {
+                                    <p>Activo</p>
+                                }
+                                else
+                                {
+                                    <p>Baja</p>
+                                }
+                            </td>
+                            <td>
+                                <a class="btn btn-warning" href="/tarifasdetalle/editar/@detalle.Id/@currentPage">Editar</a>
+                                @if (detalle.Estado == 1)
+                                {
+                                    <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(detalle))>Desactivar</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-success" @onclick=@(() => ActivarAsync(detalle))>Activar</button>
+                                }
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </Body>
+    </GenericList>
 }
 
-<Pagination CurrentPage="currentPage"
-            TotalPages="totalPages"
-            SelectedPage="SelectedPage" />
-
-<GenericList MyList="detalles">
-    <Body>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Origen</th>
-                    <th>Destino</th>
-                    <th>FechaInicio</th>
-                    <th>FechaFin</th>
-                    <th>Precio</th>
-                    <th>Status</th>
-                    <th style="width:400px"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var detalle in detalles!)
-                {
-                    <tr>
-                        <td>
-                            @detalle.PuntoOrigen!.Nombre
-                        </td>
-                        <td>
-                            @detalle.PuntoDestino!.Nombre
-                        </td>
-                        <td>
-                            @detalle.FechaInicio.ToString("dd-MM-yyyy")
-                        </td>
-                        <td>
-                            @detalle.FechaFin.ToString("dd-MM-yyyy")
-                        </td>
-                        <td>
-                            @detalle.Precio
-                        </td>
-                        <td>
-                            @if (detalle.Estado == 1)
-                            {
-                                <p>Activo</p>
-                            }
-                            else
-                            {
-                                <p>Baja</p>
-                            }
-                        </td>
-                        <td>
-                            <a class="btn btn-warning" href="/tarifasdetalle/editar/@detalle.Id">Editar</a>
-                            @if (detalle.Estado == 1)
-                            {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(detalle))>Desactivar</button>
-                            }
-                            else
-                            {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(detalle))>Activar</button>
-                            }
-
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </Body>
-</GenericList>
-
-
 @code {
-    private Tarifa? tarifa;
-    private List<Models.TarifaDetalle>? detalles;
+    private Tarifa? tarifa { get; set; }
+    private Models.TarifaDetalle? tarifaNew { get; set; }
+    private List<Tarifa>? tarifas { get; set; }
+    private List<Models.TarifaDetalle>? detalles { get; set; } = new List<Models.TarifaDetalle>();
+    private List<Ruta>? rutas { get; set; }
+    private List<Models.TarifaDetalle>? tarifaDetalle { get; set; } = new List<Models.TarifaDetalle>();
+    private List<Trayecto>? trayecto { get; set; } = new List<Trayecto>();
+    private List<TarifaOrigen>? tarifaOrigen { get; set; } = new List<TarifaOrigen>();
+    public int IdTarifaExistente { get; set; }
+    public int TipoAumento { get; set; }
+    public decimal ValorAumento { get; set; }
+    public int IdRuta { get; set; }
+    public bool DisabledAumento { get; set; }
 
     private int currentPage = 1;
     private int totalPages;
@@ -94,9 +192,16 @@ else
     [Parameter]
     public int Id { get; set; }
 
+    [Parameter]
+    public int Page { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        await LoadAsync();
+        await LoadAsync(Page);
+        ValorAumento = 0;
+        TipoAumento = 0;
+        DisabledAumento = true;
+        await SelectedPage(Page);
     }
 
     private async Task SelectedPage(int page)
@@ -114,7 +219,12 @@ else
         var responseHppt3 = await repository.Get<int>(url2);
         tarifa = responseHppt.Response;
         detalles = responseHppt2.Response;
+
         totalPages = responseHppt3.Response;
+        var responseHppt4 = await repository.Get<List<Tarifa>>($"api/tarifas/0/{Id}");
+        tarifas = responseHppt4.Response;
+        var responseHppt5 = await repository.Get<List<Ruta>>($"api/rutas/full");
+        rutas = responseHppt5.Response;
     }
 
     private async Task DesactivarAsync(Models.TarifaDetalle detalle)
@@ -181,5 +291,177 @@ else
         }
 
         await LoadAsync();
+    }
+
+    private async Task GeneraTarifa()
+    {
+        if (IdTarifaExistente > 0 && IdRuta == 0)
+        {
+
+        }
+
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Esta seguro que quieres crear esta Tarifa?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        if (tarifaOrigen!.Count > 0)
+        {
+            foreach (var item in tarifaOrigen)
+            {
+                tarifaNew = new Models.TarifaDetalle
+                {
+                    FechaInicio = item.FechaInicio,
+                    FechaFin = item.FechaFin,
+                    Estado = 1,
+                    Precio = item.PrecioNuevo,
+                    PuntoOrigenId = item.PuntoOrigenId,
+                    PuntoDestinoId = item.PuntoDestinoId,
+                    TarifaId = Id
+                };
+                var responseHttp = await repository.Post("/api/tarifasDetalle", tarifaNew);
+                if (responseHttp.Error)
+                {
+                    var message = await responseHttp.GetErrorMessageAsync();
+                    await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                    return;
+                }
+            }
+            await LoadAsync();
+        }
+    }
+
+    private void ddlTarifa_OnChange(ChangeEventArgs evt)
+    {
+        IdTarifaExistente = Convert.ToInt32(evt.Value?.ToString());
+
+        if (IdTarifaExistente > 0)
+        {
+            IdRuta = 0;
+            ValorAumento = 0;
+            TipoAumento = 0;
+            DisabledAumento = false;
+
+            //await CargaDatosTarifa(IdTarifaExistente, 0);
+        }
+        if (IdTarifaExistente == 0)
+        {
+            ValorAumento = 0;
+            TipoAumento = 0;
+            DisabledAumento = true;
+        }
+        
+        tarifaOrigen?.Clear();
+
+        this.StateHasChanged();
+    }
+
+    private void ddlRuta_OnChange(ChangeEventArgs evt)
+    {
+        IdRuta = Convert.ToInt32(evt.Value?.ToString());
+
+        if (IdRuta > 0)
+        {
+            IdTarifaExistente = 0;
+            ValorAumento = 0;
+            TipoAumento = 0;
+            DisabledAumento = true;
+        }
+
+        tarifaOrigen?.Clear();
+
+        this.StateHasChanged();
+    }
+
+    private async Task CargaDatosTarifa(int IdTarifaExistente, int IdRuta)
+    {
+        var responseHppt = await repository.Get<List<Models.TarifaDetalle>>($"api/tarifasDetalle/{IdTarifaExistente}/{IdRuta}");
+        tarifaDetalle = responseHppt.Response;
+
+        foreach(var item in tarifaDetalle!)
+        {
+            decimal PrecioAumento = item.Precio;
+
+            if (TipoAumento == 1 && ValorAumento > 0)
+                PrecioAumento = item.Precio + (PrecioAumento * (ValorAumento / 100));
+
+            if (TipoAumento == 2 && ValorAumento > 0)
+            {
+                PrecioAumento = item.Precio + ValorAumento;
+            }
+
+            TarifaOrigen tOrigen = new TarifaOrigen
+            {
+                FechaInicio = item.FechaInicio,
+                FechaFin = item.FechaFin,
+                PrecioOriginal = item.Precio,
+                PrecioNuevo = PrecioAumento,
+                PuntoOrigenId = item.PuntoOrigenId,
+                PuntoDestinoId = item.PuntoDestinoId,
+                NombreOrigen = item.PuntoOrigen?.Nombre,
+                NombreDestino = item.PuntoDestino?.Nombre
+            };
+
+            tarifaOrigen?.Add(tOrigen);
+        }
+    }
+
+    private async Task CrearTarifaRuta(int IdTarifaExistente, int IdRuta)
+    {
+        var responseHppt = await repository.Get<List<Trayecto>>($"api/trayectos/{IdRuta}/0/0");
+        trayecto = responseHppt.Response;
+
+        int nPosicionActual = 0;
+        int nPosicionSiguiente = 0;
+        foreach (var item in trayecto!)
+        {
+            nPosicionActual = item.Posicion;
+            foreach (var item2 in trayecto!)
+            {
+                nPosicionSiguiente = item2.Posicion;
+                if (nPosicionSiguiente > nPosicionActual)
+                {
+                    TarifaOrigen tOrigen = new TarifaOrigen
+                        {
+                            FechaInicio = DateTime.Now.Date,
+                            FechaFin = DateTime.Now.Date,
+                            PrecioOriginal = 0,
+                            PrecioNuevo = 0,
+                            PuntoOrigenId = item.PuntoId,
+                            PuntoDestinoId = item2.PuntoId,
+                            NombreOrigen = item.Punto?.Nombre,
+                            NombreDestino = item2.Punto?.Nombre
+                        };
+
+                    tarifaOrigen?.Add(tOrigen);
+                }
+            }
+        }
+    }
+
+    private async Task MostrarDatos()
+    {
+        tarifaOrigen?.Clear();
+        if (IdTarifaExistente > 0 && IdRuta == 0)
+        {
+            await CargaDatosTarifa(IdTarifaExistente, 0);
+        }
+
+        if (IdTarifaExistente == 0 && IdRuta > 0)
+        {
+            await CrearTarifaRuta(0, IdRuta);
+        }
+
+        this.StateHasChanged();
     }
 }

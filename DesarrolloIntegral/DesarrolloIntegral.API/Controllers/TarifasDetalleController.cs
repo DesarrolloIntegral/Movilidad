@@ -59,6 +59,16 @@ namespace DesarrolloIntegral.API.Controllers
             return Ok(tarifaDetalle);
         }
 
+        [HttpGet("{IdTarifa:int}/{idCero:int}")]
+        public async Task<IActionResult> GetFullAsync(int IdTarifa, int idCero)
+        {
+            return Ok(await _context.TarifasDetalle
+                .Include(n => n.PuntoOrigen)
+                .Include(n => n.PuntoDestino)
+                .Where(t => t.TarifaId == IdTarifa)
+                .ToListAsync());
+        }
+
         [HttpPost]
         public async Task<ActionResult> PostAsync(Shared.Models.TarifaDetalle tarifadetalle)
         {

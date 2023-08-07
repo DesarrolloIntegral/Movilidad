@@ -1,8 +1,6 @@
 using CurrieTechnologies.Razor.SweetAlert2;
 using DesarrolloIntegral.Shared.Repositories;
 using DesarrolloIntegral.WEBServer.Data;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 

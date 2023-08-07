@@ -6,7 +6,7 @@
     <div class="mb-3">
         <label>Cuenta Bancaria</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Cuenta.NumeroCuenta" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Cuenta.NumeroCuenta = __value?.ToUpper(), Cuenta.NumeroCuenta?.ToUpper())" />
+            <InputText class="form-control" @bind-Value="@Cuenta.NumeroCuenta" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Cuenta.NumeroCuenta = __value?.ToUpper(), Cuenta.NumeroCuenta!.ToUpper())" />
             <ValidationMessage For="@(() => Cuenta.NumeroCuenta)" />
         </div>
     </div>

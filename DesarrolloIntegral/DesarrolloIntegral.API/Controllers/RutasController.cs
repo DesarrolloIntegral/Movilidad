@@ -18,6 +18,14 @@ namespace DesarrolloIntegral.API.Controllers
             _context = context;
         }
 
+        [HttpGet("full")]
+        public async Task<IActionResult> GetAsync()
+        {
+            return Ok(await _context.Rutas
+                .OrderBy(r => r.Nombre)
+                .ToListAsync());
+        }
+
         [HttpGet]
         public async Task<ActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
