@@ -22,6 +22,7 @@ namespace DesarrolloIntegral.API.Controllers
         public async Task<IActionResult> GetAsync()
         {
             return Ok(await _context.Rutas
+                .Where(e => e.Estado == 1)
                 .OrderBy(r => r.Nombre)
                 .ToListAsync());
         }
@@ -112,7 +113,7 @@ namespace DesarrolloIntegral.API.Controllers
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("YYa existe una ruta con este nombre");
+                    return BadRequest("Ya existe una ruta con este nombre");
                 }
 
                 return BadRequest(dbUpdateException.Message);

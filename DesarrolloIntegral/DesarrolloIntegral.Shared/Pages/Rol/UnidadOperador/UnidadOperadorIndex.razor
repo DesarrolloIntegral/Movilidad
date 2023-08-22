@@ -1,37 +1,49 @@
-﻿@page "/puestos"
+﻿@page "/unidadOperador"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-<h3>Puestos</h3>
+<h3>Asignación Unidad-Operador</h3>
 
 <div class="mb-3">
-    <a class="btn btn-primary mb-3" href="/puestos/crear">Nuevo Puesto</a>
+    <a class="btn btn-primary mb-3" href="/unidadOperador/crear">Nueva Asignación Unidad-Operador</a>
 </div>
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPageAsync" />
 
-<GenericList MyList="Puestos">
+<GenericList MyList="UnidadOperadores">
     <Body>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Nombre</th>
+                    <th>Unidad</th>
+                    <th>Servicio</th>
+                    <th>Clave Operador</th>
+                    <th>Nombre Operador</th>
                     <th>Status</th>
                     <th style="width:400px"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var puesto in Puestos!)
+                @foreach (var asigna in UnidadOperadores!)
                 {
                     <tr>
                         <td>
-                            @puesto.Nombre
+                            @asigna.Unidad?.NumeroEconomico
                         </td>
                         <td>
-                            @if (puesto.Estado == 1)
+                            @asigna.Linea?.Nombre
+                        </td>
+                        <td>
+                            @asigna.Personal?.Clave
+                        </td>
+                        <td>
+                            @asigna.Personal?.Nombre
+                        </td>
+                        <td>
+                            @if (asigna.Estado == 1)
                             {
                                 <p>Activo</p>
                             }
@@ -41,16 +53,15 @@
                             }
                         </td>
                         <td>
-                            <a class="btn btn-warning" href="/puestos/editar/@puesto.Id">Editar</a>
-                            @if (puesto.Estado == 1)
+                            <a class="btn btn-warning" href="/unidadOperador/editar/@asigna.Id">Editar</a>
+                            @if (asigna.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(puesto))>Desactivar</button>
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(asigna))>Desactivar</button>
                             }
                             else
                             {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(puesto))>Activar</button>
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(asigna))>Activar</button>
                             }
-
                         </td>
                     </tr>
                 }
@@ -63,11 +74,10 @@
     [CascadingParameter]
     public string? rutaCnx { get; set; }
 
-    public List<Puesto>? Puestos { get; set; }
+    public List<UnidadOperador>? UnidadOperadores { get; set; }
 
     private int currentPage = 1;
     private int totalPages;
-
 
     protected async override Task OnInitializedAsync()
     {
@@ -76,12 +86,12 @@
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/puestos?page={page}";
-        string url2 = $"api/puestos/totalPages";
+        string url1 = $"api/unidadOperadores?page={page}";
+        string url2 = $"api/unidadOperadores/totalPages";
 
-        var responseHppt = await repository.Get<List<Puesto>>(url1);
+        var responseHppt = await repository.Get<List<UnidadOperador>>(url1);
         var responseHppt2 = await repository.Get<int>(url2);
-        Puestos = responseHppt.Response!;
+        UnidadOperadores = responseHppt.Response!;
         totalPages = responseHppt2.Response!;
     }
 
@@ -91,12 +101,12 @@
         await LoadAsync(page);
     }
 
-    private async Task DesactivarAsync(Puesto puesto)
+    private async Task DesactivarAsync(UnidadOperador unidadoperador)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres Desactivar el Puesto?",
+                Text = "¿Esta seguro que quieres Desactivar esta asignación?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -108,8 +118,8 @@
             return;
         }
 
-        puesto.Estado = 0;
-        var responseHTTP = await repository.Put($"api/puestos/", puesto);
+        unidadoperador.Estado = 0;
+        var responseHTTP = await repository.Put($"api/unidadOperadores/", unidadoperador);
 
         if (responseHTTP.Error)
         {
@@ -124,12 +134,12 @@
         await LoadAsync();
     }
 
-    private async Task ActivarAsync(Puesto puesto)
+    private async Task ActivarAsync(UnidadOperador unidadoperador)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres activar el Puesto?",
+                Text = "¿Esta seguro que quieres activar esta asignación?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -141,8 +151,8 @@
             return;
         }
 
-        puesto.Estado = 1;
-        var responseHTTP = await repository.Put($"api/puestos/", puesto);
+        unidadoperador.Estado = 1;
+        var responseHTTP = await repository.Put($"api/unidadOperadores/", unidadoperador);
 
         if (responseHTTP.Error)
         {
@@ -156,5 +166,4 @@
 
         await LoadAsync();
     }
-
 }

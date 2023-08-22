@@ -1,0 +1,64 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService sweetAlertService
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Id Unidad :</label>
+        <div>
+            <InputNumber @bind-Value="@Unidad.IdUnidad" />
+            <ValidationMessage For="@(() => Unidad.IdUnidad)" />
+        </div>
+        <label>Numero Economico :</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Unidad.NumeroEconomico" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Unidad.NumeroEconomico = __value?.ToUpper(), Unidad.NumeroEconomico?.ToUpper())" />
+            <ValidationMessage For="@(() => Unidad.NumeroEconomico)" />
+        </div>
+        <label>Serie :</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Unidad.Serie" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Unidad.Serie = __value?.ToUpper(), Unidad.Serie?.ToUpper())" />
+            <ValidationMessage For="@(() => Unidad.Serie)" />
+        </div>
+        <label>Modelo :</label>
+        <div>
+            <InputNumber @bind-Value="@Unidad.ModeloAnio" />
+            <ValidationMessage For="@(() => Unidad.ModeloAnio)" />
+        </div>
+        <label>Placas :</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Unidad.Placas" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Unidad.Placas = __value?.ToUpper(), Unidad.Placas?.ToUpper())" />
+            <ValidationMessage For="@(() => Unidad.Placas)" />
+        </div>
+        <label>Asiento :</label>
+        <div>
+            <InputNumber @bind-Value="@Unidad.Asientos" />
+            <ValidationMessage For="@(() => Unidad.Asientos)" />
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public Unidad Unidad { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Unidad);
+    }
+}

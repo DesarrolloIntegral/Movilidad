@@ -1,0 +1,33 @@
+﻿@page "/unidades/crear"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Banco</h3>
+<UnidadForm @ref="unidadForm" Unidad="unidad" OnValidSubmit="Crear" ReturnAction="Return" />
+
+@code {
+    private Unidad unidad = new();
+    private UnidadForm? unidadForm;
+
+    private async Task Crear()
+    {
+        var responseHttp = await repository.Post("/api/unidades", unidad);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+
+        Return();
+    }
+
+    private void Return()
+    {
+        unidadForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/unidades");
+    }
+}

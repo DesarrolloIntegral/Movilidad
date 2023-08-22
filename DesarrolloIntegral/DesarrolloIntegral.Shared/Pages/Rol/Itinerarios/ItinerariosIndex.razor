@@ -1,37 +1,45 @@
-﻿@page "/puestos"
+﻿@page "/itinerarios"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-<h3>Puestos</h3>
+<h3>Itinerarios</h3>
 
 <div class="mb-3">
-    <a class="btn btn-primary mb-3" href="/puestos/crear">Nuevo Puesto</a>
+    <a class="btn btn-primary mb-3" href="/itinerarios/crear">Nuevo Itinerario</a>
 </div>
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPageAsync" />
 
-<GenericList MyList="Puestos">
+<GenericList MyList="Itinerarios">
     <Body>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Nombre</th>
+                    <th>Descripcion</th>
+                    <th>Ruta</th>
+                    <th>Linea</th>
                     <th>Status</th>
                     <th style="width:400px"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var puesto in Puestos!)
+                @foreach (var iti in Itinerarios!)
                 {
                     <tr>
                         <td>
-                            @puesto.Nombre
+                            @iti.Descripcion
                         </td>
                         <td>
-                            @if (puesto.Estado == 1)
+                            @iti.Ruta?.Nombre
+                        </td>
+                        <td>
+                            @iti.Ruta?.Linea?.Nombre
+                        </td>
+                        <td>
+                            @if (iti.Estado == 1)
                             {
                                 <p>Activo</p>
                             }
@@ -41,16 +49,19 @@
                             }
                         </td>
                         <td>
-                            <a class="btn btn-warning" href="/puestos/editar/@puesto.Id">Editar</a>
-                            @if (puesto.Estado == 1)
+                            <a class="btn btn-info" href="/itinerarios/detalles/@iti.Id">Detalles</a>
+                            <a class="btn btn-warning" href="/itinerarios/editar/@iti.Id">Editar</a>
+                            <a class="btn btn-warning" href="/itinerarios/horarios/@iti.Id">Horario</a>
+                            <a class="btn btn-warning" href="/itinerarios/tiempos/@iti.Id">Tiempos</a>
+                            <a class="btn btn-warning" href="/itinerarios/intervalos/@iti.Id">Intervalos</a>
+                            @if (iti.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(puesto))>Desactivar</button>
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(iti))>Desactivar</button>
                             }
                             else
                             {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(puesto))>Activar</button>
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(iti))>Activar</button>
                             }
-
                         </td>
                     </tr>
                 }
@@ -63,7 +74,7 @@
     [CascadingParameter]
     public string? rutaCnx { get; set; }
 
-    public List<Puesto>? Puestos { get; set; }
+    public List<Itinerario>? Itinerarios { get; set; }
 
     private int currentPage = 1;
     private int totalPages;
@@ -76,12 +87,12 @@
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/puestos?page={page}";
-        string url2 = $"api/puestos/totalPages";
+        string url1 = $"api/itinerarios?page={page}";
+        string url2 = $"api/itinerarios/totalPages";
 
-        var responseHppt = await repository.Get<List<Puesto>>(url1);
+        var responseHppt = await repository.Get<List<Itinerario>>(url1);
         var responseHppt2 = await repository.Get<int>(url2);
-        Puestos = responseHppt.Response!;
+        Itinerarios = responseHppt.Response!;
         totalPages = responseHppt2.Response!;
     }
 
@@ -91,12 +102,12 @@
         await LoadAsync(page);
     }
 
-    private async Task DesactivarAsync(Puesto puesto)
+    private async Task DesactivarAsync(Itinerario itinerario)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres Desactivar el Puesto?",
+                Text = "¿Esta seguro que quieres Desactivar este itinerario?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -108,8 +119,8 @@
             return;
         }
 
-        puesto.Estado = 0;
-        var responseHTTP = await repository.Put($"api/puestos/", puesto);
+        itinerario.Estado = 0;
+        var responseHTTP = await repository.Put($"api/itinerarios/", itinerario);
 
         if (responseHTTP.Error)
         {
@@ -124,12 +135,12 @@
         await LoadAsync();
     }
 
-    private async Task ActivarAsync(Puesto puesto)
+    private async Task ActivarAsync(Itinerario itinerario)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres activar el Puesto?",
+                Text = "¿Esta seguro que quieres activar este itinerario?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -141,8 +152,8 @@
             return;
         }
 
-        puesto.Estado = 1;
-        var responseHTTP = await repository.Put($"api/puestos/", puesto);
+        itinerario.Estado = 1;
+        var responseHTTP = await repository.Put($"api/itinerarios/", itinerario);
 
         if (responseHTTP.Error)
         {
@@ -156,5 +167,4 @@
 
         await LoadAsync();
     }
-
 }

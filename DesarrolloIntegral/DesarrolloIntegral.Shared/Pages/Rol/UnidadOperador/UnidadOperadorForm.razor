@@ -1,0 +1,99 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject SweetAlertService sweetAlertService
+@inject IRepository repository
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Unidad :</label>
+        <div>
+            <select @bind="unidadOperador.UnidadId">
+                <option value=0>Seleccione Unidad...</option>
+                @if (Unidades != null)
+                {
+                    @foreach (var uni in Unidades)
+                    {
+                        <option value="@uni.Id">@uni.NumeroEconomico</option>
+                    }
+                }
+            </select>
+        </div>
+        <label>Linea :</label>
+        <div>
+            <select @bind="unidadOperador.LineaId">
+                <option value=0>Seleccione Linea...</option>
+                @if (Lineas != null)
+                {
+                    @foreach (var lin in Lineas)
+                    {
+                        <option value="@lin.Id">@lin.Nombre</option>
+                    }
+                }
+            </select>
+        </div>
+        <label>Operador :</label>
+        <div>
+            <select @bind="unidadOperador.PersonalId">
+                <option value=0>Seleccione Operador...</option>
+                @if (Personales != null)
+                {
+                    @foreach (var per in Personales)
+                    {
+                        <option value="@per.Id">@per.Nombre</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+
+    public List<Linea>? Lineas { get; set; }
+
+    public List<Personal>? Personales { get; set; }
+
+    public List<Unidad>? Unidades { get; set; }
+
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public UnidadOperador unidadOperador { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new(unidadOperador);
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        string url = $"api/lineas/sinfiltro";
+
+        var responseHppt = await repository.Get<List<Linea>>(url);
+        Lineas = responseHppt.Response!;
+
+        string urlUnidades = $"api/unidades/sinfiltro";
+
+        var responseHppt2 = await repository.Get<List<Unidad>>(urlUnidades);
+        Unidades = responseHppt2.Response!;
+
+        string urlPersonal = $"api/personales/sinfiltro";
+
+        var responseHppt3 = await repository.Get<List<Personal>>(urlPersonal);
+        Personales = responseHppt3.Response!;
+    }
+}

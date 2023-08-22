@@ -9,6 +9,7 @@
     ".NETCoreApp,Version=v6.0/linux-x64": {
       "DesarrolloIntegral.WEBServer/1.0.0": {
         "dependencies": {
+          "CurrieTechnologies.Razor.SweetAlert2": "5.5.0",
           "DesarrolloIntegral.Shared": "1.0.0"
         },
         "runtime": {

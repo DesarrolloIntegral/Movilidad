@@ -1,0 +1,32 @@
+﻿@page "/itinerarios/crear"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Crear Ruta Nueva</h3>
+<ItinerarioForm @ref="itinerarioForm" Itinerario="itinerario" OnValidSubmit="Crear" ReturnAction="Return" />
+
+@code {
+    private Itinerario itinerario = new();
+    private ItinerarioForm? itinerarioForm;
+
+    private async Task Crear()
+    {
+        var responseHttp = await repository.Post("/api/itinerarios", itinerario);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        itinerarioForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/itinerarios");
+    }
+}

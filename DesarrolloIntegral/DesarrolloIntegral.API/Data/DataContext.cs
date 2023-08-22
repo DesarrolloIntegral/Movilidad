@@ -40,6 +40,14 @@ namespace DesarrolloIntegral.API.Data
 
         public DbSet<Trayecto> Trayectos { get; set; }
 
+        public DbSet<Unidad> Unidades { get; set; }
+
+        public DbSet<UnidadOperador> UnidadOperadores { get; set; }
+
+        public DbSet<Itinerario> Itinerarios { get; set; }
+
+        public DbSet<HorarioServicio> HorarioServicios { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -107,6 +115,10 @@ namespace DesarrolloIntegral.API.Data
                     .WithMany(t => t.PuntoDesDetalles)
                     .HasForeignKey(m => m.PuntoDestinoId)
                     .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Itinerario>()
+                    .HasIndex(b => b.Descripcion)
+                    .IsUnique();
         }
     }
 }

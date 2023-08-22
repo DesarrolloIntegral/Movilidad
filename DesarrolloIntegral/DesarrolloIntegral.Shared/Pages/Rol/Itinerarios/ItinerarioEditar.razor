@@ -1,35 +1,35 @@
-﻿@page "/cuentas/editar/{CuentaId:int}"
+﻿@page "/itinerarios/editar/{Id:int}"
 @inject NavigationManager navigationManager
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
 
-<h3>Editar Cuenta</h3>
+<h3>Editar itinerario</h3>
 
-@if (cuenta is null)
+@if (itinerario is null)
 {
     <p>Cargando...</p>
 }
 else
 {
-    <CuentaForm @ref="cuentaForm" Cuenta="cuenta" OnValidSubmit="EditAsync" ReturnAction="Return" />
+    <ItinerarioForm @ref="itinerarioForm" Itinerario="itinerario" OnValidSubmit="EditAsync" ReturnAction="Return" />
 }
 
 @code {
-    private CuentaBancaria? cuenta;
-    private CuentaForm? cuentaForm;
+    private Itinerario? itinerario;
+    private ItinerarioForm? itinerarioForm;
 
     [Parameter]
-    public int CuentaId { get; set; }
+    public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var responseHTTP = await repository.Get<CuentaBancaria>($"api/cuentas/{CuentaId}");
+        var responseHTTP = await repository.Get<Itinerario>($"api/itinerarios/{Id}");
 
         if (responseHTTP.Error)
         {
             if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("bancos");
+                navigationManager.NavigateTo("/itinerarios");
                 return;
             }
 
@@ -38,12 +38,12 @@ else
             return;
         }
 
-        cuenta = responseHTTP.Response;
+        itinerario = responseHTTP.Response;
     }
 
     private async Task EditAsync()
     {
-        var responseHTTP = await repository.Put("api/cuentas", cuenta);
+        var responseHTTP = await repository.Put("api/itinerarios", itinerario);
 
         if (responseHTTP.Error)
         {
@@ -57,7 +57,7 @@ else
 
     private void Return()
     {
-        cuentaForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo($"/bancos/detalles/{cuenta!.BancoId}");
+        itinerarioForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/itinerarios");
     }
 }

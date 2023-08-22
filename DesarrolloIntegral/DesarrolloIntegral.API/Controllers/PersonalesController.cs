@@ -18,6 +18,14 @@ namespace DesarrolloIntegral.API.Controllers
             _context = context;
         }
 
+        [HttpGet("sinfiltro")]
+        public async Task<IActionResult> GetAsync()
+        {
+            return Ok(await _context.Personal
+                .Where(p => p.Estado == 1)
+                .OrderBy(p => p.Nombre).ToListAsync());
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {

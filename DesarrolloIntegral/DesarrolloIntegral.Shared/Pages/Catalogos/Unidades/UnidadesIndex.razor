@@ -1,37 +1,57 @@
-﻿@page "/puestos"
+﻿@page "/unidades"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-<h3>Puestos</h3>
+<h3>Unidades</h3>
 
 <div class="mb-3">
-    <a class="btn btn-primary mb-3" href="/puestos/crear">Nuevo Puesto</a>
+    <a class="btn btn-primary mb-3" href="/unidades/crear">Nueva Unidad</a>
 </div>
 
 <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
             SelectedPage="SelectedPageAsync" />
 
-<GenericList MyList="Puestos">
+<GenericList MyList="Unidades">
     <Body>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Status</th>
+                    <th>IdUnidad</th>
+                    <th>NumeroEconomico</th>
+                    <th>Serie</th>
+                    <th>Año</th>
+                    <th>Placas</th>
+                    <th>Asientos</th>
+                    <th>Estado</th>
                     <th style="width:400px"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var puesto in Puestos!)
+                @foreach (var unidad in Unidades!)
                 {
                     <tr>
                         <td>
-                            @puesto.Nombre
+                            @unidad.IdUnidad
                         </td>
                         <td>
-                            @if (puesto.Estado == 1)
+                            @unidad.NumeroEconomico
+                        </td>
+                        <td>
+                            @unidad.Serie
+                        </td>
+                        <td>
+                            @unidad.ModeloAnio
+                        </td>
+                        <td>
+                            @unidad.Placas
+                        </td>
+                        <td>
+                            @unidad.Asientos
+                        </td>
+                        <td>
+                            @if (unidad.Estado == 1)
                             {
                                 <p>Activo</p>
                             }
@@ -41,16 +61,16 @@
                             }
                         </td>
                         <td>
-                            <a class="btn btn-warning" href="/puestos/editar/@puesto.Id">Editar</a>
-                            @if (puesto.Estado == 1)
+                            <a class="btn btn-info" href="/unidades/detalles/@unidad.Id/1">Detalles</a>
+                            <a class="btn btn-warning" href="/unidades/editar/@unidad.Id">Editar</a>
+                            @if (unidad.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(puesto))>Desactivar</button>
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(unidad))>Desactivar</button>
                             }
                             else
                             {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(puesto))>Activar</button>
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(unidad))>Activar</button>
                             }
-
                         </td>
                     </tr>
                 }
@@ -63,11 +83,10 @@
     [CascadingParameter]
     public string? rutaCnx { get; set; }
 
-    public List<Puesto>? Puestos { get; set; }
+    public List<Unidad>? Unidades { get; set; }
 
     private int currentPage = 1;
     private int totalPages;
-
 
     protected async override Task OnInitializedAsync()
     {
@@ -76,12 +95,12 @@
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/puestos?page={page}";
-        string url2 = $"api/puestos/totalPages";
+        string url1 = $"api/unidades?page={page}";
+        string url2 = $"api/unidades/totalPages";
 
-        var responseHppt = await repository.Get<List<Puesto>>(url1);
+        var responseHppt = await repository.Get<List<Unidad>>(url1);
         var responseHppt2 = await repository.Get<int>(url2);
-        Puestos = responseHppt.Response!;
+        Unidades = responseHppt.Response!;
         totalPages = responseHppt2.Response!;
     }
 
@@ -91,12 +110,12 @@
         await LoadAsync(page);
     }
 
-    private async Task DesactivarAsync(Puesto puesto)
+    private async Task DesactivarAsync(Unidad unidad)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres Desactivar el Puesto?",
+                Text = "¿Esta seguro que quieres Desactivar la Unidad?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -108,8 +127,8 @@
             return;
         }
 
-        puesto.Estado = 0;
-        var responseHTTP = await repository.Put($"api/puestos/", puesto);
+        unidad.Estado = 0;
+        var responseHTTP = await repository.Put($"api/unidades/", unidad);
 
         if (responseHTTP.Error)
         {
@@ -124,12 +143,12 @@
         await LoadAsync();
     }
 
-    private async Task ActivarAsync(Puesto puesto)
+    private async Task ActivarAsync(Unidad unidad)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres activar el Puesto?",
+                Text = "¿Esta seguro que quieres activar la Unidad?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -141,8 +160,8 @@
             return;
         }
 
-        puesto.Estado = 1;
-        var responseHTTP = await repository.Put($"api/puestos/", puesto);
+        unidad.Estado = 1;
+        var responseHTTP = await repository.Put($"api/unidades/", unidad);
 
         if (responseHTTP.Error)
         {
@@ -156,5 +175,4 @@
 
         await LoadAsync();
     }
-
 }

@@ -21,5 +21,6 @@ namespace DesarrolloIntegral.Shared.Models
         public virtual ICollection<DescuentoDetalle>? DescuentoDetalles { get; set; }
         public virtual ICollection<Ruta>? Rutas { get; set; }
         public virtual ICollection<Tarifa>? Tarifas { get; set; }
+        public virtual ICollection<UnidadOperador>? UnidadOperadores { get; set; }
     }
 }

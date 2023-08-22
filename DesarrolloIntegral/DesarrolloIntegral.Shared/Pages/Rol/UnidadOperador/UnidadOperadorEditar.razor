@@ -1,35 +1,36 @@
-﻿@page "/cuentas/editar/{CuentaId:int}"
+﻿@page "/unidadOperador/editar/{Id:int}"
 @inject NavigationManager navigationManager
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
 
-<h3>Editar Cuenta</h3>
 
-@if (cuenta is null)
+<h3>Editar Asignación unidad operador</h3>
+
+@if (unidadoperador is null)
 {
     <p>Cargando...</p>
 }
 else
 {
-    <CuentaForm @ref="cuentaForm" Cuenta="cuenta" OnValidSubmit="EditAsync" ReturnAction="Return" />
+    <UnidadOperadorForm @ref="unidadoperadorForm" unidadOperador="unidadoperador" OnValidSubmit="EditAsync" ReturnAction="Return" />
 }
 
 @code {
-    private CuentaBancaria? cuenta;
-    private CuentaForm? cuentaForm;
+    private UnidadOperador? unidadoperador;
+    private UnidadOperadorForm? unidadoperadorForm;
 
     [Parameter]
-    public int CuentaId { get; set; }
+    public int Id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var responseHTTP = await repository.Get<CuentaBancaria>($"api/cuentas/{CuentaId}");
+        var responseHTTP = await repository.Get<UnidadOperador>($"api/unidadOperadores/{Id}");
 
         if (responseHTTP.Error)
         {
             if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("bancos");
+                navigationManager.NavigateTo("unidadOperador");
                 return;
             }
 
@@ -38,12 +39,12 @@ else
             return;
         }
 
-        cuenta = responseHTTP.Response;
+        unidadoperador = responseHTTP.Response;
     }
 
     private async Task EditAsync()
     {
-        var responseHTTP = await repository.Put("api/cuentas", cuenta);
+        var responseHTTP = await repository.Put("api/unidadOperadores", unidadoperador);
 
         if (responseHTTP.Error)
         {
@@ -57,7 +58,7 @@ else
 
     private void Return()
     {
-        cuentaForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo($"/bancos/detalles/{cuenta!.BancoId}");
+        unidadoperadorForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/unidadOperador");
     }
 }

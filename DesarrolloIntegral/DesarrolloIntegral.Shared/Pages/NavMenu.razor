@@ -14,7 +14,7 @@
         @if (Tipo != 1)
         {
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="" @onclick="()=> expandMenuCatalogos = !expandMenuCatalogos">
+                <NavLink class="nav-link" href="" @onclick="()=> ValidacionCatalogos()">
                     <span class="oi oi-cart" aria-hidden="true"></span> Catálogos
                 </NavLink>
                 @if (expandMenuCatalogos)
@@ -86,14 +86,6 @@
 
                         <li class="nav-item px-3">
                             <CascadingValue Value="@rutaCnx">
-                                <NavLink class="nav-link" href="bancos">
-                                    <span class="oi oi-box" aria-hidden="true"></span> Bancos
-                                </NavLink>
-                            </CascadingValue>
-                        </li>
-
-                        <li class="nav-item px-3">
-                            <CascadingValue Value="@rutaCnx">
                                 <NavLink class="nav-link" href="descuentos">
                                     <span class="oi oi-box" aria-hidden="true"></span> Descuentos
                                 </NavLink>
@@ -109,10 +101,10 @@
                         </li>
                     </ul>
                 }
-            </li>
+            </li> //Menu Catalogos
 
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="" @onclick="()=> expandMenuRol = !expandMenuRol">
+                <NavLink class="nav-link" href="" @onclick="()=> ValidacionRol()">
                     <span class="oi oi-cart" aria-hidden="true"></span> Rol
                 </NavLink>
                 @if (expandMenuRol)
@@ -128,16 +120,8 @@
 
                         <li class="nav-item px-3">
                             <CascadingValue Value="@rutaCnx">
-                                <NavLink class="nav-link" href="/operaunidad">
-                                    <span class="oi oi-box" aria-hidden="true"></span> OperaUnidad
-                                </NavLink>
-                            </CascadingValue>
-                        </li>
-
-                        <li class="nav-item px-3">
-                            <CascadingValue Value="@rutaCnx">
-                                <NavLink class="nav-link" href="/lineaunidad">
-                                    <span class="oi oi-box" aria-hidden="true"></span> LineaUnidad
+                                <NavLink class="nav-link" href="/unidadOperador">
+                                    <span class="oi oi-box" aria-hidden="true"></span> Operador-Unidad
                                 </NavLink>
                             </CascadingValue>
                         </li>
@@ -184,10 +168,10 @@
 
                     </ul>
                 }
-            </li>
+            </li> //Menu Rol
 
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="" @onclick="()=> expandMenuCortes = !expandMenuCortes">
+                <NavLink class="nav-link" href="" @onclick="()=> ValidacionCortes()">
                     <span class="oi oi-cart" aria-hidden="true"></span> GestionCortes
                 </NavLink>
                 @if (expandMenuCortes)
@@ -218,10 +202,10 @@
                         </li>
                     </ul>
                 }
-            </li>
+            </li> //Menu Cortes
 
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="" @onclick="()=> expandMenuRecauda = !expandMenuRecauda">
+                <NavLink class="nav-link" href="" @onclick="()=> ValidacionRecauda()">
                     <span class="oi oi-cart" aria-hidden="true"></span> Recaudación
                 </NavLink>
                 @if (expandMenuRecauda)
@@ -284,15 +268,23 @@
                         </li>
                     </ul>
                 }
-            </li>
+            </li> //Menu Recaudacion
 
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="" @onclick="()=> expandMenuDepositos = !expandMenuDepositos">
+                <NavLink class="nav-link" href="" @onclick="()=> ValidacionDepositos()">
                     <span class="oi oi-cart" aria-hidden="true"></span> Depositos
                 </NavLink>
                 @if (expandMenuDepositos)
                 {
                     <ul class="nav flex-column">
+                        <li class="nav-item px-3">
+                            <CascadingValue Value="@rutaCnx">
+                                <NavLink class="nav-link" href="bancos">
+                                    <span class="oi oi-box" aria-hidden="true"></span> Bancos
+                                </NavLink>
+                            </CascadingValue>
+                        </li>
+
                         <li class="nav-item px-3">
                             <CascadingValue Value="@rutaCnx">
                                 <NavLink class="nav-link" href="/cortemanual">
@@ -318,8 +310,7 @@
                         </li>
                     </ul>
                 }
-            </li>
-
+            </li> //Menu Depositos
         }
         @if (Tipo == 1)
         {
@@ -476,5 +467,137 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void ValidacionCatalogos()
+    {
+        if (expandMenuCatalogos)
+        {
+            expandMenuCatalogos = false;
+            expandMenuRol = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+        else
+        {
+            expandMenuCatalogos = true;
+            expandMenuRol = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+    }
+
+    private void ValidacionRol()
+    {
+        if (expandMenuRol)
+        {
+            expandMenuRol = false;
+            expandMenuCatalogos = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+        else
+        {
+            expandMenuCatalogos = false;
+            expandMenuRol = true  ;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+    }
+
+    private void ValidacionBoletos()
+    {
+        if (expandMenuBoletos)
+        {
+            expandMenuRol = false;
+            expandMenuCatalogos = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+        else
+        {
+            expandMenuCatalogos = false;
+            expandMenuRol = false;
+            expandMenuBoletos = true;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+    }
+
+    private void ValidacionCortes()
+    {
+        if (expandMenuCortes)
+        {
+            expandMenuRol = false;
+            expandMenuCatalogos = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+        else
+        {
+            expandMenuCatalogos = false;
+            expandMenuRol = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = true;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+    }
+
+    private void ValidacionRecauda()
+    {
+        if (expandMenuRecauda)
+        {
+            expandMenuRol = false;
+            expandMenuCatalogos = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+        else
+        {
+            expandMenuCatalogos = false;
+            expandMenuRol = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = true;
+            expandMenuDepositos = false;
+        }
+    }
+
+    private void ValidacionDepositos()
+    {
+        if (expandMenuDepositos)
+        {
+            expandMenuRol = false;
+            expandMenuCatalogos = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = false;
+        }
+        else
+        {
+            expandMenuCatalogos = false;
+            expandMenuRol = false;
+            expandMenuBoletos = false;
+            expandMenuCortes = false;
+            expandMenuRecauda = false;
+            expandMenuDepositos = true;
+        }
     }
 }

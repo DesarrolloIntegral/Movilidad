@@ -5,19 +5,13 @@
 <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
     <div class="mb-3">
-        <label>Nombre :</label>
+        <label>Descripcion :</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Ruta.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Ruta.Nombre = __value?.ToUpper(), Ruta.Nombre?.ToUpper())" />
-            <ValidationMessage For="@(() => Ruta.Nombre)" />
+            <InputText class="form-control" @bind-Value="@Itinerario.Descripcion" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Itinerario.Descripcion = __value?.ToUpper(), Itinerario.Descripcion?.ToUpper())" />
+            <ValidationMessage For="@(() => Itinerario.Descripcion)" />
         </div>
-        <label>Codigo :</label>
-        <div>
-            <InputText class="form-control" @bind-Value="@Ruta.Codigo" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Ruta.Codigo = __value?.ToUpper(), Ruta.Codigo?.ToUpper())" />
-            <ValidationMessage For="@(() => Ruta.Codigo)" />
-        </div>
-        <label>Linea :</label>
-        <div>
-            <select @bind="Ruta.LineaId">
+        <label>Ruta :</label>
+            <select @bind="Itinerario.RutaId">
                 <option value=0>Seleccione Linea...</option>
                 @if (Lineas != null)
                 {
@@ -27,20 +21,21 @@
                     }
                 }
             </select>
-        </div>
     </div>
     <button class="btn btn-success" type="submit">Guardar Cambios</button>
     <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>
 </EditForm>
 
 @code {
+    public List<Ruta>? Rutas { get; set; }
+
     public List<Linea>? Lineas { get; set; }
 
     private EditContext editContext = null!;
 
     [EditorRequired]
     [Parameter]
-    public Ruta Ruta { get; set; } = null!;
+    public Itinerario Itinerario { get; set; } = null!;
 
     [EditorRequired]
     [Parameter]
@@ -54,7 +49,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        editContext = new(Ruta);
+        editContext = new(Itinerario);
         await LoadAsync();
     }
 
@@ -64,5 +59,10 @@
 
         var responseHppt = await repository.Get<List<Linea>>(url);
         Lineas = responseHppt.Response!;
+
+        string url2 = $"api/lineas/full";
+
+        var responseHppt2 = await repository.Get<List<Ruta>>(url);
+        Rutas = responseHppt2.Response!;
     }
 }

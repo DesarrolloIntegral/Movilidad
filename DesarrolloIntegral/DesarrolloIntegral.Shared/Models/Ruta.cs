@@ -22,6 +22,7 @@ namespace DesarrolloIntegral.Shared.Models
         public virtual Linea? Linea { get; set; }
 
         public virtual ICollection<Trayecto>? Trayectos { get; set; }
+        public virtual ICollection<Itinerario>? Itinerarios { get; set; }
 
         [Display(Name = "Kilometros")]
         public decimal KmsTotal => Trayectos == null ? 0 : Trayectos.Sum(k => k.Kilometros);

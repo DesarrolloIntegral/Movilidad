@@ -8,12 +8,13 @@ using Microsoft.EntityFrameworkCore;
 namespace DesarrolloIntegral.API.Controllers
 {
     [ApiController]
-    [Route("/api/lineas")]
-    public class LineasController : ControllerBase
+    [Route("/api/unidades")]
+
+    public class UnidadesController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public LineasController(DataContext context)
+        public UnidadesController(DataContext context)
         {
             _context = context;
         }
@@ -21,65 +22,74 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("sinfiltro")]
         public async Task<IActionResult> GetAsync()
         {
-            return Ok(await _context.Lineas
-                .Where(l => l.Estado == 1)
-                .OrderBy(p => p.Nombre).ToListAsync());
+            return Ok(await _context.Unidades
+                .Where(u => u.Estado == 1)
+                .OrderBy(p => p.NumeroEconomico).ToListAsync());
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
+        public async Task<ActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Lineas
+            var queryable = _context.Unidades
                 .AsQueryable();
 
             return Ok(await queryable
-                .OrderBy(x => x.Nombre)
-                .Paginate(pagination)
-                .ToListAsync());
+                        .Paginate(pagination)
+                        .ToListAsync());
         }
 
         [HttpGet("totalPages")]
         public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Lineas.AsQueryable();
+            var queryable = _context.Unidades.AsQueryable();
             double count = await queryable.CountAsync();
             double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
             return Ok(totalPages);
         }
 
-
         [HttpGet("{id:int}")]
         public async Task<ActionResult> GetAsync(int id)
         {
-            var linea = await _context.Lineas
-                .FirstOrDefaultAsync(x => x.Id == id);
-            if (linea is null)
-            {
-                return NotFound();
-            }
+                var unidad = await _context.Unidades.FirstOrDefaultAsync(x => x.Id == id);
 
-            return Ok(linea);
+                if (unidad is null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(unidad);
+        }
+
+        [HttpGet("{IdUnidad:int}/{idCero:int}")]
+        public async Task<IActionResult> GetFullAsync(int IdUnidad, int idCero)
+        {
+            return Ok(await _context.Unidades
+                .Where(x => x.IdUnidad == IdUnidad)
+                .OrderByDescending(o => o.IdHistorial)
+                .FirstOrDefaultAsync());
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(Linea linea)
+        public async Task<ActionResult> PostAsync(Unidad unidad)
         {
             try
             {
-                linea.Estado = 1;
-                _context.Add(linea);
+                unidad.Estado = 1;
+                unidad.IdHistorial= 1;
+                _context.Add(unidad);
                 await _context.SaveChangesAsync();
-                return Ok(linea);
+                return Ok(unidad);
+
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un banco con este nombre");
+                    return BadRequest("Ya existe una unidad con estos datos");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un banco con este nombre");
+                    return BadRequest("Ya existe una unidad con estos datos");
                 }
 
                 return BadRequest(dbUpdateException.Message);
@@ -91,23 +101,24 @@ namespace DesarrolloIntegral.API.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> PutAsync(Linea linea)
+        public async Task<ActionResult> PutAsync(Unidad unidad)
         {
             try
             {
-                _context.Update(linea);
+                _context.Update(unidad);
                 await _context.SaveChangesAsync();
-                return Ok(linea);
+                return Ok(unidad);
+
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un banco con este nombre");
+                    return BadRequest("Ya existe una unidad con estos datos");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un banco con este nombre");
+                    return BadRequest("Ya existe una unidad con estos datos");
                 }
 
                 return BadRequest(dbUpdateException.Message);
@@ -116,21 +127,6 @@ namespace DesarrolloIntegral.API.Controllers
             {
                 return BadRequest(exception.Message);
             }
-        }
-
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> DeleteAsync(int id)
-        {
-            var linea = await _context.Lineas.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (linea == null)
-            {
-                return NotFound();
-            }
-
-            _context.Remove(linea);
-            await _context.SaveChangesAsync();
-            return NoContent();
         }
     }
 }
