@@ -21,6 +21,6 @@ namespace DesarrolloIntegral.Shared.Models
         public int LineaId { get; set; }
         public virtual Linea? Linea { get; set; }
 
-        public virtual ICollection<Tarifa>? Tarifas { get; set; }
+        public virtual ICollection<TarifaDetalle>? TarifaDetalles { get; set; }
     }
 }

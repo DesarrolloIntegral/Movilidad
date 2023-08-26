@@ -1,4 +1,5 @@
 ﻿using DesarrolloIntegral.Shared.Models;
+using DesarrolloIntegral.Shared.Pages.Rol.Itinerarios.TiemposRecorrido;
 using Microsoft.EntityFrameworkCore;
 
 namespace DesarrolloIntegral.API.Data
@@ -47,6 +48,8 @@ namespace DesarrolloIntegral.API.Data
         public DbSet<Itinerario> Itinerarios { get; set; }
 
         public DbSet<HorarioServicio> HorarioServicios { get; set; }
+
+        public DbSet<TiempoRecorrido> TiempoRecorridos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

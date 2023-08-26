@@ -4,6 +4,7 @@ using DesarrolloIntegral.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230824201318_timeonly")]
+    partial class timeonly
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,9 +224,6 @@ namespace DesarrolloIntegral.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("ItinerarioId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Sentido")
                         .HasColumnType("int");
 
                     b.Property<int>("TrayectoId")
@@ -522,35 +522,6 @@ namespace DesarrolloIntegral.API.Migrations
                     b.ToTable("TarifasDetalle");
                 });
 
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.TiempoRecorrido", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
-
-                    b.Property<int>("HorarioServicioId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Minutos")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TrayectoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HorarioServicioId");
-
-                    b.HasIndex("TrayectoId");
-
-                    b.ToTable("TiempoRecorridos");
-                });
-
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Trayecto", b =>
                 {
                     b.Property<int>("Id")
@@ -810,25 +781,6 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Navigation("Tarifa");
                 });
 
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.TiempoRecorrido", b =>
-                {
-                    b.HasOne("DesarrolloIntegral.Shared.Models.HorarioServicio", "HorarioServicio")
-                        .WithMany()
-                        .HasForeignKey("HorarioServicioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DesarrolloIntegral.Shared.Models.Trayecto", "Trayecto")
-                        .WithMany("TiempoRecorridos")
-                        .HasForeignKey("TrayectoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("HorarioServicio");
-
-                    b.Navigation("Trayecto");
-                });
-
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Trayecto", b =>
                 {
                     b.HasOne("DesarrolloIntegral.Shared.Models.PuntoRecorrido", "Punto")
@@ -944,8 +896,6 @@ namespace DesarrolloIntegral.API.Migrations
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Trayecto", b =>
                 {
                     b.Navigation("HorarioServicios");
-
-                    b.Navigation("TiempoRecorridos");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Unidad", b =>

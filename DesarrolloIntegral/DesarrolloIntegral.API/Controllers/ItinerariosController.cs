@@ -44,7 +44,9 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult> GetAsync(int id)
         {
-            var itinerarios = await _context.Itinerarios.FirstOrDefaultAsync(x => x.Id == id);
+            var itinerarios = await _context.Itinerarios
+                .Include(r => r.Ruta)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (itinerarios is null)
             {

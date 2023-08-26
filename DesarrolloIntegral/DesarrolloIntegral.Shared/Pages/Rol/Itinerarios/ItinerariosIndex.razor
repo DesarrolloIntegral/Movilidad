@@ -22,7 +22,7 @@
                     <th>Ruta</th>
                     <th>Linea</th>
                     <th>Status</th>
-                    <th style="width:400px"></th>
+                    <th style="width:600px"></th>
                 </tr>
             </thead>
             <tbody>
@@ -49,14 +49,13 @@
                             }
                         </td>
                         <td>
-                            <a class="btn btn-info" href="/itinerarios/detalles/@iti.Id">Detalles</a>
-                            <a class="btn btn-warning" href="/itinerarios/editar/@iti.Id">Editar</a>
-                            <a class="btn btn-warning" href="/itinerarios/horarios/@iti.Id">Horario</a>
-                            <a class="btn btn-warning" href="/itinerarios/tiempos/@iti.Id">Tiempos</a>
+                            <a class="btn btn-warning" href="/itinerarios/editar/@iti.Id">Editar</a> 
+                            <a class="btn btn-warning" href="/horariosServicio/@iti.Id">Horario</a>
+                            <a class="btn btn-warning" href="/tiemposRecorrido/@iti.Id">Tiempos</a>
                             <a class="btn btn-warning" href="/itinerarios/intervalos/@iti.Id">Intervalos</a>
                             @if (iti.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(iti))>Desactivar</button>
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(iti)) >Desactivar</button>
                             }
                             else
                             {
@@ -166,5 +165,5 @@
         }
 
         await LoadAsync();
-    }
-}
+    } 
+}        

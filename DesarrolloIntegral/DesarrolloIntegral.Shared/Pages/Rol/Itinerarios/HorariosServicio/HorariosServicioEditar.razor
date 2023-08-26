@@ -1,0 +1,85 @@
+﻿@page "/horariosServicio/editar/{Id:int}/{IdTrayecto:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Horario de Servicio</h3>
+
+@if (horarioServicio is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <HorariosServicioForm @ref="horarioServicioForm" HorarioServicio="horarioServicio" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+@code {
+    private HorarioServicio? horarioServicio;
+    private HorariosServicioForm? horarioServicioForm;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    [Parameter]
+    public int IdTrayecto { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<HorarioServicio>($"api/horariosServicio/{Id}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo($"/horariosServicio/{IdTrayecto}");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        horarioServicio = responseHTTP.Response;
+    }
+
+    private async Task EditAsync()
+    {
+        string timeinicio = horarioServicio!.HorarioInicio.ToString("HH:mm");
+        string timefin = horarioServicio!.HorarioFin.ToString("HH:mm");
+
+        string dtinicio = "1900-01-01 " + timeinicio;
+        string dtfin = "1900-01-01 " + timefin;
+
+        DateTime inicio = DateTime.Parse(dtinicio);
+        DateTime fin = DateTime.Parse(dtfin);
+
+        horarioServicio.HorarioInicio = inicio;
+        horarioServicio.HorarioFin = fin;
+
+        if (horarioServicio?.HorarioInicio >= horarioServicio?.HorarioFin)
+        {
+            await sweetAlertService.FireAsync("Validación de datos", "El horario inicial no puede ser igual o mayor al horario final", SweetAlertIcon.Error);
+            return;
+        }
+        else
+        {
+            var responseHTTP = await repository.Put("api/horariosServicio", horarioServicio);
+
+            if (responseHTTP.Error)
+            {
+                var mensajeError = await responseHTTP.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                return;
+            }
+        }
+        Return();
+    }
+
+    private void Return()
+    {
+        horarioServicioForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/horariosServicio/{IdTrayecto}");
+    }
+}

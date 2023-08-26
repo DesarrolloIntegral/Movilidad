@@ -1,0 +1,45 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Horario Inicio :</label>
+        <div>
+            <input type="time" min="00:00" max="23:59" pattern="[0-2][0-9]:[0-5][0-9]" class="form-control" @bind-value="@HorarioServicio.HorarioInicio" />
+            <ValidationMessage For="@(() => HorarioServicio.HorarioInicio)" />
+        </div>
+        <label>Horario Fin :</label>
+        <div>
+            <input type="time" min="00:00" max="23:59" pattern="[0-2][0-9]:[0-5][0-9]" class="form-control" @bind-value="@HorarioServicio.HorarioFin" />
+            <ValidationMessage For="@(() => HorarioServicio.HorarioFin)" />
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public HorarioServicio HorarioServicio { get; set; } = null!; 
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        editContext = new(HorarioServicio);
+    }
+}

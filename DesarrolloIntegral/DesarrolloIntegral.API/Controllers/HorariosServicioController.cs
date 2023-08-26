@@ -8,31 +8,23 @@ using Microsoft.EntityFrameworkCore;
 namespace DesarrolloIntegral.API.Controllers
 {
     [ApiController]
-    [Route("/api/rutas")]
-    public class RutasController : ControllerBase
+    [Route("/api/horariosServicio")]
+    public class HorariosServicioController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public RutasController(DataContext context)
+        public HorariosServicioController(DataContext context)
         {
             _context = context;
-        }
-
-        [HttpGet("full")]
-        public async Task<IActionResult> GetAsync()
-        {
-            return Ok(await _context.Rutas
-                .Where(e => e.Estado == 1)
-                .OrderBy(r => r.Nombre)
-                .ToListAsync());
         }
 
         [HttpGet]
         public async Task<ActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Rutas
-                .Include(t => t.Trayectos)
-                .Include(l => l.Linea)
+            var queryable = _context.HorarioServicios
+                .Include(r => r.Itinerario)
+                .Include(t => t.Trayecto)
+                .ThenInclude(n => n!.Punto)
                 .AsQueryable();
 
             return Ok(await queryable
@@ -43,7 +35,7 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("totalPages")]
         public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Rutas.AsQueryable();
+            var queryable = _context.Itinerarios.AsQueryable();
             double count = await queryable.CountAsync();
             double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
             return Ok(totalPages);
@@ -52,39 +44,47 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult> GetAsync(int id)
         {
-            var ruta = await _context.Rutas
-                .Include(l => l.Linea)
-                .Include(t => t.Trayectos!)
-                .ThenInclude(p => p.Punto)
-                .FirstOrDefaultAsync(x => x.Id == id);
-            if (ruta is null)
+            var horarios = await _context.HorarioServicios.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (horarios is null)
             {
                 return NotFound();
             }
 
-            return Ok(ruta);
+            return Ok(horarios);
+        }
+
+        //para mostrarlo cuando se generen los horarios
+        [HttpGet("{Id:int}/{prueba1:int}")]
+        public async Task<IActionResult> GetAsync(int Id, int prueba1)
+        {
+            return Ok(await _context.HorarioServicios
+                .Include(t => t.Trayecto)
+                .ThenInclude(p => p!.Punto)
+                .Where(p => p.ItinerarioId == Id)
+                .ToListAsync());
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(Ruta ruta)
+        public async Task<ActionResult> PostAsync(HorarioServicio horarioServicio)
         {
             try
             {
-                ruta.Estado = 1;
-                _context.Add(ruta);
+                horarioServicio.Estado = 1;
+                _context.Add(horarioServicio);
                 await _context.SaveChangesAsync();
-                return Ok(ruta);
+                return Ok(horarioServicio);
 
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe una ruta con este nombre");
+                    return BadRequest("Ya existe un horario con esos datos");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe una ruta con este nombre");
+                    return BadRequest("Ya existe un horario con esos datos");
                 }
 
                 return BadRequest(dbUpdateException.Message);
@@ -96,25 +96,26 @@ namespace DesarrolloIntegral.API.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> PutAsync(Ruta ruta)
+        public async Task<ActionResult> PutAsync(HorarioServicio horarioServicio)
         {
             try
             {
-                ruta.Linea = null;
-                _context.Update(ruta);
+                horarioServicio.Itinerario = null;
+                horarioServicio.Trayecto = null;
+                _context.Update(horarioServicio);
                 await _context.SaveChangesAsync();
-                return Ok(ruta);
+                return Ok(horarioServicio);
 
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe una ruta con este nombre");
+                    return BadRequest("Ya existe un horario con esos datos");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe una ruta con este nombre");
+                    return BadRequest("Ya existe un horario con esos datos");
                 }
 
                 return BadRequest(dbUpdateException.Message);

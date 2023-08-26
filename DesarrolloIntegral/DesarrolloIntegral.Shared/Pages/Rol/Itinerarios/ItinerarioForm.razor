@@ -11,16 +11,16 @@
             <ValidationMessage For="@(() => Itinerario.Descripcion)" />
         </div>
         <label>Ruta :</label>
-            <select @bind="Itinerario.RutaId">
-                <option value=0>Seleccione Linea...</option>
-                @if (Lineas != null)
+        <select @bind="Itinerario.RutaId">
+            <option value=0>Seleccione Ruta...</option>
+            @if (Rutas != null)
+            {
+                @foreach (var ruta in Rutas)
                 {
-                    @foreach (var lin in Lineas)
-                    {
-                        <option value="@lin.Id">@lin.Nombre</option>
-                    }
+                    <option value="@ruta.Id">@ruta.Nombre</option>
                 }
-            </select>
+            }
+        </select>
     </div>
     <button class="btn btn-success" type="submit">Guardar Cambios</button>
     <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>
@@ -28,8 +28,6 @@
 
 @code {
     public List<Ruta>? Rutas { get; set; }
-
-    public List<Linea>? Lineas { get; set; }
 
     private EditContext editContext = null!;
 
@@ -55,14 +53,9 @@
 
     private async Task LoadAsync()
     {
-        string url = $"api/lineas/sinfiltro";
+        string url2 = $"api/rutas/full";
 
-        var responseHppt = await repository.Get<List<Linea>>(url);
-        Lineas = responseHppt.Response!;
-
-        string url2 = $"api/lineas/full";
-
-        var responseHppt2 = await repository.Get<List<Ruta>>(url);
+        var responseHppt2 = await repository.Get<List<Ruta>>(url2);
         Rutas = responseHppt2.Response!;
     }
 }

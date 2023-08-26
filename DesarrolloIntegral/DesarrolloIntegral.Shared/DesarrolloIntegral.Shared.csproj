@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\Rol\Itinerarios\NewFolder1\**" />
+    <Content Remove="Pages\Rol\Itinerarios\NewFolder1\**" />
+    <EmbeddedResource Remove="Pages\Rol\Itinerarios\NewFolder1\**" />
+    <None Remove="Pages\Rol\Itinerarios\NewFolder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Models\Employee4.cs" />
   </ItemGroup>
 
