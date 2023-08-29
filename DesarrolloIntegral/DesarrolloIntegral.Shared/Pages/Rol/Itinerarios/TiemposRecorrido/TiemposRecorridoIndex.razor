@@ -13,44 +13,40 @@
     <a class="btn btn-primary mb-3" href="/itinerarios">Regresar</a>
 </div>
 
-<GenericList MyList="lstHorarios">
+<GenericList MyList="lstTiempoRecorrido">
     <Body>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Terminal</th>
-                    <th>Inicio de Servicio</th>
-                    <th>Fin de Servicio</th>
+                    <th>Punto</th>
+                    <th>Minutos</th>
                     <th>Sentido</th>
                     <th>Status</th>
                     <th style="width:400px"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var hora in lstHorarios!)
+                @foreach (var tiempo in lstTiempoRecorrido!)
                 {
                     <tr>
                         <td>
-                            @hora.Trayecto?.Punto?.Nombre
+                            @tiempo.Trayecto?.Punto?.Nombre
                         </td>
                         <td>
-                            @hora.HorarioInicio.ToShortTimeString()
+                            @tiempo.Minutos
                         </td>
                         <td>
-                            @hora.HorarioFin.ToShortTimeString()
-                        </td>
-                        <td>
-                            @if (hora.Trayecto!.Tipo == 1)
+                            @if (tiempo.Sentido == 1)
                             {
                                 <p>Ida</p>
                             }
-                            else if (hora.Trayecto.Tipo == 3)
+                            else if (tiempo.Sentido == 2)
                             {
                                 <p>Regreso</p>
                             }
                         </td>
                         <td>
-                            @if (hora.Estado == 1)
+                            @if (tiempo.Estado == 1)
                             {
                                 <p>Activo</p>
                             }
@@ -60,14 +56,14 @@
                             }
                         </td>
                         <td>
-                            <a class="btn btn-warning" href="/horariosServicio/editar/@hora.Id/@hora.ItinerarioId">Editar</a>
-                            @if (hora.Estado == 1)
+                            <a class="btn btn-warning" href="/tiemposRecorrido/editar/@tiempo.Id">Editar</a>
+                            @if (tiempo.Estado == 1)
                             {
-                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(hora))>Desactivar</button>
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(tiempo))>Desactivar</button>
                             }
                             else
                             {
-                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(hora))>Activar</button>
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(tiempo))>Activar</button>
                             }
                         </td>
                     </tr>
@@ -86,7 +82,7 @@
 
     private Itinerario? itinerario;
 
-    public List<HorarioServicio>? lstHorarios { get; set; }
+    public List<TiempoRecorrido>? lstTiempoRecorrido { get; set; }
 
     public List<Trayecto>? lstTrayecto { get; set; }
 
@@ -95,18 +91,19 @@
 
     protected async override Task OnInitializedAsync()
     {
+        await GeneraTiempos();
         await LoadAsync();
     }
 
     private async Task LoadAsync(int page = 1)
     {
-        var responseHTTP = await repository.Get<List<HorarioServicio>>($"api/horariosServicio/{Id}/0");
+        var responseHTTP = await repository.Get<List<TiempoRecorrido>>($"api/tiemposRecorrido/{Id}/0");
 
         if (responseHTTP.Error)
         {
             if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("/itinerarios");
+                navigationManager.NavigateTo("/tiemposRecorrido");
                 return;
             }
 
@@ -115,30 +112,13 @@
             return;
         }
 
-        lstHorarios = responseHTTP.Response;
+        lstTiempoRecorrido = responseHTTP.Response;
 
-        var responseHTTP3 = await repository.Get<Itinerario>($"api/itinerarios/{Id}");
-
-        if (responseHTTP3.Error)
-        {
-            if (responseHTTP3.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
-            {
-                navigationManager.NavigateTo("/itinerarios");
-                return;
-            }
-
-            var messageError = await responseHTTP3.GetErrorMessageAsync();
-            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
-            return;
-        }
-
-        itinerario = responseHTTP3.Response;
-
-        if (lstHorarios!.Count == 0)
+        if (lstTiempoRecorrido!.Count == 0)
         {
             if (itinerario != null)
             {
-                await GeneraHorarios();
+                await GeneraTiempos();
             }
         }
     }
@@ -149,12 +129,12 @@
         await LoadAsync(page);
     }
 
-    private async Task DesactivarAsync(HorarioServicio hora)
+    private async Task DesactivarAsync(TiempoRecorrido tiempo)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres Desactivar este horario?",
+                Text = "¿Esta seguro que quieres Desactivar este registro?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -166,8 +146,8 @@
             return;
         }
 
-        hora.Estado = 0;
-        var responseHTTP = await repository.Put($"api/horariosServicio/", hora);
+        tiempo.Estado = 0;
+        var responseHTTP = await repository.Put($"api/tiemposRecorrido/", tiempo);
 
         if (responseHTTP.Error)
         {
@@ -182,12 +162,12 @@
         await LoadAsync();
     }
 
-    private async Task ActivarAsync(HorarioServicio hora)
+    private async Task ActivarAsync(TiempoRecorrido tiempo)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres activar este horario?",
+                Text = "¿Esta seguro que quieres activar este registro?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -199,8 +179,8 @@
             return;
         }
 
-        hora.Estado = 1;
-        var responseHTTP = await repository.Put($"api/horariosServicio/", hora);
+        tiempo.Estado = 1;
+        var responseHTTP = await repository.Put($"api/tiemposRecorrido/", tiempo);
 
         if (responseHTTP.Error)
         {
@@ -215,8 +195,39 @@
         await LoadAsync();
     }
 
-    private async Task GeneraHorarios()
+    private async Task GeneraTiempos()
     {
+        var response = await repository.Delete($"api/tiemposRecorrido/{Id}");
+        if (response.Error)
+        {
+            if (response.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/itinerarios");
+                return;
+            }
+
+            var messageError = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        var responseHTTP3 = await repository.Get<Itinerario>($"api/itinerarios/{Id}");
+
+        if (responseHTTP3.Error)
+        {
+            if (responseHTTP3.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/tiemposRecorrido");
+                return;
+            }
+
+            var messageError = await responseHTTP3.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        itinerario = responseHTTP3.Response;
+
         var responseHTTP = await repository.Get<List<Trayecto>>($"api/trayectos/{itinerario?.RutaId}/0/0");
 
         if (responseHTTP.Error)
@@ -236,47 +247,59 @@
 
         if (lstTrayecto?.Count > 0)
         {
-            var inicio = lstTrayecto.Where(n => n.Tipo == 1).FirstOrDefault();
-            if (inicio != null)
+            var lstIda = lstTrayecto.OrderBy(t => t.Posicion);
+            if (lstIda != null)
             {
-                HorarioServicio horarioServicioInicio = new HorarioServicio
-                    {
-                        Id = 0,
-                        HorarioInicio = DateTime.Parse("00:00"),
-                        HorarioFin = DateTime.Parse("00:00"),
-                        Estado = 0,
-                        ItinerarioId = itinerario!.Id,
-                        TrayectoId = inicio!.Id
-                    };
-
-                var responseHttp = await repository.Post("/api/horariosServicio", horarioServicioInicio);
-                if (responseHttp.Error)
+                foreach(var ida in lstIda)
                 {
-                    var message = await responseHttp.GetErrorMessageAsync();
-                    await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
-                    return;
+                    TiempoRecorrido tiempoRecorrido = new TiempoRecorrido
+                    {
+                        Id=0,
+                        Minutos = ida.Minutos,
+                        Sentido = 1,
+                        Estado = 1,
+                        ItinerarioId = itinerario!.Id,
+                        TrayectoId = ida.Id
+                    };
+                    var responseHttp = await repository.Post("/api/tiemposRecorrido", tiempoRecorrido);
+                    if (responseHttp.Error)
+                    {
+                        var message = await responseHttp.GetErrorMessageAsync();
+                        await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                        return;
+                    }
                 }
             }
 
-            var fin = lstTrayecto.Where(n => n.Tipo == 3).FirstOrDefault();
-            if (fin != null)
+            var lstRegreso = lstTrayecto.OrderByDescending(t => t.Posicion);
+            if (lstRegreso != null)
             {
-                HorarioServicio horarioServicioFin = new HorarioServicio
-                    {
-                        Id = 0,
-                        HorarioInicio = DateTime.Parse("1900-01-01 00:00"),
-                        HorarioFin = DateTime.Parse("1900-01-01 00:00"),
-                        Estado = 0,
-                        ItinerarioId = itinerario!.Id,
-                        TrayectoId = fin!.Id
-                    };
-
-                var responseHttp2 = await repository.Post("/api/horariosServicio", horarioServicioFin);
-                if (responseHttp2.Error)
+                foreach (var regreso in lstRegreso)
                 {
-                    var message = await responseHttp2.GetErrorMessageAsync();
-                    await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
-                    return;
+                    int min = 0;
+                    int pos = regreso.Posicion;
+                    if (regreso.Tipo < 3)
+                    {
+                        var posAnt = lstRegreso.Where(p => p.Posicion == pos + 1).FirstOrDefault();
+                        min = posAnt!.Minutos;
+                    }
+
+                    TiempoRecorrido tiempoRecorrido = new TiempoRecorrido
+                        {
+                            Id = 0,
+                            Minutos = min,
+                            Sentido = 2,
+                            Estado = 1,
+                            ItinerarioId = itinerario!.Id,
+                            TrayectoId = regreso.Id
+                        };
+                    var responseHttp = await repository.Post("/api/tiemposRecorrido", tiempoRecorrido);
+                    if (responseHttp.Error)
+                    {
+                        var message = await responseHttp.GetErrorMessageAsync();
+                        await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                        return;
+                    }
                 }
             }
         }

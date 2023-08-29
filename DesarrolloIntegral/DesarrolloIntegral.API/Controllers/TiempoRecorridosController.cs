@@ -4,6 +4,7 @@ using DesarrolloIntegral.Shared.DTOs;
 using DesarrolloIntegral.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace DesarrolloIntegral.API.Controllers
 {
@@ -57,6 +58,18 @@ namespace DesarrolloIntegral.API.Controllers
             return Ok(tiempos);
         }
 
+        //para generar los tiempos de recorrido
+        [HttpGet("{Id:int}/{prueba1:int}")]
+        public async Task<IActionResult> GetAsync(int Id, int prueba1)
+        {
+            return Ok(await _context.TiempoRecorridos
+                .Include(t => t.Trayecto)
+                .ThenInclude(p => p!.Punto)
+                .Where(p => p.ItinerarioId == Id)
+                .ToListAsync());
+        }
+
+
         [HttpPost]
         public async Task<ActionResult> PostAsync(TiempoRecorrido tiempoRecorrido)
         {
@@ -92,7 +105,6 @@ namespace DesarrolloIntegral.API.Controllers
         {
             try
             {
-                tiempoRecorrido.HorarioServicio = null;
                 tiempoRecorrido.Trayecto = null;
                 _context.Update(tiempoRecorrido);
                 await _context.SaveChangesAsync();
@@ -118,19 +130,39 @@ namespace DesarrolloIntegral.API.Controllers
             }
         }
 
-        [HttpDelete("{horarioId:int}")]
-        public async Task<ActionResult> DeleteAsync(int horarioId)
+        [HttpDelete("{itinerarioId:int}")]
+        public async Task<ActionResult> DeleteAsync(int itinerarioId)
         {
-            var tiempos = await _context.TiempoRecorridos.Where(h => h.HorarioServicioId == horarioId).ToListAsync();
-
-            if (tiempos == null)
+            try
             {
-                return NotFound();
-            }
+                var tiempos = await _context.TiempoRecorridos.Where(h => h.ItinerarioId == itinerarioId).ToListAsync();
 
-            _context.Remove(tiempos);
-            await _context.SaveChangesAsync();
-            return NoContent();
+                if (tiempos == null)
+                {
+                    return NotFound();
+                }
+
+                _context.RemoveRange(tiempos);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
+                {
+                    return BadRequest("Ya existe un registro con esos datos");
+                }
+                if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
+                {
+                    return BadRequest("Ya existe un registro con esos datos");
+                }
+
+                return BadRequest(dbUpdateException.Message);
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
     }
 }

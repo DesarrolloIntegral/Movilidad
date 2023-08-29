@@ -10,10 +10,11 @@ namespace DesarrolloIntegral.Shared.Models
     {
         public int Id { get; set; }
         public int Minutos { get; set; }
+        public int Sentido { get; set; }   //1: Ida   2: Regreso
         public int Estado { get; set; }
 
-        public int HorarioServicioId { get; set; }
-        public HorarioServicio? HorarioServicio { get; set; }
+        public int ItinerarioId { get; set; }
+        public Itinerario? Itinerario { get; set; }
         public int TrayectoId { get; set; }
         public Trayecto? Trayecto { get; set; }
     }
