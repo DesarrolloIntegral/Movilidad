@@ -1,0 +1,217 @@
+﻿@page "/intervalos/{Id:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+@if (itinerario != null)
+{
+    <h3>@itinerario?.Descripcion</h3>
+    <h5>@itinerario?.Ruta?.Nombre</h5>
+    <h5>Intervalos</h5>
+}
+
+<div class="mb-3">
+    <a class="btn btn-primary mb-3" href="/intervalos/crear/@Id">Nuevo Intervalo</a>
+    <a class="btn btn-primary mb-3" href="/itinerarios">Regresar</a>
+</div>
+
+<Pagination CurrentPage="currentPage"
+            TotalPages="totalPages"
+            SelectedPage="SelectedPageAsync" />
+
+<GenericList MyList="lstIntervalos">
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Punto</th>
+                    <th>Horario Salida</th>
+                    <th>Horario Llegada</th>
+                    <th>Días</th>
+                    <th>Sentido</th>
+                    <th>Status</th>
+                    <th style="width:400px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var inter in lstIntervalos!)
+                {
+                    <tr>
+                        <td>
+                            @inter.Trayecto?.Punto?.Nombre
+                        </td>
+                        <td>
+                            @inter.HorarioSalida.ToShortTimeString()
+                        </td>
+                        <td>
+                            @inter.HorarioLlegada.ToShortTimeString()
+                        </td>
+                        <td>
+                            @inter.Dias
+                        </td>
+                        <td>
+                            @if (inter.Sentido == 1)
+                            {
+                                <p>Ida</p>
+                            }
+                            else if (inter.Sentido == 2)
+                            {
+                                <p>Regreso</p>
+                            }
+                        </td>
+                        <td>
+                            @if (inter.Estado == 1)
+                            {
+                                <p>Activo</p>
+                            }
+                            else
+                            {
+                                <p>Baja</p>
+                            }
+                        </td>
+                        <td>
+                            @if (inter.Estado == 1)
+                            {
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(inter))>Desactivar</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(inter))>Activar</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+@code {
+    [CascadingParameter]
+    public string? rutaCnx { get; set; }
+
+    [Parameter]
+    public int Id { get; set; } //este id corresponde al itinerario
+
+    private Itinerario? itinerario;
+
+    public List<Intervalo>? lstIntervalos { get; set; }
+
+    private int currentPage = 1;
+    private int totalPages;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync(int page = 1)
+    {
+        var responseHTTP = await repository.Get<List<Intervalo>>($"api/intervalos/{Id}/0");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/intervalos");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        lstIntervalos = responseHTTP.Response;
+        lstIntervalos = lstIntervalos?.Where(i => i.Sentido == 1).ToList();
+
+        var responseHTTP3 = await repository.Get<Itinerario>($"api/itinerarios/{Id}");
+
+        if (responseHTTP3.Error)
+        {
+            if (responseHTTP3.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/itinerarios");
+                return;
+            }
+
+            var messageError = await responseHTTP3.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        itinerario = responseHTTP3.Response;
+    }
+
+    private async Task SelectedPageAsync(int page)
+    {
+        currentPage = page;
+        await LoadAsync(page);
+    }
+
+    private async Task DesactivarAsync(Intervalo intervalo)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Esta seguro que quieres Desactivar este registro?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        intervalo.Estado = 0;
+        var responseHTTP = await repository.Put($"api/intervalos/", intervalo);
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+            {
+                var mensajeError = await responseHTTP.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                return;
+            }
+        }
+
+        await LoadAsync();
+    }
+
+    private async Task ActivarAsync(Intervalo intervalo)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Esta seguro que quieres activar este registro?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        intervalo.Estado = 1;
+        var responseHTTP = await repository.Put($"api/intervalo/", intervalo);
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+            {
+                var mensajeError = await responseHTTP.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+                return;
+            }
+        }
+
+        await LoadAsync();
+    }
+}

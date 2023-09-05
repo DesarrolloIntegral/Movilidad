@@ -1,0 +1,154 @@
+﻿@page "/intervalos/crear/{ItinerarioId:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+
+<h3>Nuevo Intervalo</h3>
+<IntervaloForm @ref="intervaloForm" Intervalo="intervalo" ItinerarioId="ItinerarioId" OnValidSubmit="Crear" ReturnAction="Return" />
+
+@code {
+    private Intervalo intervalo = new();
+    private IntervaloForm? intervaloForm;
+
+    public int IdRecorrido = 0;
+
+    private DateTime HoraDefault = DateTime.Parse("01-01-0001 00:00");
+
+    [Parameter]
+    public int ItinerarioId { get; set; }
+
+    private Itinerario? itinerario;
+
+    private Intervalo? intervaloCreado;
+
+    private async Task Crear()
+    {
+        if (intervalo.HorarioSalida == HoraDefault || intervalo.HorarioLlegada == HoraDefault)
+        {
+            await sweetAlertService.FireAsync("Error", "Aun no ha capturado algun horario", SweetAlertIcon.Error);
+            return;
+        }
+
+        await GeneraIdRecorrido();
+
+        if (IdRecorrido != 0)
+        {
+            string HoraSalida = intervalo.HorarioSalida.ToString("1900-01-01 HH:mm");
+            string HoraLlegada = intervalo.HorarioLlegada.ToString("1900-01-01 HH:mm");
+            intervalo.HorarioSalida = DateTime.Parse(HoraSalida);
+            intervalo.HorarioLlegada = DateTime.Parse(HoraLlegada);
+            intervalo.IdRecorrido = IdRecorrido;
+
+            var responseHttp = await repository.Post<Intervalo, Intervalo>("/api/intervalos", intervalo);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return;
+            }
+
+            var nuevoInt = responseHttp.Response;
+
+            if (nuevoInt!.Id > 0)
+            {
+                intervaloCreado = nuevoInt;
+                await CrearRegreso();
+            }
+        }
+    }
+
+    private void Return()
+    {
+        intervaloForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/intervalos/{ItinerarioId}");
+    }
+
+    private async Task CrearRegreso()
+    {
+        var responseHTTP = await repository.Get<Itinerario>($"api/itinerarios/{ItinerarioId}/0");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo($"/intervalos/{ItinerarioId}");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        itinerario = responseHTTP.Response;
+
+        if (itinerario?.Id > 0)
+        {
+            if (intervaloCreado != null)
+            {
+                int sumaMinutos = itinerario!.Ruta!.Trayectos!.Sum(m => m.Minutos);
+                int sumaEstancia = itinerario!.Ruta!.Trayectos!.Where(d => d.Tipo != 3).Sum(s => s.Estancia);
+                int EstanciaLlegada = itinerario!.Ruta!.Trayectos!.Where(d => d.Tipo == 3).Sum(s => s.Estancia);
+                int TotalMinutos = sumaMinutos + sumaEstancia;
+
+                var HoraSalida = intervaloCreado.HorarioLlegada.AddMinutes(EstanciaLlegada);
+                var HoraLlegada = HoraSalida.AddMinutes(TotalMinutos);
+                string cHoraSalida = HoraSalida.ToString("1900-01-01 HH:mm");
+                string cHoraLlegada = HoraLlegada.ToString("1900-01-01 HH:mm");
+
+                Intervalo intervaloRegreso = new Intervalo
+                    {
+                        Id = 0,
+                        HorarioSalida = DateTime.Parse(cHoraSalida),
+                        HorarioLlegada = DateTime.Parse(cHoraLlegada),
+                        Dias = intervaloCreado.Dias,
+                        Sentido = 2,
+                        Estado = 1,
+                        ItinerarioId = intervaloCreado.ItinerarioId,
+                        TrayectoId = intervaloCreado.TrayectoId,
+                        IdRecorrido = IdRecorrido
+                    };
+
+                var responseHttp = await repository.Post("/api/intervalos", intervaloRegreso);
+                if (responseHttp.Error)
+                {
+                    var message = await responseHttp.GetErrorMessageAsync();
+                    await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                    return;
+                }
+            }
+
+            Return();
+        }
+    }
+
+    private async Task GeneraIdRecorrido()
+    {
+        IdRecorrido = 0;
+
+        var responseHTTP = await repository.Get<Intervalo>("api/Intervalos/0/0/0");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/itinerarios");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+        else if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NoContent)
+        {
+            IdRecorrido = 1;
+        }
+        else
+        {
+            var IdUltRec = responseHTTP.Response;
+            IdRecorrido = IdUltRec!.IdRecorrido + 1;
+        }
+    }
+}

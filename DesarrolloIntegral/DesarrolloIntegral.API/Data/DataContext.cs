@@ -51,6 +51,8 @@ namespace DesarrolloIntegral.API.Data
 
         public DbSet<TiempoRecorrido> TiempoRecorridos { get; set; }
 
+        public DbSet<Intervalo> Intervalos { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

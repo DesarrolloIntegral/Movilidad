@@ -4,6 +4,7 @@ using DesarrolloIntegral.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230831180425_addIntervalos")]
+    partial class addIntervalos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -238,7 +241,7 @@ namespace DesarrolloIntegral.API.Migrations
                     b.ToTable("HorarioServicios");
                 });
 
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Intervalo", b =>
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Intervalos", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -257,9 +260,6 @@ namespace DesarrolloIntegral.API.Migrations
 
                     b.Property<DateTime>("HorarioSalida")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("IdRecorrido")
-                        .HasColumnType("int");
 
                     b.Property<int>("ItinerarioId")
                         .HasColumnType("int");
@@ -783,7 +783,7 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Navigation("Trayecto");
                 });
 
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Intervalo", b =>
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Intervalos", b =>
                 {
                     b.HasOne("DesarrolloIntegral.Shared.Models.Itinerario", "Itinerario")
                         .WithMany()

@@ -1,0 +1,198 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+@inject NavigationManager navigationManager
+
+<div class="d-flex justify-content-start">
+    <div class="col-sm-3 col-md-3 col-lg-2 p-2">
+        <h5 style="font-weight:bold">Origen</h5>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-2 p-2">
+        <h5 style="font-weight:bold">Destino</h5>
+    </div>
+</div>
+<div class="d-flex justify-content-start">
+    <div class="col-sm-3 col-md-3 col-lg-2 p-2">
+        @Origen
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-2 p-2">
+        @Destino
+    </div>
+</div>
+
+<br/>
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Horario Salida :</label>
+        <div>
+            <input type="time" min="00:00" max="23:59" pattern="[0-2][0-9]:[0-5][0-9]" class="form-control" @bind-value="@Intervalo.HorarioSalida" @onblur ="@ValidarHorarioSalida" />
+            <ValidationMessage For="@(() => Intervalo.HorarioSalida)" />
+        </div>
+        <label>Horario Llegada :</label>
+        <div>
+            <input type="time" min="00:00" max="23:59" pattern="[0-2][0-9]:[0-5][0-9]" class="form-control" @bind-value="@Intervalo.HorarioLlegada" @onkeydown="@ValidarHorarioLlegada" />
+            <ValidationMessage For="@(() => Intervalo.HorarioLlegada)" />
+        </div>
+        <label>Días :</label>
+        <div>
+            <select @bind="Intervalo.Dias">
+                <option value=0>Mismo Día...</option>
+                <option value=1>1 Día</option>
+                <option value=2>2 Días</option>
+                <option value=3>3 Días</option>
+            </select>
+        </div>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Cambios</button>
+    <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>
+</EditForm>
+
+@code {
+    private EditContext editContext = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public Intervalo Intervalo { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public int ItinerarioId { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; } = false;
+
+    public Itinerario? itinerario { get; set; }
+
+    public string? Origen;
+
+    public string? Destino;
+
+    private DateTime HoraDefault = DateTime.Parse("01-01-0001 00:00");
+
+    protected async override Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        editContext = new(Intervalo);
+
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var responseHTTP = await repository.Get<Itinerario>($"api/itinerarios/{ItinerarioId}/0");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/itinerarios");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        itinerario = responseHTTP.Response!;
+
+        var TrayOri = itinerario.Ruta!.Trayectos!.Where(t => t.Tipo == 1).FirstOrDefault();
+        var PuntoOri = TrayOri!.Punto;
+        Origen = PuntoOri!.Nombre;
+
+        var TrayDes = itinerario.Ruta!.Trayectos!.Where(t => t.Tipo == 3).FirstOrDefault();
+        var PuntoDes = TrayDes!.Punto;
+        Destino = PuntoDes!.Nombre;
+
+        Intervalo.Sentido = 1;
+        Intervalo.ItinerarioId = ItinerarioId;
+        Intervalo.TrayectoId = TrayOri.Id;
+    }
+
+    private async Task ValidarHorarioLlegada(KeyboardEventArgs e)
+    {
+        if (Intervalo.HorarioSalida == HoraDefault)
+        {
+            await sweetAlertService.FireAsync("Validación", "El Horario de salida no ha sido modificado", SweetAlertIcon.Error);
+            Intervalo.HorarioLlegada = HoraDefault;
+        }
+    }
+
+    private async Task ValidarHorarioSalida(FocusEventArgs e)
+    {
+        if (Intervalo.HorarioSalida == HoraDefault)
+        {
+            await sweetAlertService.FireAsync("Validación", "El Horario de salida no ha sido modificado", SweetAlertIcon.Error);
+            return;
+        }
+
+        var Salida = Intervalo.HorarioSalida.ToString("HH:mm");
+
+        int sumaMinutos = itinerario!.Ruta!.Trayectos!.Sum(m => m.Minutos);
+        int sumaEstancia = itinerario!.Ruta!.Trayectos!.Where(d => d.Tipo != 3).Sum(s => s.Estancia);
+        int EstanciaLlegada = itinerario!.Ruta!.Trayectos!.Where(d => d.Tipo == 3).Sum(s => s.Estancia);
+
+        int TotalMinutos = sumaMinutos + sumaEstancia;
+
+        int dias = 0;
+        if (TotalMinutos > 0)
+        {
+            dias = TotalMinutos / 1440;
+        }
+
+        var HoraLlegada = Intervalo.HorarioSalida.AddMinutes(TotalMinutos);
+
+        Intervalo.HorarioLlegada = HoraLlegada;
+        Intervalo.Dias = dias;
+
+        /*
+        if (Intervalo.HorarioSalida == HoraDefault)
+        {
+            await sweetAlertService.FireAsync("Validación", "El Horario de salida no ha sido modificado", SweetAlertIcon.Error);
+            this.StateHasChanged();
+            return;
+        }
+        if (Intervalo.HorarioSalida != HoraDefault && Intervalo.HorarioLlegada != HoraDefault)
+        {
+            var Salida = Intervalo.HorarioSalida.ToString("HH:mm");
+            var Llegada = Intervalo.HorarioLlegada.ToString("HH:mm");
+
+            if (Intervalo.HorarioSalida >= Intervalo.HorarioLlegada)
+            {
+                await sweetAlertService.FireAsync("Validación", "El Horario de salida no puede ser mayor o igual al horario de llegada", SweetAlertIcon.Error);
+                return;
+            }
+        }*/
+    }
+
+    /*private async Task ValidarHorarioLlegada(FocusEventArgs e)
+    {
+        //@onblur = "@ValidarHorarioLlegada"
+        if (Intervalo.HorarioLlegada == HoraDefault)
+        {
+            await sweetAlertService.FireAsync("Validación", "El Horario de Llegada no ha sido modificado", SweetAlertIcon.Error);
+            this.StateHasChanged();
+            return;
+        }
+        if (Intervalo.HorarioSalida != HoraDefault && Intervalo.HorarioLlegada != HoraDefault)
+        {
+            var Salida = Intervalo.HorarioSalida.ToString("HH:mm");
+            var Llegada = Intervalo.HorarioLlegada.ToString("HH:mm");
+
+            if (Intervalo.HorarioSalida >= Intervalo.HorarioLlegada)
+            {
+                await sweetAlertService.FireAsync("Validación", "El Horario de salida no puede ser mayor o igual al horario de llegada", SweetAlertIcon.Error);
+                return;
+            }
+        }
+    }*/
+}

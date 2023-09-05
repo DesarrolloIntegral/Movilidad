@@ -52,7 +52,7 @@
                             <a class="btn btn-warning" href="/itinerarios/editar/@iti.Id">Editar</a> 
                             <a class="btn btn-warning" href="/horariosServicio/@iti.Id">Horario</a>
                             <a class="btn btn-warning" href="/tiemposRecorrido/@iti.Id">Tiempos</a>
-                            <a class="btn btn-warning" href="/itinerarios/intervalos/@iti.Id">Intervalos</a>
+                            <a class="btn btn-warning" href="/intervalos/@iti.Id">Intervalos</a>
                             @if (iti.Estado == 1)
                             {
                                 <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(iti)) >Desactivar</button>
