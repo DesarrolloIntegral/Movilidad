@@ -22,11 +22,31 @@
 
     private Intervalo? intervaloCreado;
 
+    private List<Intervalo>? lstIntervalos { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        await CargaListaIntervalos();
+    }
+
     private async Task Crear()
     {
         if (intervalo.HorarioSalida == HoraDefault || intervalo.HorarioLlegada == HoraDefault)
         {
             await sweetAlertService.FireAsync("Error", "Aun no ha capturado algun horario", SweetAlertIcon.Error);
+            return;
+        }
+
+        if (intervalo.HorarioSalida == intervalo.HorarioLlegada)
+        {
+            await sweetAlertService.FireAsync("Error", "No pueden ser igual el horario de salida y el horario de llegada", SweetAlertIcon.Error);
+            return;
+        }
+
+        if (intervalo.HorarioSalida > intervalo.HorarioLlegada)
+        {
+            await sweetAlertService.FireAsync("Error", "el horario de salida no puede ser mayor a el horario de llegada", SweetAlertIcon.Error);
             return;
         }
 
@@ -36,9 +56,25 @@
         {
             string HoraSalida = intervalo.HorarioSalida.ToString("1900-01-01 HH:mm");
             string HoraLlegada = intervalo.HorarioLlegada.ToString("1900-01-01 HH:mm");
+            List<Intervalo> lstBuscaHorario;
+            lstBuscaHorario = lstIntervalos!.Where(h => h.HorarioSalida == DateTime.Parse(HoraSalida) && h.Sentido == 1).ToList();
+
+            if (lstBuscaHorario.Count > 0)
+            {
+                await sweetAlertService.FireAsync("Error", "Horario ya capturado", SweetAlertIcon.Error);
+                return;
+            }
+
+            if (intervalo.HorarioSalida > intervalo.HorarioLlegada)
+            {
+                await sweetAlertService.FireAsync("Error", "el horario de salida no puede ser mayor a el horario de llegada", SweetAlertIcon.Error);
+                return;
+            }
+
             intervalo.HorarioSalida = DateTime.Parse(HoraSalida);
             intervalo.HorarioLlegada = DateTime.Parse(HoraLlegada);
             intervalo.IdRecorrido = IdRecorrido;
+            intervalo.Sentido = 1;
 
             var responseHttp = await repository.Post<Intervalo, Intervalo>("/api/intervalos", intervalo);
             if (responseHttp.Error)
@@ -97,6 +133,8 @@
                 string cHoraSalida = HoraSalida.ToString("1900-01-01 HH:mm");
                 string cHoraLlegada = HoraLlegada.ToString("1900-01-01 HH:mm");
 
+                var idRegreso = itinerario!.Ruta!.Trayectos!.Where(d => d.Tipo == 3).FirstOrDefault();
+
                 Intervalo intervaloRegreso = new Intervalo
                     {
                         Id = 0,
@@ -106,7 +144,7 @@
                         Sentido = 2,
                         Estado = 1,
                         ItinerarioId = intervaloCreado.ItinerarioId,
-                        TrayectoId = intervaloCreado.TrayectoId,
+                        TrayectoId = idRegreso!.Id,
                         IdRecorrido = IdRecorrido
                     };
 
@@ -150,5 +188,25 @@
             var IdUltRec = responseHTTP.Response;
             IdRecorrido = IdUltRec!.IdRecorrido + 1;
         }
+    }
+
+    private async Task CargaListaIntervalos()
+    {
+        var responseHTTP = await repository.Get<List<Intervalo>>($"api/intervalos/{ItinerarioId}/0");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/intervalos");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        lstIntervalos = responseHTTP.Response;
     }
 }

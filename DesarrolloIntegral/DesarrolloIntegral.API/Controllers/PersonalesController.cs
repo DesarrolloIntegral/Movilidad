@@ -63,6 +63,21 @@ namespace DesarrolloIntegral.API.Controllers
             return Ok(personal);
         }
 
+        [HttpGet("{id1:int}/{id2:int}")]
+        public async Task<ActionResult> GetAsync(int id1, int id2)
+        {
+            var personal = await _context.Personal
+                .Include(p => p.Puesto)
+                .FirstOrDefaultAsync(x => x.Nombre == "Sin Operador");
+
+            if (personal is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(personal);
+        }
+
         [HttpPost]
         public async Task<ActionResult> PostAsync(Personal personal)
         {

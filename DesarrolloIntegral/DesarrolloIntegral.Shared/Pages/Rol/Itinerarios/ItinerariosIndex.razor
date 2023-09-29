@@ -21,6 +21,7 @@
                     <th>Descripcion</th>
                     <th>Ruta</th>
                     <th>Linea</th>
+                    <th>Días</th>
                     <th>Status</th>
                     <th style="width:600px"></th>
                 </tr>
@@ -37,6 +38,9 @@
                         </td>
                         <td>
                             @iti.Ruta?.Linea?.Nombre
+                        </td>
+                        <td>
+                            @iti.Dias
                         </td>
                         <td>
                             @if (iti.Estado == 1)

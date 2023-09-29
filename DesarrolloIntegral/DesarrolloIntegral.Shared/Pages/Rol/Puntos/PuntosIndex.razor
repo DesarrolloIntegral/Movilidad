@@ -18,6 +18,7 @@
         <table class="table table-striped">
             <thead>
                 <tr>
+                    <th>Id</th>
                     <th>Nombre</th>
                     <th>Abreviatura</th>
                     <th>Latitud</th>
@@ -31,6 +32,9 @@
                 @foreach (var punto in Puntos!)
                 {
                     <tr>
+                        <td>
+                            @punto.Id
+                        </td>
                         <td>
                             @punto.Nombre
                         </td>

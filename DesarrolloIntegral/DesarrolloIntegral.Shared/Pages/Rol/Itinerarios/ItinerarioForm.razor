@@ -7,20 +7,27 @@
     <div class="mb-3">
         <label>Descripcion :</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Itinerario.Descripcion" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Itinerario.Descripcion = __value?.ToUpper(), Itinerario.Descripcion?.ToUpper())" />
+            <InputText class="form-control" @bind-Value="@Itinerario.Descripcion" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Itinerario.Descripcion = __value?.ToUpper(), Itinerario.Descripcion!.ToUpper())" />
             <ValidationMessage For="@(() => Itinerario.Descripcion)" />
         </div>
         <label>Ruta :</label>
-        <select @bind="Itinerario.RutaId">
-            <option value=0>Seleccione Ruta...</option>
-            @if (Rutas != null)
-            {
-                @foreach (var ruta in Rutas)
+        <div>
+            <select @bind="Itinerario.RutaId">
+                <option value=0>Seleccione Ruta...</option>
+                @if (Rutas != null)
                 {
-                    <option value="@ruta.Id">@ruta.Nombre</option>
+                    @foreach (var ruta in Rutas)
+                    {
+                        <option value="@ruta.Id">@ruta.Nombre</option>
+                    }
                 }
-            }
-        </select>
+            </select>
+        </div>
+        <label>Días para programar el Rol :</label>
+        <div>
+            <InputNumber @bind-Value="@Itinerario.Dias" />
+            <ValidationMessage For="@(() => Itinerario.Dias)" />
+        </div>
     </div>
     <button class="btn btn-success" type="submit">Guardar Cambios</button>
     <button class="btn btn-primary" type="button" @onclick="ReturnAction">Regresar</button>

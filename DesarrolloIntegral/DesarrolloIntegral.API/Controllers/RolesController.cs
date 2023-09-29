@@ -4,17 +4,17 @@ using DesarrolloIntegral.Shared.DTOs;
 using DesarrolloIntegral.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.InteropServices;
 
 namespace DesarrolloIntegral.API.Controllers
 {
     [ApiController]
-    [Route("/api/itinerarios")]
-    public class ItinerariosController : ControllerBase
+    [Route("/api/roles")]
+
+    public class RolesController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public ItinerariosController(DataContext context)
+        public RolesController(DataContext context) 
         {
             _context = context;
         }
@@ -22,12 +22,8 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Itinerarios
-                .Include(r => r.Ruta)
-                .ThenInclude(l => l!.Linea)
-                .Include(i => i.Intervalos)
-                .Include(t => t.Tiempos)
-                .Include(ro => ro.RolesDiarios)
+            var queryable = _context.Roles
+                .Include(i => i.Itinerario)
                 .AsQueryable();
 
             return Ok(await queryable
@@ -38,7 +34,7 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("totalPages")]
         public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Itinerarios.AsQueryable();
+            var queryable = _context.Roles.AsQueryable();
             double count = await queryable.CountAsync();
             double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
             return Ok(totalPages);
@@ -47,50 +43,36 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult> GetAsync(int id)
         {
-            var itinerarios = await _context.Itinerarios
-                .Include(r => r.Ruta)
+            var rol = await _context.Roles
+                .Include(i => i.Itinerario)
                 .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (itinerarios is null)
+            if (rol is null)
             {
                 return NotFound();
             }
 
-            return Ok(itinerarios);
-        }
-
-        //para generar los tiempos de recorrido
-        [HttpGet("{Id:int}/{prueba1:int}")]
-        public async Task<IActionResult> GetAsync(int Id, int prueba1)
-        {
-            return Ok(await _context.Itinerarios
-                .Include(r => r.Ruta)
-                .ThenInclude(t => t!.Trayectos!)
-                .ThenInclude(p => p.Punto)
-                .Where(p => p.Id == Id)
-                .FirstOrDefaultAsync());
+            return Ok(rol);
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(Itinerario itinerario)
+        public async Task<ActionResult> PostAsync(RolDiario rol)
         {
             try
             {
-                itinerario.Estado = 1;
-                _context.Add(itinerario);
+                rol.Estado = 1;
+                _context.Add(rol);
                 await _context.SaveChangesAsync();
-                return Ok(itinerario);
-
+                return Ok(rol);
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un itinerario con esos datos");
+                    return BadRequest("Ya existe un rol con estos datos");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un itinerario con esos datos");
+                    return BadRequest("Ya existe un rol con estos datos");
                 }
 
                 return BadRequest(dbUpdateException.Message);
@@ -102,25 +84,25 @@ namespace DesarrolloIntegral.API.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> PutAsync(Itinerario itinerario)
+        public async Task<ActionResult> PutAsync(RolDiario rol)
         {
             try
             {
-                itinerario.Ruta = null;
-                _context.Update(itinerario);
+                rol.Itinerario = null;
+                _context.Update(rol);
                 await _context.SaveChangesAsync();
-                return Ok(itinerario);
+                return Ok(rol);
 
             }
             catch (DbUpdateException dbUpdateException)
             {
                 if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
                 {
-                    return BadRequest("Ya existe un itinerario con esos datos");
+                    return BadRequest("Ya existe un rol con estos datos");
                 }
                 if (dbUpdateException.InnerException!.Message.Contains("duplicada"))
                 {
-                    return BadRequest("Ya existe un itinerario con esos datos");
+                    return BadRequest("Ya existe un rol con estos datos");
                 }
 
                 return BadRequest(dbUpdateException.Message);

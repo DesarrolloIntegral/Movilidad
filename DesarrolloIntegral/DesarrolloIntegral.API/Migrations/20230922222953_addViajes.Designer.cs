@@ -4,6 +4,7 @@ using DesarrolloIntegral.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DesarrolloIntegral.API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230922222953_addViajes")]
+    partial class addViajes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -201,43 +204,6 @@ namespace DesarrolloIntegral.API.Migrations
                         .IsUnique();
 
                     b.ToTable("Empresa");
-                });
-
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.EventoViaje", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("FechaHoraEvento")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PuntoRecorridoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Tipo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UnidadId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ViajeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PuntoRecorridoId");
-
-                    b.HasIndex("UnidadId");
-
-                    b.HasIndex("ViajeId");
-
-                    b.ToTable("EventosViaje");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.HorarioServicio", b =>
@@ -494,7 +460,7 @@ namespace DesarrolloIntegral.API.Migrations
                     b.ToTable("Puntos");
                 });
 
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.RolDiario", b =>
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.RolesDiarios", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -515,7 +481,7 @@ namespace DesarrolloIntegral.API.Migrations
 
                     b.HasIndex("ItinerarioId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("RolesDiarios");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Ruta", b =>
@@ -879,33 +845,6 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Navigation("PuntoOrigen");
                 });
 
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.EventoViaje", b =>
-                {
-                    b.HasOne("DesarrolloIntegral.Shared.Models.PuntoRecorrido", "PuntoRecorrido")
-                        .WithMany("EventoViajes")
-                        .HasForeignKey("PuntoRecorridoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DesarrolloIntegral.Shared.Models.Unidad", "Unidad")
-                        .WithMany()
-                        .HasForeignKey("UnidadId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DesarrolloIntegral.Shared.Models.Viaje", "Viaje")
-                        .WithMany("Eventos")
-                        .HasForeignKey("ViajeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PuntoRecorrido");
-
-                    b.Navigation("Unidad");
-
-                    b.Navigation("Viaje");
-                });
-
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.HorarioServicio", b =>
                 {
                     b.HasOne("DesarrolloIntegral.Shared.Models.Itinerario", "Itinerario")
@@ -966,7 +905,7 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Navigation("Puesto");
                 });
 
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.RolDiario", b =>
+            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.RolesDiarios", b =>
                 {
                     b.HasOne("DesarrolloIntegral.Shared.Models.Itinerario", "Itinerario")
                         .WithMany("RolesDiarios")
@@ -1105,14 +1044,14 @@ namespace DesarrolloIntegral.API.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("DesarrolloIntegral.Shared.Models.RolDiario", "RolesDiarios")
-                        .WithMany("Viajes")
+                    b.HasOne("DesarrolloIntegral.Shared.Models.RolesDiarios", "RolesDiarios")
+                        .WithMany()
                         .HasForeignKey("RolesDiariosId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DesarrolloIntegral.Shared.Models.Unidad", "Unidad")
-                        .WithMany("Viajes")
+                        .WithMany()
                         .HasForeignKey("UnidadId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1179,8 +1118,6 @@ namespace DesarrolloIntegral.API.Migrations
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.PuntoRecorrido", b =>
                 {
-                    b.Navigation("EventoViajes");
-
                     b.Navigation("PuntoDesDetalles");
 
                     b.Navigation("PuntoDestinos");
@@ -1190,11 +1127,6 @@ namespace DesarrolloIntegral.API.Migrations
                     b.Navigation("PuntoOrigenes");
 
                     b.Navigation("Trayectos");
-                });
-
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.RolDiario", b =>
-                {
-                    b.Navigation("Viajes");
                 });
 
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Ruta", b =>
@@ -1221,13 +1153,6 @@ namespace DesarrolloIntegral.API.Migrations
             modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Unidad", b =>
                 {
                     b.Navigation("UnidadOperadores");
-
-                    b.Navigation("Viajes");
-                });
-
-            modelBuilder.Entity("DesarrolloIntegral.Shared.Models.Viaje", b =>
-                {
-                    b.Navigation("Eventos");
                 });
 #pragma warning restore 612, 618
         }

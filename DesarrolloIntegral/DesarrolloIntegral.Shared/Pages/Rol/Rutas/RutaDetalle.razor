@@ -30,13 +30,13 @@ else
             <thead>
                 <tr>
                     <th>Punto</th>
-                    <th>Tipo</th>
-                    <th>Posicion</th>
-                    <th>Terminal</th>
-                    <th>Kilometros</th>
-                    <th>Minutos</th>
-                    <th>Estancia</th>
-                    <th>Status</th>
+                    <th class="text-center">Tipo</th>
+                    <th class="text-center">Posicion</th>
+                    <th class="text-center">Terminal/Venta</th>
+                    <th class="text-center">Kilometros</th>
+                    <th class="text-center">Minutos</th>
+                    <th class="text-center">Estancia</th>
+                    <th class="text-center">Status</th>
                     <th style="width:400px"></th>
                 </tr>
             </thead>
@@ -47,7 +47,7 @@ else
                         <td>
                             @trayecto.Punto?.Nombre
                         </td>
-                        <td>
+                        <td class="text-center">
                             @if (@trayecto.Tipo == 1)
                             {
                                 <p>Salida</p>
@@ -61,10 +61,10 @@ else
                                 <p>Llegada</p>
                             }
                         </td>
-                        <td>
+                        <td class="text-center">
                             @trayecto.Posicion
                         </td>
-                        <td>
+                        <td class="text-center">
                             @if (@trayecto.Terminal == 1)
                             {
                                 <p>Si</p>
@@ -74,16 +74,16 @@ else
                                 <p>No</p>
                             }
                         </td>
-                        <td>
+                        <td class="text-center">
                             @trayecto.Kilometros
                         </td>
-                        <td>
+                        <td class="text-center">
                             @trayecto.Minutos
                         </td>
-                        <td>
+                        <td class="text-center">
                             @trayecto.Estancia
                         </td>
-                        <td>
+                        <td class="text-center">
                             @if (@trayecto.Estado == 1)
                             {
                                 <p>Activo</p>

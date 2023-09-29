@@ -8,7 +8,7 @@
     <div class="mb-3">
         <label>Bancos:</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Banco.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Banco.Nombre = __value?.ToUpper(), Banco.Nombre?.ToUpper())" />
+            <InputText class="form-control" @bind-Value="@Banco.Nombre" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Banco.Nombre = __value?.ToUpper(), Banco.Nombre!.ToUpper())" />
             <ValidationMessage For="@(() => Banco.Nombre)" />
 
 @*            <select value="@Banco.EstadoBanco" @onchange="ChangeState">

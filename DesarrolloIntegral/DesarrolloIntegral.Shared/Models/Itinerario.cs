@@ -11,11 +11,15 @@ namespace DesarrolloIntegral.Shared.Models
         public int Id { get; set; }
         public string? Descripcion { get; set; }
         public DateTime FechaAlta { get; set; }
+        public int Dias { get; set; }
         public int Estado { get; set; }
 
         public int RutaId { get; set; } //Ruta a la que se le genera el itinerario
         public Ruta? Ruta { get; set; }
 
         public virtual ICollection<HorarioServicio>? HorarioServicios { get; set; }
+        public virtual ICollection<Intervalo>? Intervalos { get; set; }
+        public virtual ICollection<TiempoRecorrido>? Tiempos { get; set; }
+        public virtual ICollection<RolDiario>? RolesDiarios { get; set; }
     }
 }

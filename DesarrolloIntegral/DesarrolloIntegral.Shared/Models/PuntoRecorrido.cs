@@ -34,5 +34,6 @@ namespace DesarrolloIntegral.Shared.Models
         public ICollection<TarifaDetalle>? PuntoOriDetalles { get; set; }
         public ICollection<TarifaDetalle>? PuntoDesDetalles { get; set; }
 
+        public ICollection<EventoViaje>? EventoViajes { get; set; }
     }
 }

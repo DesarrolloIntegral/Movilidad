@@ -53,6 +53,12 @@ namespace DesarrolloIntegral.API.Data
 
         public DbSet<Intervalo> Intervalos { get; set; }
 
+        public DbSet<RolDiario> Roles { get; set; }
+
+        public DbSet<Viaje> Viajes { get; set; }
+
+        public DbSet<EventoViaje> EventosViaje { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -124,6 +130,18 @@ namespace DesarrolloIntegral.API.Data
             modelBuilder.Entity<Itinerario>()
                     .HasIndex(b => b.Descripcion)
                     .IsUnique();
+
+            modelBuilder.Entity<Viaje>()
+                    .HasOne(m => m.Operador1)
+                    .WithMany(t => t.Operadores1)
+                    .HasForeignKey(m => m.Operador1Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Viaje>()
+                    .HasOne(m => m.Operador2)
+                    .WithMany(t => t.Operadores2)
+                    .HasForeignKey(m => m.Operador2Id)
+                    .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

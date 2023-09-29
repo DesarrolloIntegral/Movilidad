@@ -58,17 +58,16 @@ namespace DesarrolloIntegral.API.Controllers
             return Ok(tiempos);
         }
 
-        //para generar los tiempos de recorrido
+        //para generar los tiempos de recorrido y tambien para los eventos
         [HttpGet("{Id:int}/{prueba1:int}")]
         public async Task<IActionResult> GetAsync(int Id, int prueba1)
         {
             return Ok(await _context.TiempoRecorridos
                 .Include(t => t.Trayecto)
                 .ThenInclude(p => p!.Punto)
-                .Where(p => p.ItinerarioId == Id)
+                .Where(i => i.ItinerarioId == Id)
                 .ToListAsync());
         }
-
 
         [HttpPost]
         public async Task<ActionResult> PostAsync(TiempoRecorrido tiempoRecorrido)

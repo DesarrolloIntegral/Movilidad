@@ -1,0 +1,122 @@
+﻿@page "/intervalos/editar/{Id:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Horarios</h3>
+
+@if (intervalo is null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <IntervaloForm @ref="intervaloForm" Intervalo="intervalo" ItinerarioId="intervalo.ItinerarioId" OnValidSubmit="EditAsync" ReturnAction="Return" />
+}
+
+@code {
+    private Intervalo? intervalo;
+    private IntervaloForm? intervaloForm;
+
+    private List<Intervalo>? lstIntervalos { get; set; }
+
+    private DateTime HoraDefault = DateTime.Parse("01-01-0001 00:00");
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHTTP = await repository.Get<Intervalo>($"api/intervalos/{Id}");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo($"/intervalos/detalles/{intervalo?.IdRecorrido}/{intervalo?.ItinerarioId}");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        intervalo = responseHTTP.Response;
+
+        await CargaListaIntervalos();
+    }
+
+    private async Task EditAsync()
+    {
+        string HoraSalida = intervalo!.HorarioSalida.ToString("1900-01-01 HH:mm");
+        string HoraLlegada = intervalo.HorarioLlegada.ToString("1900-01-01 HH:mm");
+
+        intervalo.HorarioSalida = DateTime.Parse(HoraSalida);
+        intervalo.HorarioLlegada = DateTime.Parse(HoraLlegada);
+
+        if (intervalo!.HorarioSalida == HoraDefault || intervalo.HorarioLlegada == HoraDefault)
+        {
+            await sweetAlertService.FireAsync("Error", "Aun no ha capturado algun horario", SweetAlertIcon.Error);
+            return;
+        }
+
+        if (intervalo.HorarioSalida == intervalo.HorarioLlegada)
+        {
+            await sweetAlertService.FireAsync("Error", "No pueden ser igual el horario de salida y el horario de llegada", SweetAlertIcon.Error);
+            return;
+        }
+
+        if (intervalo.HorarioSalida > intervalo.HorarioLlegada)
+        {
+            await sweetAlertService.FireAsync("Error", "el horario de salida no puede ser mayor a el horario de llegada", SweetAlertIcon.Error);
+            return;
+        }
+
+        List<Intervalo> lstBuscaHorario;
+        lstBuscaHorario = lstIntervalos!.Where(h => h.HorarioSalida == DateTime.Parse(HoraSalida) && h.Sentido == intervalo.Sentido && h.Id != intervalo.Id).ToList();
+
+        if (lstBuscaHorario.Count > 0)
+        {
+            await sweetAlertService.FireAsync("Error", "Horario ya capturado", SweetAlertIcon.Error);
+            return;
+        }
+
+        var responseHTTP = await repository.Put("api/intervalos", intervalo);
+
+        if (responseHTTP.Error)
+        {
+            var mensajeError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+            return;
+        }
+
+        Return();
+    }
+
+    private void Return()
+    {
+        intervaloForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo($"/intervalos/detalles/{intervalo?.IdRecorrido}/{intervalo?.ItinerarioId}");
+    }
+
+    private async Task CargaListaIntervalos()
+    {
+        var responseHTTP = await repository.Get<List<Intervalo>>($"api/intervalos/{intervalo!.ItinerarioId}/0");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/intervalos");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        lstIntervalos = responseHTTP.Response;
+    }
+}

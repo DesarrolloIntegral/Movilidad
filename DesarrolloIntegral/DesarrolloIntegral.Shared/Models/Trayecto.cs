@@ -25,7 +25,7 @@
         public Ruta? Ruta { get; set; }
 
         public virtual ICollection<HorarioServicio>? HorarioServicios { get; set; }
-
         public virtual ICollection<TiempoRecorrido>? TiempoRecorridos { get; set; }
+        public virtual ICollection<Intervalo>? Intervalos { get; set; }
     }
 }

@@ -1,0 +1,503 @@
+﻿@page "/generarol"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Generación de Roles</h3>
+
+<GenericList MyList="lstItinerarios">
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Descripcion</th>
+                    <th>Ruta</th>
+                    <th class="text-center">Linea</th>
+                    <th class="text-center">Días Programacion</th>
+                    <th class="text-center">FechaUltimoRol</th>
+                    <th class="text-center">Status</th>
+                    <th style="width:600px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var iti in lstItinerarios!)
+                {
+                    <tr>
+                        <td>
+                            @iti.Descripcion
+                        </td>
+                        <td>
+                            @iti.Ruta?.Nombre
+                        </td>
+                        <td>
+                            @iti.Ruta?.Linea?.Nombre
+                        </td>
+                        <td class="text-center">
+                            @iti.Dias
+                        </td>
+                        <td class="text-center">
+                            @iti.FechaUltimoRol.ToShortDateString()
+                        </td>
+                        <td class="text-center">
+                            @if (iti.Estado == 1)
+                            {
+                                <p>Activo</p>
+                            }
+                            else
+                            {
+                                <p>Baja</p>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" @onclick=@(() => Generar(iti))>Generar</button>
+                            <a class="btn btn-warning" href="/trayectos/detalles/@iti.Id">Detalles</a>
+@*                            @if (iti.Estado == 1)
+                            {
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(iti))>Desactivar</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(iti))>Activar</button>
+                            }
+*@                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+@code {
+    [CascadingParameter]
+    public string? rutaCnx { get; set; }
+
+    public List<Itinerario>? Itinerarios { get; set; }
+    public List<ItinerarioList> lstItinerarios = new List<ItinerarioList>();
+
+    public List<Trayecto> lstTrayectos = new List<Trayecto>();
+
+    private int currentPage = 1;
+    private int totalPages;
+
+    private int IdOperadorSinNombre = 0;
+    private int IdSinUnidad = 0;
+
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync(int page = 1)
+    {
+        string url1 = $"api/itinerarios?page={page}";
+        string url2 = $"api/itinerarios/totalPages";
+
+        var responseHppt = await repository.Get<List<Itinerario>>(url1);
+        var responseHppt2 = await repository.Get<int>(url2);
+        Itinerarios = responseHppt.Response!;
+        Itinerarios = Itinerarios.Where(e => e.Estado == 1).ToList();
+
+        if (Itinerarios.Count > 0)
+        {
+            lstItinerarios.Clear();
+            foreach (var iti in Itinerarios)
+            {
+                var FechaUltima = DateTime.Now.Date.AddDays(-1);
+                if (iti.RolesDiarios?.Count > 0)
+                {
+                    var ItiTemp = iti.RolesDiarios!.OrderByDescending(o => o.FechaRol).FirstOrDefault();
+                    FechaUltima = ItiTemp!.FechaRol;
+                }
+
+                ItinerarioList itinerarioDet = new ItinerarioList
+                {
+                    Id = iti.Id,
+                    Descripcion = iti.Descripcion,
+                    FechaAlta = iti.FechaAlta,
+                    Dias = iti.Dias,
+                    Estado = iti.Estado,
+                    RutaId = iti.RutaId,
+                    Ruta = iti.Ruta,
+                    FechaUltimoRol = FechaUltima,
+                    Intervalos = iti.Intervalos,
+                    Tiempos = iti.Tiempos,
+                    HorarioServicios = iti.HorarioServicios,
+                    RolesDiarios = iti.RolesDiarios
+                };
+
+                lstItinerarios.Add(itinerarioDet);
+            }
+        }
+
+        totalPages = responseHppt2.Response!;
+
+        string url3 = $"api/personales/0/0";
+        var responseHppt3 = await repository.Get<Personal>(url3);
+
+        if (responseHppt3.Response != null)
+        {
+            IdOperadorSinNombre = responseHppt3.Response.Id;
+        }
+
+        string url4 = $"api/personales/0/0";
+        var responseHppt4 = await repository.Get<Unidad>(url4);
+
+        if (responseHppt4.Response != null)
+        {
+            IdSinUnidad = responseHppt4.Response.Id;
+        }
+    }
+
+    private async Task SelectedPageAsync(int page)
+    {
+        currentPage = page;
+        await LoadAsync(page);
+    }
+
+    /*
+    private async Task DesactivarAsync(Itinerario itinerario)
+    {
+    var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+    {
+    Title = "Confirmación",
+    Text = "¿Esta seguro que quieres Desactivar este itinerario?",
+    Icon = SweetAlertIcon.Question,
+    ShowCancelButton = true
+    });
+
+    var confirm = string.IsNullOrEmpty(result.Value);
+
+    if (confirm)
+    {
+    return;
+    }
+
+    itinerario.Estado = 0;
+    var responseHTTP = await repository.Put($"api/itinerarios/", itinerario);
+
+    if (responseHTTP.Error)
+    {
+    if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+    {
+    var mensajeError = await responseHTTP.GetErrorMessageAsync();
+    await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+    return;
+    }
+    }
+
+    await LoadAsync();
+    }
+
+    private async Task ActivarAsync(Itinerario itinerario)
+    {
+    var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+    {
+    Title = "Confirmación",
+    Text = "¿Esta seguro que quieres activar este itinerario?",
+    Icon = SweetAlertIcon.Question,
+    ShowCancelButton = true
+    });
+
+    var confirm = string.IsNullOrEmpty(result.Value);
+
+    if (confirm)
+    {
+    return;
+    }
+
+    itinerario.Estado = 1;
+    var responseHTTP = await repository.Put($"api/itinerarios/", itinerario);
+
+    if (responseHTTP.Error)
+    {
+    if (responseHTTP.HttpResponseMessage.StatusCode != HttpStatusCode.NotFound)
+    {
+    var mensajeError = await responseHTTP.GetErrorMessageAsync();
+    await sweetAlertService.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+    return;
+    }
+    }
+
+    await LoadAsync();
+    }
+    */
+
+    private async Task Generar(ItinerarioList itinerario)
+    {
+        var cargaTry = CargaTrayecto(itinerario.RutaId);
+        Task FinTry = await Task.WhenAny(cargaTry);
+        if (FinTry.Status == TaskStatus.RanToCompletion)
+        {
+            var nuevoRol = GenerarRol(itinerario);
+            Task FinRol = await Task.WhenAny(nuevoRol);
+
+            if (FinRol.Status == TaskStatus.RanToCompletion)
+            {
+                await LoadAsync();
+                await sweetAlertService.FireAsync("Información", "¡¡¡Rol Generado Exitosamente!!!", SweetAlertIcon.Info);
+            }
+        }
+    }
+
+    private async Task GenerarRol(ItinerarioList itinerario)
+    {
+        int nDias = itinerario.Dias;
+        List<Intervalo> lstIntervalos = itinerario.Intervalos!.ToList();
+        List<TiempoRecorrido> lstTiempos = itinerario.Tiempos!.ToList();
+
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Generar Rol a partir del " + itinerario.FechaUltimoRol.AddDays(1).ToShortDateString() + " ?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        var Kms = Convert.ToInt32(itinerario?.Ruta?.KmsTotal);
+
+        DateTime FechaRol = itinerario!.FechaUltimoRol.AddDays(1).Date;
+
+        var iti = Itinerarios?.Where(i => i.Id == itinerario.Id).FirstOrDefault();
+
+        for (int dias = 0; dias < nDias; dias++)
+        {
+            RolDiario rolNuevo = new RolDiario
+                {
+                    Id = 0,
+                    FechaRol = FechaRol,
+                    Estado = 1,
+                    ItinerarioId = itinerario.Id,
+                };
+
+            var nuevoRol = GrabarRol(rolNuevo);
+            Task FinRol = await Task<RolDiario>.WhenAny(nuevoRol);
+
+            if (FinRol.Status == TaskStatus.RanToCompletion)
+            {
+                if (nuevoRol.Result != null)
+                {
+                    var RolId = nuevoRol.Result.Id;
+                    var recorridoAnterior = 0;
+                    foreach (var inter in lstIntervalos)
+                    {
+                        var recorridoNuevo = inter.IdRecorrido;
+                        if (recorridoNuevo > recorridoAnterior)
+                        {
+                            var filtraIntervalos = lstIntervalos.Where(r => r.IdRecorrido == recorridoNuevo).ToList();
+
+                            var IdrecorridoViaje = GeneraIdRecorrido();
+                            Task FinBuscaRec = await Task<RolDiario>.WhenAny(IdrecorridoViaje);
+
+                            if (FinBuscaRec.Status == TaskStatus.RanToCompletion)
+                            {
+                                foreach (var filtro in filtraIntervalos)
+                                {
+                                    DateTime HoraOficial = FechaRol.AddDays(filtro.Dias);
+                                    var cFechaHoraOficial = HoraOficial.ToString("dd-MM-yyyy") + " " + filtro.HorarioSalida.ToString("HH:mm");
+                                    Viaje viajeNuevo = new Viaje
+                                    {
+                                        Id = 0,
+                                        IdRecorrido = IdrecorridoViaje.Result,
+                                        KmsRecorrido = Kms,
+                                        Sentido = filtro.Sentido,
+                                        FechaCaptura = DateTime.Now,
+                                        FechaHoraOficial = DateTime.Parse(cFechaHoraOficial),
+                                        Estado = 1,
+                                        Operador1Id = IdOperadorSinNombre,
+                                        Operador2Id = IdOperadorSinNombre,
+                                        RolesDiariosId = RolId,
+                                        UnidadId = IdSinUnidad,
+                                    };
+
+                                    var GrabarCorrida = GrabarViaje(viajeNuevo);
+                                    Task FinViaje = await Task<Viaje>.WhenAny(GrabarCorrida);
+                                    if (FinViaje.Status == TaskStatus.RanToCompletion)
+                                    {
+                                        if (GrabarCorrida.Result != null)
+                                        {
+                                            Viaje viajeGrabado = new Viaje
+                                                {
+                                                    Id = GrabarCorrida.Result.Id,
+                                                    IdRecorrido = GrabarCorrida.Result.IdRecorrido,
+                                                    KmsRecorrido = GrabarCorrida.Result.KmsRecorrido,
+                                                    Sentido = GrabarCorrida.Result.Sentido,
+                                                    FechaCaptura = GrabarCorrida.Result.FechaCaptura,
+                                                    FechaHoraOficial = GrabarCorrida.Result.FechaHoraOficial,
+                                                    Estado = GrabarCorrida.Result.Estado,
+                                                    Operador1Id = GrabarCorrida.Result.Operador1Id,
+                                                    Operador2Id = GrabarCorrida.Result.Operador2Id,
+                                                    RolesDiariosId = GrabarCorrida.Result.RolesDiariosId,
+                                                    UnidadId = GrabarCorrida.Result.UnidadId,
+                                                };
+                                            var GeneraEventos = GenerarEventos(viajeGrabado, itinerario);
+                                            Task FinEventos = await Task.WhenAny(GeneraEventos);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        recorridoAnterior = recorridoNuevo;
+                    }
+                    FechaRol = FechaRol.AddDays(1);
+                }
+            }
+        };
+    }
+
+    public class ItinerarioList
+    {
+        public int Id { get; set; }
+        public string? Descripcion { get; set; }
+        public DateTime FechaAlta { get; set; }
+        public int Dias { get; set; }
+        public int Estado { get; set; }
+
+        public DateTime FechaUltimoRol { get; set; }
+
+        public int RutaId { get; set; } 
+        public Ruta? Ruta { get; set; }
+
+        public virtual ICollection<HorarioServicio>? HorarioServicios { get; set; }
+        public virtual ICollection<Intervalo>? Intervalos { get; set; }
+        public virtual ICollection<TiempoRecorrido>? Tiempos { get; set; }
+        public virtual ICollection<RolDiario>? RolesDiarios { get; set; }
+    }
+
+    private async Task<Viaje> GrabarViaje(Viaje viaje)
+    {
+        var responseHttp = await repository.Post<Viaje, Viaje>("/api/viajes", viaje);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+
+        var ViajeGenerado = responseHttp.Response;
+
+        return ViajeGenerado!;
+    }
+
+    private async Task GrabarEvento(EventoViaje eventoViaje)
+    {
+        var responseHttp = await repository.Post("/api/eventos", eventoViaje);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GenerarEventos(Viaje viaje, ItinerarioList itinerario)
+    {
+        var tiempos = itinerario.Tiempos;
+        var lstTiemposSentido = tiempos?.Where(s => s.Sentido == viaje.Sentido).OrderBy(o => o.Id).ToList();
+
+        int sentido = viaje.Sentido;
+        DateTime HoraOficial = viaje.FechaHoraOficial;
+        foreach (var itemTiempo in lstTiemposSentido!)
+        {
+            var trayecto = lstTrayectos.Where(p => p.Id == itemTiempo.TrayectoId).FirstOrDefault();
+            HoraOficial = HoraOficial.AddMinutes(itemTiempo.Minutos);
+
+            if (trayecto!.Punto!.Venta == 1)
+            {
+                int tipo = trayecto!.Tipo;
+                if (sentido == 2)
+                {
+                    if (tipo == 1)
+                        tipo = 3;
+                    else if (tipo == 3)
+                        tipo = 1;
+                }
+
+                EventoViaje evento = new EventoViaje
+                    {
+                        Id = 0,
+                        FechaHoraEvento = HoraOficial,
+                        Tipo = tipo,
+                        Estado = 1,
+                        ViajeId = viaje.Id,
+                        PuntoRecorridoId = trayecto!.PuntoId,
+                        UnidadId = viaje.UnidadId
+                    };
+
+                var GrabarEventoNuevo = GrabarEvento(evento);
+                Task FinEvento = await Task<Viaje>.WhenAny(GrabarEventoNuevo);
+            }
+        }
+    }
+
+    private async Task<RolDiario> GrabarRol(RolDiario rolDiario)
+    {
+        var responseHttp = await repository.Post<RolDiario, RolDiario>("/api/roles", rolDiario);
+        if (responseHttp.Error)
+        {
+            var message = await responseHttp.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+
+        var RolGenerado = responseHttp.Response;
+
+        return RolGenerado!;
+    }
+
+    private async Task<int> GeneraIdRecorrido()
+    {
+        var IdRecorrido = 0;
+
+        var responseHTTP = await repository.Get<Viaje>("api/viajes/0/0");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/viajes");
+                return 0;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return 0;
+        }
+        else if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NoContent)
+        {
+            IdRecorrido = 1;
+        }
+        else
+        {
+            var IdUltRec = responseHTTP.Response;
+            IdRecorrido = IdUltRec!.IdRecorrido + 1;
+        }
+
+        return IdRecorrido;
+    }
+
+    private async Task CargaTrayecto(int idRuta)
+    {
+        var responseHTTP = await repository.Get<List<Trayecto>>($"api/trayectos/{idRuta}/0/0");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("/generarol");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        lstTrayectos = responseHTTP.Response!;
+    }
+}        

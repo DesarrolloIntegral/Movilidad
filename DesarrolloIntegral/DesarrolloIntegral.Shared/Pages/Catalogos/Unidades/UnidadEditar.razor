@@ -46,7 +46,7 @@ else
 
     private async Task EditAsync()
     {
-        var responseHTTP = await repository.Get<Unidad>($"api/unidades/{Id}/0");
+        var responseHTTP = await repository.Get<Unidad>($"api/unidades/{unidad?.IdUnidad}/0");
         unidadHistorial = responseHTTP.Response!;
 
         if (unidadHistorial == null)
@@ -58,7 +58,8 @@ else
             unidad!.IdHistorial = unidadHistorial.IdHistorial + 1;
         }
 
-        var responseHTTP2 = await repository.Put("api/unidades", unidad);
+        unidad.Id = 0;
+        var responseHTTP2 = await repository.Post("api/unidades", unidad);
 
         if (responseHTTP2.Error)
         {

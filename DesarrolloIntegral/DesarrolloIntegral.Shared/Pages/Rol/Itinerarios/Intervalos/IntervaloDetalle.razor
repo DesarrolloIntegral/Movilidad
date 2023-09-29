@@ -1,4 +1,4 @@
-﻿@page "/intervalos/{Id:int}"
+﻿@page "/intervalos/detalles/{IdRecorrido:int}/{IdItinerario:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
@@ -8,16 +8,11 @@
     <h3>@itinerario?.Descripcion</h3>
     <h5>@itinerario?.Ruta?.Nombre</h5>
     <h5>Intervalos</h5>
+  
+    <div class="mb-3">
+        <a class="btn btn-primary mb-3" href="/intervalos/@itinerario?.Id">Regresar</a>
+    </div>
 }
-
-<div class="mb-3">
-    <a class="btn btn-primary mb-3" href="/intervalos/crear/@Id">Nuevo Intervalo</a>
-    <a class="btn btn-primary mb-3" href="/itinerarios">Regresar</a>
-</div>
-
-<Pagination CurrentPage="currentPage"
-            TotalPages="totalPages"
-            SelectedPage="SelectedPageAsync" />
 
 <GenericList MyList="lstIntervalos">
     <Body>
@@ -70,7 +65,15 @@
                             }
                         </td>
                         <td>
-                            <a class="btn btn-info" href="/intervalos/detalles/@inter.IdRecorrido/@Id">Detalles</a>
+                            <a class="btn btn-info" href="/intervalos/editar/@inter.Id">Editar</a>
+                            @if (inter.Estado == 1)
+                            {
+                                <button class="btn btn-secondary" @onclick=@(() => DesactivarAsync(inter))>Desactivar</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-success" @onclick=@(() => ActivarAsync(inter))>Activar</button>
+                            }
                         </td>
                     </tr>
                 }
@@ -79,34 +82,33 @@
     </Body>
 </GenericList>
 
+
 @code {
-    [CascadingParameter]
-    public string? rutaCnx { get; set; }
-
-    [Parameter]
-    public int Id { get; set; } //este id corresponde al itinerario
-
     private Itinerario? itinerario;
 
-    public List<Intervalo>? lstIntervalos { get; set; }
+    private List<Intervalo>? lstIntervalos;
 
-    private int currentPage = 1;
-    private int totalPages;
+    [Parameter]
+    public int IdRecorrido { get; set; }
 
-    protected async override Task OnInitializedAsync()
+    [Parameter]
+    public int IdItinerario { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
     }
 
     private async Task LoadAsync(int page = 1)
     {
-        var responseHTTP = await repository.Get<List<Intervalo>>($"api/intervalos/{Id}/0");
+
+        var responseHTTP = await repository.Get<Itinerario>($"api/itinerarios/{IdItinerario}");
 
         if (responseHTTP.Error)
         {
             if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("/intervalos");
+                navigationManager.NavigateTo("/itinerarios");
                 return;
             }
 
@@ -115,31 +117,24 @@
             return;
         }
 
-        lstIntervalos = responseHTTP.Response;
-        lstIntervalos = lstIntervalos?.Where(i => i.Sentido == 1).OrderBy(t => t.HorarioSalida).ToList();
+        itinerario = responseHTTP.Response;
 
-        var responseHTTP3 = await repository.Get<Itinerario>($"api/itinerarios/{Id}");
+        var responseHTTP2 = await repository.Get<List<Intervalo>>($"api/intervalos/{IdRecorrido}/0/0/0");
 
-        if (responseHTTP3.Error)
+        if (responseHTTP2.Error)
         {
-            if (responseHTTP3.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            if (responseHTTP2.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
             {
-                navigationManager.NavigateTo("/itinerarios");
+                navigationManager.NavigateTo("/intervalos");
                 return;
             }
 
-            var messageError = await responseHTTP3.GetErrorMessageAsync();
+            var messageError = await responseHTTP2.GetErrorMessageAsync();
             await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
             return;
         }
 
-        itinerario = responseHTTP3.Response;
-    }
-
-    private async Task SelectedPageAsync(int page)
-    {
-        currentPage = page;
-        await LoadAsync(page);
+        lstIntervalos = responseHTTP2.Response;
     }
 
     private async Task DesactivarAsync(Intervalo intervalo)
@@ -147,7 +142,7 @@
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres Desactivar este registro?",
+                Text = "¿Esta seguro que quieres Desactivar el Registro?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -180,7 +175,7 @@
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
                 Title = "Confirmación",
-                Text = "¿Esta seguro que quieres activar este registro?",
+                Text = "¿Esta seguro que quieres activar el Registro?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true
             });
@@ -193,7 +188,7 @@
         }
 
         intervalo.Estado = 1;
-        var responseHTTP = await repository.Put($"api/intervalo/", intervalo);
+        var responseHTTP = await repository.Put($"api/intervalos/", intervalo);
 
         if (responseHTTP.Error)
         {

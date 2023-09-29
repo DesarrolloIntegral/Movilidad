@@ -60,13 +60,16 @@ namespace DesarrolloIntegral.API.Controllers
                 return Ok(unidad);
         }
 
+
         [HttpGet("{IdUnidad:int}/{idCero:int}")]
         public async Task<IActionResult> GetFullAsync(int IdUnidad, int idCero)
         {
-            return Ok(await _context.Unidades
+            var res = await _context.Unidades
                 .Where(x => x.IdUnidad == IdUnidad)
                 .OrderByDescending(o => o.IdHistorial)
-                .FirstOrDefaultAsync());
+                .FirstOrDefaultAsync();
+
+            return Ok(res);
         }
 
         [HttpPost]

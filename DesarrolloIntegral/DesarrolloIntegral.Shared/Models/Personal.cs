@@ -32,5 +32,7 @@ namespace DesarrolloIntegral.Shared.Models
         public Puesto? Puesto { get; set; }
 
         public virtual ICollection<UnidadOperador>? UnidadOperadores { get; set; }
+        public ICollection<Viaje>? Operadores1 { get; set; }
+        public ICollection<Viaje>? Operadores2 { get; set; }
     }
 }

@@ -58,7 +58,7 @@ namespace DesarrolloIntegral.API.Controllers
             return Ok(intervalos);
         }
 
-        //Id/0
+        //IdItinerario/0
         [HttpGet("{Id:int}/{itinerario:int}")]
         public async Task<IActionResult> GetAsync(int Id, int itinerario)
         {
@@ -70,7 +70,7 @@ namespace DesarrolloIntegral.API.Controllers
                 .ToListAsync());
         }
 
-        //Id/0/0  para sacar el consecutivo del recorrido
+        //0/0/0  para sacar el consecutivo del recorrido
         [HttpGet("{IdItinerario:int}/{IdIntervalo:int}/{IdRecorrido:int}")]
         public async Task<IActionResult> GetAsync(int IdItinerario, int IdIntervalo, int IdRecorrido)
         {
@@ -87,6 +87,17 @@ namespace DesarrolloIntegral.API.Controllers
             return Ok(Ultimo);
         }
 
+        //IdRecorrido/0/0/0 para sacar los intervalos por idrecorrido
+        [HttpGet("{IdRecorrido:int}/{IdCero1:int}/{IdCero2:int}/{IdCero3:int}")]
+        public async Task<IActionResult> GetAsync(int IdRecorrido, int Cero1, int Cero2, int Cero3)
+        {
+            return Ok(await _context.Intervalos
+                .Include(i => i.Itinerario)
+                .Include(t => t.Trayecto)
+                .ThenInclude(p => p!.Punto)
+                .Where(p => p.IdRecorrido == IdRecorrido)
+                .ToListAsync());
+        }
 
         [HttpPost]
         public async Task<ActionResult> PostAsync(Intervalo intervalo)
