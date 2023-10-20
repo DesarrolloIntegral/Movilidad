@@ -77,6 +77,26 @@ namespace DesarrolloIntegral.API.Controllers
             return Ok(Ultimo);
         }
 
+        //para el viajesindex.
+        [HttpGet("{id:int}/{rol:int}/{iti:int}")]
+        public async Task<ActionResult> GetAsync(int id, int rol, int iti)
+        {
+            var viajes = await _context.Viajes
+                .Include(r => r.RolesDiarios)
+                .ThenInclude(i => i!.Itinerario)
+                .ThenInclude(r => r!.Ruta)
+                .ToListAsync();
+
+            if (viajes is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(viajes);
+        }
+
+
+
         [HttpPost]
         public async Task<ActionResult> PostAsync(Viaje viaje)
         {

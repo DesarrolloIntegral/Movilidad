@@ -7,7 +7,7 @@
     <div class="mb-3">
         <label>Descripcion :</label>
         <div>
-            <InputText class="form-control" @bind-Value="@Itinerario.Descripcion" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Itinerario.Descripcion = __value?.ToUpper(), Itinerario.Descripcion!.ToUpper())" />
+            <InputText class="form-control" @bind-Value="@Itinerario.Descripcion" @oninput="EventCallback.Factory.CreateBinder<string>(this, __value => Itinerario.Descripcion = __value?.ToUpper(), Itinerario.Descripcion?.ToUpper())" />
             <ValidationMessage For="@(() => Itinerario.Descripcion)" />
         </div>
         <label>Ruta :</label>
@@ -60,9 +60,9 @@
 
     private async Task LoadAsync()
     {
-        string url2 = $"api/rutas/full";
+        string url = $"api/rutas/full";
 
-        var responseHppt2 = await repository.Get<List<Ruta>>(url2);
-        Rutas = responseHppt2.Response!;
+        var responseHppt = await repository.Get<List<Ruta>>(url);
+        Rutas = responseHppt.Response!;
     }
 }
