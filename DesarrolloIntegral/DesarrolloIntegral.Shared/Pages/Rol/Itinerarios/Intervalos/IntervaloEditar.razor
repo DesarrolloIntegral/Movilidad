@@ -18,6 +18,7 @@ else
     private Intervalo? intervalo;
     private IntervaloForm? intervaloForm;
 
+    private Itinerario? itinerario;
     private List<Intervalo>? lstIntervalos { get; set; }
 
     private DateTime HoraDefault = DateTime.Parse("01-01-0001 00:00");
@@ -91,6 +92,12 @@ else
             return;
         }
 
+        if (intervalo.Sentido == 1)
+        {
+            var regreso = lstIntervalos?.Where(s => s.Sentido == 2).FirstOrDefault();
+            await ModificarRegreso(regreso!);
+        }
+
         Return();
     }
 
@@ -119,4 +126,56 @@ else
 
         lstIntervalos = responseHTTP.Response;
     }
+
+    private async Task ModificarRegreso(Intervalo regreso)
+    {
+        var responseHTTP = await repository.Get<Itinerario>($"api/itinerarios/{intervalo!.ItinerarioId}/0");
+
+        if (responseHTTP.Error)
+        {
+            if (responseHTTP.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo($"/intervalos/{intervalo!.ItinerarioId}");
+                return;
+            }
+
+            var messageError = await responseHTTP.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+            return;
+        }
+
+        itinerario = responseHTTP.Response;
+
+        if (itinerario?.Id > 0)
+        {
+            if (intervalo != null)
+            {
+                int sumaMinutos = itinerario!.Ruta!.Trayectos!.Sum(m => m.Minutos);
+                int sumaEstancia = itinerario!.Ruta!.Trayectos!.Where(d => d.Tipo != 3).Sum(s => s.Estancia);
+                int EstanciaLlegada = itinerario!.Ruta!.Trayectos!.Where(d => d.Tipo == 3).Sum(s => s.Estancia);
+                int TotalMinutos = sumaMinutos + sumaEstancia;
+
+                var HoraSalida = intervalo.HorarioLlegada.AddMinutes(EstanciaLlegada);
+                var HoraLlegada = HoraSalida.AddMinutes(TotalMinutos);
+                string cHoraSalida = HoraSalida.ToString("1900-01-01 HH:mm");
+                string cHoraLlegada = HoraLlegada.ToString("1900-01-01 HH:mm");
+
+                var idRegreso = itinerario!.Ruta!.Trayectos!.Where(d => d.Tipo == 3).FirstOrDefault();
+
+                regreso.HorarioSalida = DateTime.Parse(cHoraSalida);
+                regreso.HorarioLlegada = DateTime.Parse(cHoraLlegada);
+
+                var responseHttp = await repository.Put("/api/intervalos", regreso);
+                if (responseHttp.Error)
+                {
+                    var message = await responseHttp.GetErrorMessageAsync();
+                    await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                    return;
+                }
+            }
+
+            Return();
+        }
+    }
+
 }

@@ -22,6 +22,8 @@ else
     [Parameter]
     public int Id { get; set; }
 
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     {
         var responseHTTP = await repository.Get<Puesto>($"api/puestos/{Id}");
@@ -53,12 +55,15 @@ else
             return;
         }
 
-        Return();
+        await BlazoredModal.CloseAsync(ModalResult.Ok(puesto!.Nombre));
+        //Return();
     }
 
-    private void Return()
+    private async Task Return()
     {
-        puestoForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo("/puestos");
+        await BlazoredModal.CancelAsync();
+
+        //puestoForm!.FormPostedSuccessfully = true;
+        //navigationManager.NavigateTo("/puestos");
     }
 }

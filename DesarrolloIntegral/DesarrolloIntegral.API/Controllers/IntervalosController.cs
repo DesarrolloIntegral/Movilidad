@@ -91,12 +91,13 @@ namespace DesarrolloIntegral.API.Controllers
         [HttpGet("{IdRecorrido:int}/{IdCero1:int}/{IdCero2:int}/{IdCero3:int}")]
         public async Task<IActionResult> GetAsync(int IdRecorrido, int Cero1, int Cero2, int Cero3)
         {
-            return Ok(await _context.Intervalos
-                .Include(i => i.Itinerario)
+            var res = await _context.Intervalos
+                //.Include(i => i.Itinerario)
                 .Include(t => t.Trayecto)
                 .ThenInclude(p => p!.Punto)
                 .Where(p => p.IdRecorrido == IdRecorrido)
-                .ToListAsync());
+                .ToListAsync();
+            return Ok(res);
         }
 
         [HttpPost]

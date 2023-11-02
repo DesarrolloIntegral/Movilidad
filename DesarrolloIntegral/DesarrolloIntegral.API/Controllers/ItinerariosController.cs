@@ -60,8 +60,8 @@ namespace DesarrolloIntegral.API.Controllers
         }
 
         //para generar los tiempos de recorrido
-        [HttpGet("{Id:int}/{prueba1:int}")]
-        public async Task<IActionResult> GetAsync(int Id, int prueba1)
+        [HttpGet("{Id:int}/{cero1:int}")]
+        public async Task<IActionResult> GetAsync(int Id, int cero1)
         {
             return Ok(await _context.Itinerarios
                 .Include(r => r.Ruta)

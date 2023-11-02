@@ -9,6 +9,13 @@
         public int Dias { get; set; } //Dias en que tarda en llegar al punto de recorrido parcial
         public int Estado { get; set; }
         public int IdRecorrido { get; set; }
+        public bool Lunes { get; set; }
+        public bool Martes { get; set; }
+        public bool Miercoles { get; set; }
+        public bool Jueves { get; set; }
+        public bool Viernes { get; set; }
+        public bool Sabado { get; set; }
+        public bool Domingo { get; set; }
 
         public int ItinerarioId { get; set; }
         public Itinerario? Itinerario { get; set; }

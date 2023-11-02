@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using CurrieTechnologies.Razor.SweetAlert2;
 using DesarrolloIntegral.Shared.Repositories;
 using DesarrolloIntegral.WEBServer.Data;
@@ -15,6 +16,8 @@ builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddSweetAlert2();
 
 builder.Services.AddRouting();
+
+builder.Services.AddBlazoredModal(); //31102023 para prueba de este framework
 
 var app = builder.Build();
 
